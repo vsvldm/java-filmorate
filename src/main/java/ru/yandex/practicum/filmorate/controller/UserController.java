@@ -15,6 +15,7 @@ import java.util.List;
 public class UserController {
     private final List<User> users = new ArrayList<>();
     private int id = 0;
+
     @GetMapping("/users")
     public List<User> getUsers() {
         return users;
@@ -22,7 +23,7 @@ public class UserController {
 
     @PostMapping(value = "/users")
     public User createUser(@Valid @RequestBody User user) {
-        if (user.getName() == null){
+        if (user.getName() == null) {
             log.info("Отсутствует имя пользоваителя. Будет использован login = {} в качестве имени пользователя.", user.getLogin());
             user.setName(user.getLogin());
         }
@@ -33,7 +34,7 @@ public class UserController {
     }
 
     @PutMapping("/users")
-    public ResponseEntity<User> updateUser (@Valid @RequestBody User user) {
+    public ResponseEntity<User> updateUser(@Valid @RequestBody User user) {
         try {
             if (users.stream().anyMatch(userFromList -> user.getId() == userFromList.getId())) {
                 users.removeIf(userFromList -> user.getId() == userFromList.getId());
