@@ -15,6 +15,7 @@ import java.util.List;
 public class FilmController {
     private final List<Film> films = new ArrayList<>();
     private int id = 0;
+
     @GetMapping("/films")
     public List<Film> getFilms() {
         return films;
@@ -29,7 +30,7 @@ public class FilmController {
     }
 
     @PutMapping("/films")
-    public ResponseEntity<Film> updateFilm (@Valid @RequestBody Film film) {
+    public ResponseEntity<Film> updateFilm(@Valid @RequestBody Film film) {
         try {
             if (films.stream().anyMatch(filmFromList -> film.getId() == filmFromList.getId())) {
                 films.removeIf(userFromList -> film.getId() == userFromList.getId());
