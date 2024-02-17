@@ -1,24 +1,24 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.exceptions.InvalidDataInputException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import javax.validation.Valid;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @Slf4j
 public class UserController {
-    private final List<User> users = new ArrayList<>();
+    private final Map<Integer,User> users = new HashMap<>();
     private int id = 0;
 
     @GetMapping("/users")
-    public List<User> getUsers() {
-        return users;
+    public Collection<User> getUsers() {
+        return users.values();
     }
 
     @PostMapping(value = "/users")
@@ -28,25 +28,19 @@ public class UserController {
             user.setName(user.getLogin());
         }
         user.setId(++id);
-        users.add(user);
+        users.put(user.getId(), user);
         log.info("Пользователь с login = {} успешно создан.", user.getLogin());
         return user;
     }
 
     @PutMapping("/users")
-    public ResponseEntity<User> updateUser(@Valid @RequestBody User user) {
-        try {
-            if (users.stream().anyMatch(userFromList -> user.getId() == userFromList.getId())) {
-                users.removeIf(userFromList -> user.getId() == userFromList.getId());
-                users.add(user);
-                log.info("Пользовател с id = {} успешно обновлен.", user.getId());
-            } else {
-                throw new InvalidDataInputException("Нет пользователя с таким id = " + user.getId());
-            }
-        } catch (InvalidDataInputException e) {
-            log.warn(e.getMessage());
-            return ResponseEntity.internalServerError().body(user);
+    public User updateUser(@Valid @RequestBody User user) {
+        if (users.containsKey(user.getId())) {
+            users.put(user.getId(), user);
+            log.info("Пользовател с id = {} успешно обновлен.", user.getId());
+        } else {
+            throw new InvalidDataInputException("Нет пользователя с таким id = " + user.getId());
         }
-        return ResponseEntity.ok(user);
+        return user;
     }
 }
