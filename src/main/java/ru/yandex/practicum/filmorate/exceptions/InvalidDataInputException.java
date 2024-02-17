@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.exceptions;
 
-public class InvalidDataInputException extends Exception {
+public class InvalidDataInputException extends RuntimeException {
     public InvalidDataInputException() {
 
     }
