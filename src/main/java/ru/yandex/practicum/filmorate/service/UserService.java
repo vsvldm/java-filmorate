@@ -93,7 +93,7 @@ public class UserService {
         for (Integer friend : userFriends) {
             commonFriends.add(userStorage.getUserById(friend));
         }
-        if (commonFriends.isEmpty()){
+        if (commonFriends.isEmpty()) {
             log.info("У пользователей id = {} и id = {} отсутсвуют общие друзья.", userId, otherId);
         }
 
