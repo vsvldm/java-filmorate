@@ -17,7 +17,7 @@ class UserTest {
     public void ifUserNameIsEmptyThenNameIsLoginValidateTest() {
         User user = new User("Login",
                 LocalDate.of(1990, 1, 1),
-                "nameorlogin@example.com", null);
+                "nameorlogin@example.com");
         UserService userService = new UserService(new InMemoryUserStorage());
         userService.createUser(user);
         assertNotNull(user);
@@ -28,7 +28,7 @@ class UserTest {
     public void userLoginNotBeEmptyTest() {
         User user = new User(null,
                 LocalDate.of(1990, 1, 1),
-                "nameorlogin@example.com", null);
+                "nameorlogin@example.com");
         assertFalse(validator.validate(user).isEmpty());
     }
 
@@ -36,7 +36,7 @@ class UserTest {
     public void userBirthdayNotBeAFutureTest() {
         User user = new User("Login",
                 LocalDate.of(2100, 1, 1),
-                "nameorlogin@example.com", null);
+                "nameorlogin@example.com");
         assertFalse(validator.validate(user).isEmpty());
     }
 
@@ -44,7 +44,7 @@ class UserTest {
     public void userEmailNotBeEmptyTest() {
         User user = new User("Login",
                 LocalDate.of(1990, 1, 1),
-                null, null);
+                null);
         assertFalse(validator.validate(user).isEmpty());
     }
 
@@ -52,7 +52,7 @@ class UserTest {
     public void userEmailCannotBeWithoutASpecialCharacterTest() {
         User user = new User("Login",
                 LocalDate.of(2100, 1, 1),
-                "InvalidEmail", null);
+                "InvalidEmail");
         assertTrue(validator.validate(user)
                 .stream()
                 .anyMatch(v -> v.getMessage().equals("Email должен содержать специальный символ \"@\".")));
