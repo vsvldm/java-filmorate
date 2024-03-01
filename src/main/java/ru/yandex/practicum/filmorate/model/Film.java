@@ -1,11 +1,15 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.*;
+import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 import ru.yandex.practicum.filmorate.annotation.ValidDate;
 
-import javax.validation.constraints.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.PositiveOrZero;
+import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
 @Data
 public class Film {
@@ -19,4 +23,5 @@ public class Film {
     private final LocalDate releaseDate;
     @PositiveOrZero
     private final long duration;
+    private final Set<Integer> likes = new HashSet<>();
 }
