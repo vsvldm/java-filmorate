@@ -18,7 +18,7 @@ public class UserService {
     private final UserStorage userStorage;
 
     public User createUser(User user) {
-        if (user.getName().isBlank()) {
+        if (user.getName() == null || user.getName().isBlank()) {
             log.info("Отсутствует имя пользоваителя. Будет использован login = {} в качестве имени пользователя.", user.getLogin());
             user.setName(user.getLogin());
         }
