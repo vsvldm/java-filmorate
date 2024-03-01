@@ -1,7 +1,8 @@
 package ru.yandex.practicum.filmorate.model;
 
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.controller.UserController;
+import ru.yandex.practicum.filmorate.service.UserService;
+import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
 
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -14,11 +15,11 @@ class UserTest {
 
     @Test
     public void ifUserNameIsEmptyThenNameIsLoginValidateTest() {
-        UserController userController = new UserController();
         User user = new User("Login",
                 LocalDate.of(1990, 1, 1),
-                "nameorlogin@example.com");
-        userController.createUser(user);
+                "nameorlogin@example.com", null);
+        UserService userService = new UserService(new InMemoryUserStorage());
+        userService.createUser(user);
         assertNotNull(user);
         assertEquals(user.getName(), user.getLogin());
     }
@@ -27,7 +28,7 @@ class UserTest {
     public void userLoginNotBeEmptyTest() {
         User user = new User(null,
                 LocalDate.of(1990, 1, 1),
-                "nameorlogin@example.com");
+                "nameorlogin@example.com", null);
         assertFalse(validator.validate(user).isEmpty());
     }
 
@@ -35,7 +36,7 @@ class UserTest {
     public void userBirthdayNotBeAFutureTest() {
         User user = new User("Login",
                 LocalDate.of(2100, 1, 1),
-                "nameorlogin@example.com");
+                "nameorlogin@example.com", null);
         assertFalse(validator.validate(user).isEmpty());
     }
 
@@ -43,7 +44,7 @@ class UserTest {
     public void userEmailNotBeEmptyTest() {
         User user = new User("Login",
                 LocalDate.of(1990, 1, 1),
-                null);
+                null, null);
         assertFalse(validator.validate(user).isEmpty());
     }
 
@@ -51,7 +52,7 @@ class UserTest {
     public void userEmailCannotBeWithoutASpecialCharacterTest() {
         User user = new User("Login",
                 LocalDate.of(2100, 1, 1),
-                "InvalidEmail");
+                "InvalidEmail", null);
         assertTrue(validator.validate(user)
                 .stream()
                 .anyMatch(v -> v.getMessage().equals("Email должен содержать специальный символ \"@\".")));
