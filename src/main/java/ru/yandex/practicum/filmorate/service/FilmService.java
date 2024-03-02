@@ -3,13 +3,11 @@ package ru.yandex.practicum.filmorate.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundFilmException;
 import ru.yandex.practicum.filmorate.exceptions.NotFoundLikeException;
 import ru.yandex.practicum.filmorate.exceptions.UserIdIntersectionException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,38 +15,26 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class FilmService {
-    private int id = 0;
     private final FilmStorage filmStorage;
 
-    public Collection<Film> findAllFilms() {
+    public List<Film> findAllFilms() {
         return filmStorage.values();
     }
 
     public Film createFilm(Film film) {
-        film.setId(++id);
         filmStorage.add(film);
         log.info("Фильм {} успешно создан", film.getName());
         return film;
     }
 
     public Film updateFilm(Film film) {
-        if (filmStorage.getFilmById(film.getId()) != null) {
-            filmStorage.add(film);
-            log.info("Фильм с id = {} успешно обновлен", film.getId());
-        } else {
-            throw new NotFoundFilmException(String.format("Филма с id = %d не существует.", film.getId()));
-        }
+        filmStorage.update(film);
+        log.info("Фильм с id = {} успешно обновлен", film.getId());
         return film;
     }
 
     public Film findFilm(int filmId) {
-        Film film = filmStorage.getFilmById(filmId);
-
-        if (film != null) {
-            return film;
-        } else {
-            throw new NotFoundFilmException(String.format("Филма с id = %d не существует.", filmId));
-        }
+        return filmStorage.getFilmById(filmId);
     }
 
     public List<Film> findPopularFilms(int count) {
@@ -59,7 +45,7 @@ public class FilmService {
     }
 
     public Film addLike(int filmId, int userId) {
-        Film film = findFilm(filmId);
+        Film film = filmStorage.getFilmById(filmId);
 
         if (!film.getLikes().contains(userId)) {
             film.getLikes().add(userId);
@@ -71,7 +57,7 @@ public class FilmService {
     }
 
     public Film removeLike(int filmId, int userId) {
-        Film film = findFilm(filmId);
+        Film film = filmStorage.getFilmById(filmId);
 
         if (film.getLikes().contains(userId)) {
             film.getLikes().remove(userId);
