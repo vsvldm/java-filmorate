@@ -14,7 +14,6 @@ import java.util.*;
 @Slf4j
 @RequiredArgsConstructor
 public class UserService {
-    private int id = 0;
     private final UserStorage userStorage;
 
     public User createUser(User user) {
@@ -22,34 +21,23 @@ public class UserService {
             log.info("Отсутствует имя пользоваителя. Будет использован login = {} в качестве имени пользователя.", user.getLogin());
             user.setName(user.getLogin());
         }
-        user.setId(++id);
         userStorage.add(user);
         log.info("Пользователь с login = {} успешно создан.", user.getLogin());
         return user;
     }
 
     public User updateUser(User user) {
-        if (userStorage.getUserById(user.getId()) != null) {
-            userStorage.add(user);
-            log.info("Пользовател с id = {} успешно обновлен.", user.getId());
-        } else {
-            throw new NotFoundUserException(String.format("Пользователя с id = %d не существует.", user.getId()));
-        }
+        userStorage.update(user);
+        log.info("Пользовател с id = {} успешно обновлен.", user.getId());
         return user;
     }
 
     public User findUser(int userId) {
-        User user = userStorage.getUserById(userId);
-
-        if (user != null) {
-            return user;
-        } else {
-            throw new NotFoundUserException(String.format("Пользователя с id = %d не существует.", userId));
-        }
+        return userStorage.getUserById(userId);
     }
 
     public User addToFriends(int userId, int friendId) {
-        User user = findUser(userId);
+        User user = userStorage.getUserById(userId);
         User friend = findUser(friendId);
 
         user.getFriends().add(friendId);
@@ -59,8 +47,8 @@ public class UserService {
     }
 
     public User removeFromFriends(int userId, int friendId) {
-        User user = findUser(userId);
-        User friend = findUser(friendId);
+        User user = userStorage.getUserById(userId);
+        User friend = userStorage.getUserById(friendId);
 
         if (user.getFriends().contains(friend.getId())) {
             user.getFriends().remove(friend.getId());
@@ -68,23 +56,22 @@ public class UserService {
         } else {
             throw new NotFoundUserException(String.format("В друзьях нет пользователя с id = %d", friendId));
         }
-
         return user;
     }
 
-    public Set<User> findAllFriendsByUser(int userId) {
-        Set<User> friends = new TreeSet<>(Comparator.comparing(User::getId));
-        User user = findUser(userId);
+    public List<User> findAllFriendsByUser(int userId) {
+        //Set<User> friends = new TreeSet<>(Comparator.comparing(User::getId));
+        List<User> friends = new ArrayList<>();
+        User user = userStorage.getUserById(userId);
 
         for (Integer friend : user.getFriends()) {
             friends.add(userStorage.getUserById(friend));
         }
-
         return friends;
     }
 
-    public Set<User> findAllCommonFriends(int userId, int otherId) {
-        Set<User> commonFriends = new HashSet<>();
+    public List<User> findAllCommonFriends(int userId, int otherId) {
+        List<User> commonFriends = new ArrayList<>();
         Set<Integer> userFriends = new HashSet<>(findUser(userId).getFriends());
         Set<Integer> otherFriends = new HashSet<>(findUser(otherId).getFriends());
 
@@ -96,11 +83,10 @@ public class UserService {
         if (commonFriends.isEmpty()) {
             log.info("У пользователей id = {} и id = {} отсутсвуют общие друзья.", userId, otherId);
         }
-
         return commonFriends;
     }
 
-    public Collection<User> findAllUsers() {
+    public List<User> findAllUsers() {
         return userStorage.values();
     }
 }
