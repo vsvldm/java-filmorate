@@ -1,46 +1,56 @@
 package ru.yandex.practicum.filmorate.controller;
 
-import lombok.extern.slf4j.Slf4j;
+import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-import ru.yandex.practicum.filmorate.exceptions.InvalidDataInputException;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.service.UserService;
 
 import javax.validation.Valid;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.List;
 
 @RestController
-@Slf4j
+@RequestMapping("/users")
+@RequiredArgsConstructor
 public class UserController {
-    private final Map<Integer,User> users = new HashMap<>();
-    private int id = 0;
+    private final UserService userService;
 
-    @GetMapping("/users")
-    public Collection<User> getUsers() {
-        return users.values();
+    @GetMapping
+    public List<User> findAllUsers() {
+        return userService.findAllUsers();
     }
 
-    @PostMapping(value = "/users")
+    @GetMapping("/{userId}")
+    public User findUser(@PathVariable int userId) {
+        return userService.findUser(userId);
+    }
+
+    @GetMapping("/{userId}/friends")
+    public List<User> findAllFriendsByUser(@PathVariable int userId) {
+        return userService.findAllFriendsByUser(userId);
+    }
+
+    @GetMapping("/{userId}/friends/common/{otherId}")
+    public List<User> findAllCommonFriends(@PathVariable int userId, @PathVariable int otherId) {
+        return userService.findAllCommonFriends(userId, otherId);
+    }
+
+    @PostMapping
     public User createUser(@Valid @RequestBody User user) {
-        if (user.getName() == null) {
-            log.info("Отсутствует имя пользоваителя. Будет использован login = {} в качестве имени пользователя.", user.getLogin());
-            user.setName(user.getLogin());
-        }
-        user.setId(++id);
-        users.put(user.getId(), user);
-        log.info("Пользователь с login = {} успешно создан.", user.getLogin());
-        return user;
+        return userService.createUser(user);
     }
 
-    @PutMapping("/users")
+    @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
-        if (users.containsKey(user.getId())) {
-            users.put(user.getId(), user);
-            log.info("Пользовател с id = {} успешно обновлен.", user.getId());
-        } else {
-            throw new InvalidDataInputException("Нет пользователя с таким id = " + user.getId());
-        }
-        return user;
+        return userService.updateUser(user);
+    }
+
+    @PutMapping("/{userId}/friends/{friendId}")
+    public User addToFriends(@PathVariable int userId, @PathVariable int friendId) {
+        return userService.addToFriends(userId, friendId);
+    }
+
+    @DeleteMapping("/{userId}/friends/{friendId}")
+    public User removeFromFriends(@PathVariable int userId, @PathVariable int friendId) {
+        return userService.removeFromFriends(userId, friendId);
     }
 }
