@@ -1,10 +1,10 @@
-package ru.yandex.practicum.filmorate.service;
+package ru.yandex.practicum.filmorate.service.film;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundLikeException;
-import ru.yandex.practicum.filmorate.exceptions.UserIdIntersectionException;
+import ru.yandex.practicum.filmorate.exception.NotFoundLikeException;
+import ru.yandex.practicum.filmorate.exception.UserIdIntersectionException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
@@ -14,7 +14,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class FilmService {
+public class FilmServiceImpl implements FilmService {
     private final FilmStorage filmStorage;
 
     public List<Film> findAllFilms() {

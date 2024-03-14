@@ -1,9 +1,9 @@
-package ru.yandex.practicum.filmorate.service;
+package ru.yandex.practicum.filmorate.service.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundUserException;
+import ru.yandex.practicum.filmorate.exception.NotFoundUserException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
@@ -13,7 +13,7 @@ import java.util.*;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class UserService {
+public class UserServiceImpl implements UserService {
     private final UserStorage userStorage;
 
     public User createUser(User user) {
@@ -60,7 +60,6 @@ public class UserService {
     }
 
     public List<User> findAllFriendsByUser(int userId) {
-        //Set<User> friends = new TreeSet<>(Comparator.comparing(User::getId));
         List<User> friends = new ArrayList<>();
         User user = userStorage.getUserById(userId);
 
