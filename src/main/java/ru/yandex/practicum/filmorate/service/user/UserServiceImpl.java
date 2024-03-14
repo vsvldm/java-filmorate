@@ -1,19 +1,21 @@
-package ru.yandex.practicum.filmorate.service;
+package ru.yandex.practicum.filmorate.service.user;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundUserException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class UserService {
+public class UserServiceImpl implements UserService {
     private final UserStorage userStorage;
 
     public User createUser(User user) {
@@ -50,17 +52,15 @@ public class UserService {
         User user = userStorage.getUserById(userId);
         User friend = userStorage.getUserById(friendId);
 
-        if (user.getFriends().contains(friend.getId())) {
-            user.getFriends().remove(friend.getId());
+        if (user.getFriends().remove(friend.getId())) {
             log.info("Пользователь login = {} удалил из друзей login = {}.", user.getLogin(), friend.getLogin());
         } else {
-            throw new NotFoundUserException(String.format("В друзьях нет пользователя с id = %d", friendId));
+            log.info("Пользователя login = {} нет в друзьях у пользователя login = {}.", user.getLogin(), friend.getLogin());
         }
         return user;
     }
 
     public List<User> findAllFriendsByUser(int userId) {
-        //Set<User> friends = new TreeSet<>(Comparator.comparing(User::getId));
         List<User> friends = new ArrayList<>();
         User user = userStorage.getUserById(userId);
 

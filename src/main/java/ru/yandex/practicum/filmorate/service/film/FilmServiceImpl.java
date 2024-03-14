@@ -1,10 +1,9 @@
-package ru.yandex.practicum.filmorate.service;
+package ru.yandex.practicum.filmorate.service.film;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exceptions.NotFoundLikeException;
-import ru.yandex.practicum.filmorate.exceptions.UserIdIntersectionException;
+import ru.yandex.practicum.filmorate.exception.UserIdIntersectionException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
@@ -14,7 +13,7 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 @RequiredArgsConstructor
-public class FilmService {
+public class FilmServiceImpl implements FilmService {
     private final FilmStorage filmStorage;
 
     public List<Film> findAllFilms() {
@@ -59,13 +58,12 @@ public class FilmService {
     public Film removeLike(int filmId, int userId) {
         Film film = filmStorage.getFilmById(filmId);
 
-        if (film.getLikes().contains(userId)) {
-            film.getLikes().remove(userId);
+        if (film.getLikes().remove(userId)) {
             log.info("Лайк пользователя с id = {} удален.", userId);
-            return film;
         } else {
-            throw new NotFoundLikeException(String.format("Пользователь с id = %d не ставил лайк фильму %s.", userId, film.getName()));
+            log.info("Пользователь с id = {} не ставил лайк фильму {}.", userId, film.getName());
         }
+        return film;
     }
 
     private int compare(Film f1, Film f2) {
