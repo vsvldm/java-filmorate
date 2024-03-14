@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService {
         if (user.getFriends().remove(friend.getId())) {
             log.info("Пользователь login = {} удалил из друзей login = {}.", user.getLogin(), friend.getLogin());
         } else {
-            log.info("Что-то не так, но это не важно");
+            log.info("Пользователя login = {} нет в друзьях у пользователя login = {}.", user.getLogin(), friend.getLogin());
         }
         return user;
     }
