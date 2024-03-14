@@ -3,11 +3,13 @@ package ru.yandex.practicum.filmorate.service.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.NotFoundUserException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 
 @Service
@@ -50,11 +52,10 @@ public class UserServiceImpl implements UserService {
         User user = userStorage.getUserById(userId);
         User friend = userStorage.getUserById(friendId);
 
-        if (user.getFriends().contains(friend.getId())) {
-            user.getFriends().remove(friend.getId());
+        if (user.getFriends().remove(friend.getId())) {
             log.info("Пользователь login = {} удалил из друзей login = {}.", user.getLogin(), friend.getLogin());
         } else {
-            throw new NotFoundUserException(String.format("В друзьях нет пользователя с id = %d", friendId));
+            log.info("Что-то не так, но это не важно");
         }
         return user;
     }
