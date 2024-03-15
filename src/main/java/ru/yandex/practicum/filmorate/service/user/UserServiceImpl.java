@@ -35,24 +35,24 @@ public class UserServiceImpl implements UserService {
     }
 
     public User findUser(int userId) {
-        return userStorage.getUserById(userId);
+        return userStorage.getById(userId);
     }
 
     public User addToFriends(int userId, int friendId) {
-        User user = userStorage.getUserById(userId);
+        User user = userStorage.getById(userId);
         User friend = findUser(friendId);
 
-        user.getFriends().add(friendId);
+        user.getFriendStorage().add(friendId);
         log.info("Пользователь login = {} добавил в друзья login = {}.", user.getLogin(), friend.getLogin());
-        friend.getFriends().add(userId);
+        friend.getFriendStorage().add(userId);
         return user;
     }
 
     public User removeFromFriends(int userId, int friendId) {
-        User user = userStorage.getUserById(userId);
-        User friend = userStorage.getUserById(friendId);
+        User user = userStorage.getById(userId);
+        User friend = userStorage.getById(friendId);
 
-        if (user.getFriends().remove(friend.getId())) {
+        if (user.getFriendStorage().remove(friend.getId())) {
             log.info("Пользователь login = {} удалил из друзей login = {}.", user.getLogin(), friend.getLogin());
         } else {
             log.info("Пользователя login = {} нет в друзьях у пользователя login = {}.", user.getLogin(), friend.getLogin());
@@ -62,23 +62,23 @@ public class UserServiceImpl implements UserService {
 
     public List<User> findAllFriendsByUser(int userId) {
         List<User> friends = new ArrayList<>();
-        User user = userStorage.getUserById(userId);
+        User user = userStorage.getById(userId);
 
-        for (Integer friend : user.getFriends()) {
-            friends.add(userStorage.getUserById(friend));
+        for (Integer friend : user.getFriendStorage().values()) {
+            friends.add(userStorage.getById(friend));
         }
         return friends;
     }
 
     public List<User> findAllCommonFriends(int userId, int otherId) {
         List<User> commonFriends = new ArrayList<>();
-        Set<Integer> userFriends = new HashSet<>(findUser(userId).getFriends());
-        Set<Integer> otherFriends = new HashSet<>(findUser(otherId).getFriends());
+        Set<Integer> userFriends = new HashSet<>(findUser(userId).getFriendStorage().values());
+        Set<Integer> otherFriends = new HashSet<>(findUser(otherId).getFriendStorage().values());
 
         userFriends.retainAll(otherFriends);
 
         for (Integer friend : userFriends) {
-            commonFriends.add(userStorage.getUserById(friend));
+            commonFriends.add(userStorage.getById(friend));
         }
         if (commonFriends.isEmpty()) {
             log.info("У пользователей id = {} и id = {} отсутсвуют общие друзья.", userId, otherId);

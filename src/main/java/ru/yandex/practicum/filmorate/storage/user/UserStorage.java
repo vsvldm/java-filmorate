@@ -11,7 +11,7 @@ public interface UserStorage {
 
     public void remove(int userId);
 
-    public User getUserById(int userId);
+    public User getById(int userId);
 
     public List<User> values();
 }

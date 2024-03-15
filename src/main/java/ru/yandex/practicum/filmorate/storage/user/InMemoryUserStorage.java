@@ -37,7 +37,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public User getUserById(int userId) {
+    public User getById(int userId) {
         User user = users.get(userId);
         if (user != null) {
             return user;

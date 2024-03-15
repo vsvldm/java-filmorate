@@ -11,7 +11,7 @@ public interface FilmStorage {
 
     public void remove(int filmId);
 
-    public Film getFilmById(int filmId);
+    public Film getById(int filmId);
 
     public List<Film> values();
 }

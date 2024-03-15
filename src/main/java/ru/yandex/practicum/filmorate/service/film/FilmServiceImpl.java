@@ -32,7 +32,7 @@ public class FilmServiceImpl implements FilmService {
     }
 
     public Film findFilm(int filmId) {
-        return filmStorage.getFilmById(filmId);
+        return filmStorage.getById(filmId);
     }
 
     public List<Film> findPopularFilms(int count) {
@@ -43,18 +43,18 @@ public class FilmServiceImpl implements FilmService {
     }
 
     public Film addLike(int filmId, int userId) {
-        Film film = filmStorage.getFilmById(filmId);
+        Film film = filmStorage.getById(filmId);
 
-        film.getLikes().add(userId);
+        film.getLikeStorage().add(userId);
         log.info("Пользователь с id = {} поставил лайк фильму {}.", userId, film.getName());
         return film;
 
     }
 
     public Film removeLike(int filmId, int userId) {
-        Film film = filmStorage.getFilmById(filmId);
+        Film film = filmStorage.getById(filmId);
 
-        if (film.getLikes().remove(userId)) {
+        if (film.getLikeStorage().remove(userId)) {
             log.info("Лайк пользователя с id = {} удален.", userId);
         } else {
             log.info("Пользователь с id = {} не ставил лайк фильму {}.", userId, film.getName());
@@ -63,6 +63,6 @@ public class FilmServiceImpl implements FilmService {
     }
 
     private int compare(Film f1, Film f2) {
-        return Integer.compare(f2.getLikes().size(), f1.getLikes().size());
+        return Integer.compare(f2.getLikeStorage().size(), f1.getLikeStorage().size());
     }
 }
