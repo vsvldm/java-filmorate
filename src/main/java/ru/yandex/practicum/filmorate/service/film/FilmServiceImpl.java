@@ -3,7 +3,6 @@ package ru.yandex.practicum.filmorate.service.film;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.yandex.practicum.filmorate.exception.UserIdIntersectionException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
 
@@ -46,13 +45,10 @@ public class FilmServiceImpl implements FilmService {
     public Film addLike(int filmId, int userId) {
         Film film = filmStorage.getFilmById(filmId);
 
-        if (!film.getLikes().contains(userId)) {
-            film.getLikes().add(userId);
-            log.info("Пользователь с id = {} поставил лайк фильму {}.", userId, film.getName());
-            return film;
-        } else {
-            throw new UserIdIntersectionException(String.format("Лайк пользователя с id = %d уже стоит.", userId));
-        }
+        film.getLikes().add(userId);
+        log.info("Пользователь с id = {} поставил лайк фильму {}.", userId, film.getName());
+        return film;
+
     }
 
     public Film removeLike(int filmId, int userId) {
