@@ -1,8 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
 import lombok.Data;
-import ru.yandex.practicum.filmorate.storage.friend.FriendStorage;
-import ru.yandex.practicum.filmorate.storage.friend.InMemoryFriendStorage;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -21,5 +19,4 @@ public class User {
     @NotNull
     @Email(message = "Email должен содержать специальный символ \"@\".")
     private final String email;
-    private final FriendStorage friendStorage = new InMemoryFriendStorage();
 }

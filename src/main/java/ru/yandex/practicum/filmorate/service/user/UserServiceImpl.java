@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.storage.friend.FriendStorage;
 import ru.yandex.practicum.filmorate.storage.user.UserStorage;
 
 import java.util.ArrayList;
@@ -17,6 +18,7 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
     private final UserStorage userStorage;
+    private final FriendStorage friendStorage;
 
     public User createUser(User user) {
         if (user.getName() == null || user.getName().isBlank()) {
@@ -24,6 +26,7 @@ public class UserServiceImpl implements UserService {
             user.setName(user.getLogin());
         }
         userStorage.add(user);
+        friendStorage.createStorage(user.getId());
         log.info("Пользователь с login = {} успешно создан.", user.getLogin());
         return user;
     }
@@ -40,11 +43,11 @@ public class UserServiceImpl implements UserService {
 
     public User addToFriends(int userId, int friendId) {
         User user = userStorage.getById(userId);
-        User friend = findUser(friendId);
+        User friend = userStorage.getById(friendId);
 
-        user.getFriendStorage().add(friendId);
+        friendStorage.add(userId, friendId);
         log.info("Пользователь login = {} добавил в друзья login = {}.", user.getLogin(), friend.getLogin());
-        friend.getFriendStorage().add(userId);
+        friendStorage.add(friendId, userId);
         return user;
     }
 
@@ -52,11 +55,12 @@ public class UserServiceImpl implements UserService {
         User user = userStorage.getById(userId);
         User friend = userStorage.getById(friendId);
 
-        if (user.getFriendStorage().remove(friend.getId())) {
+        if (friendStorage.remove(userId, friendId)) {
             log.info("Пользователь login = {} удалил из друзей login = {}.", user.getLogin(), friend.getLogin());
         } else {
             log.info("Пользователя login = {} нет в друзьях у пользователя login = {}.", user.getLogin(), friend.getLogin());
         }
+        friendStorage.remove(friendId, userId);
         return user;
     }
 
@@ -64,7 +68,7 @@ public class UserServiceImpl implements UserService {
         List<User> friends = new ArrayList<>();
         User user = userStorage.getById(userId);
 
-        for (Integer friend : user.getFriendStorage().values()) {
+        for (Integer friend : friendStorage.valuesByUser(userId)) {
             friends.add(userStorage.getById(friend));
         }
         return friends;
@@ -72,8 +76,8 @@ public class UserServiceImpl implements UserService {
 
     public List<User> findAllCommonFriends(int userId, int otherId) {
         List<User> commonFriends = new ArrayList<>();
-        Set<Integer> userFriends = new HashSet<>(findUser(userId).getFriendStorage().values());
-        Set<Integer> otherFriends = new HashSet<>(findUser(otherId).getFriendStorage().values());
+        Set<Integer> userFriends = new HashSet<>(friendStorage.valuesByUser(userId));
+        Set<Integer> otherFriends = new HashSet<>(friendStorage.valuesByUser(otherId));
 
         userFriends.retainAll(otherFriends);
 
