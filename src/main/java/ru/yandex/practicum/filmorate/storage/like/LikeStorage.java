@@ -1,9 +1,13 @@
 package ru.yandex.practicum.filmorate.storage.like;
 
+import java.util.Set;
+
 public interface LikeStorage {
-    public void add(int userId);
+    public void createStorage(int filmId);
 
-    public boolean remove(int userId);
+    public boolean add(int filmId, int userId);
 
-    public int size();
+    public Set<Integer> getByFilm(int filmId);
+
+    public boolean remove(int filmId, int userId);
 }
