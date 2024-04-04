@@ -16,27 +16,27 @@ public class FilmController {
 
     @GetMapping
     public List<Film> getFilms() {
-        return filmService.findAllFilms();
+        return filmService.findAll();
     }
 
     @GetMapping("/{filmId}")
     public Film findFilm(@PathVariable int filmId) {
-        return filmService.findFilm(filmId);
+        return filmService.findById(filmId);
     }
 
     @GetMapping("/popular")
     public List<Film> findPopularFilms(@RequestParam(required = false, defaultValue = "10") int count) {
-        return filmService.findPopularFilms(count);
+        return filmService.findPopular(count);
     }
 
     @PostMapping
     public Film createFilm(@Valid @RequestBody Film film) {
-        return filmService.createFilm(film);
+        return filmService.create(film);
     }
 
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
-         return filmService.updateFilm(film);
+         return filmService.update(film);
     }
 
     @PutMapping("/{filmId}/like/{userId}")
