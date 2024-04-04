@@ -1,4 +1,4 @@
-package ru.yandex.practicum.filmorate.storage.friend;
+package ru.yandex.practicum.filmorate.repository.friend;
 
 import lombok.ToString;
 import org.springframework.stereotype.Component;
@@ -15,13 +15,8 @@ public class InMemoryFriendStorage implements FriendStorage {
     private final Map<Integer,Set<Integer>> friends = new HashMap<>();
 
     @Override
-    public void createStorage(int userId) {
-        friends.computeIfAbsent(userId, k -> new HashSet<>());
-    }
-
-    @Override
-    public boolean add(int userId, int friendId) {
-        return friends.get(userId).add(friendId);
+    public void add(int userId, int friendId) {
+        friends.computeIfAbsent(userId, k -> new HashSet<>()).add(friendId);
     }
 
     @Override

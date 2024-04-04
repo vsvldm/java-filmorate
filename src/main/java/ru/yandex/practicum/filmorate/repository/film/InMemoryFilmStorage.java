@@ -1,13 +1,10 @@
-package ru.yandex.practicum.filmorate.storage.film;
+package ru.yandex.practicum.filmorate.repository.film;
 
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.NotFoundFilmException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
@@ -21,18 +18,19 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void update(Film film) {
+    public boolean update(Film film) {
         if (films.get(film.getId()) != null) {
             films.put(film.getId(), film);
         } else {
-            throw new NotFoundFilmException(String.format("Филма с id = %d не существует.", film.getId()));
+            throw new NotFoundException(String.format("Филма с id = %d не существует.", film.getId()));
         }
+        return false;
     }
 
     @Override
     public void remove(int filmId) {
         if (films.remove(filmId) == null) {
-            throw new NotFoundFilmException(String.format("Филма с id = %d не существует.", filmId));
+            throw new NotFoundException(String.format("Филма с id = %d не существует.", filmId));
         }
     }
 
@@ -42,12 +40,17 @@ public class InMemoryFilmStorage implements FilmStorage {
         if (film != null) {
             return film;
         } else {
-            throw new NotFoundFilmException(String.format("Филма с id = %d не существует.", filmId));
+            throw new NotFoundException(String.format("Филма с id = %d не существует.", filmId));
         }
     }
 
     @Override
-    public List<Film> values() {
+    public Collection<Film> values() {
         return new ArrayList<>(films.values());
+    }
+
+    @Override
+    public Film getLast() {
+        return films.get(films.size() - 1);
     }
 }
