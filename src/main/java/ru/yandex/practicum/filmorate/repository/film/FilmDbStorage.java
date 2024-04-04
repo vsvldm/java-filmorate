@@ -86,14 +86,14 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public Collection<Film> values() {
         String sql = "select F.FILM_ID," +
-                    "F.FILM_NAME," +
-                    "F.FILM_DESCRIPTION," +
-                    "F.FILM_RELEASE_DATE," +
-                    "F.FILM_DURATION," +
-                    "F.FILM_MPA," +
-                    "M.MPA_TITLE," +
+                "F.FILM_NAME," +
+                "F.FILM_DESCRIPTION," +
+                "F.FILM_RELEASE_DATE," +
+                "F.FILM_DURATION," +
+                "F.FILM_MPA," +
+                "M.MPA_TITLE," +
                 "from FILMS F " +
-                    "join MPA M on F.FILM_MPA = M.MPA_ID";
+                "join MPA M on F.FILM_MPA = M.MPA_ID";
 
         return jdbcOperations.query(sql, this::makeFilm);
     }
