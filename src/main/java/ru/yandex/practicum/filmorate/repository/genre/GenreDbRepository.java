@@ -30,7 +30,7 @@ public class GenreDbRepository implements GenreRepository {
 
         try {
             return jdbcOperations.queryForObject(sql, this::makeGenre, genreId);
-        } catch(DataAccessException e) {
+        } catch (DataAccessException e) {
             throw new NotFoundException(String.format("Жанр с id = %d не найден.", genreId));
         }
     }
