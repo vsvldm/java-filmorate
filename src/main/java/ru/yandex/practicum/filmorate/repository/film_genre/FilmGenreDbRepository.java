@@ -14,12 +14,13 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class FilmGenreDbRepository implements FilmGenreRepository {
     private final JdbcOperations jdbcOperations;
+
     @Override
     public void add(int filmId, Set<Genre> genres) {
         String sql = "insert into FILM_GENRE(FILM_ID, GENRE_ID) " +
                 "values(?, ?)";
 
-        if (genres !=null) {
+        if (genres != null) {
             for (Genre genre : genres) {
                 jdbcOperations.update(sql, filmId, genre.getId());
             }
