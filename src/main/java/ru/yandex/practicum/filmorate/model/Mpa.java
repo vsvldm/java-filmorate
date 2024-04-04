@@ -5,8 +5,8 @@ import lombok.Data;
 import javax.validation.constraints.Max;
 
 @Data
-public class Genre {
-    @Max(6)
+public class Mpa {
+    @Max(5)
     private final int id;
     private final String name;
 }
