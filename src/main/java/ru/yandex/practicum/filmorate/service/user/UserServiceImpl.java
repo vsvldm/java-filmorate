@@ -3,9 +3,10 @@ package ru.yandex.practicum.filmorate.service.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
-import ru.yandex.practicum.filmorate.storage.friend.FriendStorage;
-import ru.yandex.practicum.filmorate.storage.user.UserStorage;
+import ru.yandex.practicum.filmorate.repository.friend.FriendStorage;
+import ru.yandex.practicum.filmorate.repository.user.UserStorage;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -20,38 +21,63 @@ public class UserServiceImpl implements UserService {
     private final UserStorage userStorage;
     private final FriendStorage friendStorage;
 
-    public User createUser(User user) {
+    @Override
+    public User create(User user) {
+        log.info("Начало выполнения метода create.");
         if (user.getName() == null || user.getName().isBlank()) {
             log.info("Отсутствует имя пользоваителя. Будет использован login = {} в качестве имени пользователя.", user.getLogin());
             user.setName(user.getLogin());
         }
         userStorage.add(user);
-        friendStorage.createStorage(user.getId());
         log.info("Пользователь с login = {} успешно создан.", user.getLogin());
+        return userStorage.getLast();
+    }
+
+    @Override
+    public User update(User user) {
+        log.info("Начало выполнения метода update.");
+        log.info("Проверка существования пользователя с id ={}.", user.getId());
+        if (userStorage.update(user)) {
+            log.info("Пользовател с id = {} успешно обновлен.", user.getId());
+        } else {
+            throw new NotFoundException(String.format("Пользователя с id = %d не существует.", user.getId()));
+        }
         return user;
     }
 
-    public User updateUser(User user) {
-        userStorage.update(user);
-        log.info("Пользовател с id = {} успешно обновлен.", user.getId());
+    @Override
+    public User findById(int userId) {
+        log.info("Начало выполнения метода findById.");
+        User user = userStorage.getById(userId);
+        log.info("Пользователь c id = {} успешно найден.", userId);
         return user;
     }
 
-    public User findUser(int userId) {
-        return userStorage.getById(userId);
+    @Override
+    public List<User> findAll() {
+        log.info("Начало выполнения метода findAll.");
+        List<User> users = new ArrayList<>(userStorage.values());
+
+        log.info("Список всех пользователей найден.");
+        return users;
     }
 
+    @Override
     public User addToFriends(int userId, int friendId) {
+        log.info("Начало выполнения метода addToFriends.");
+        log.info("Проверка существования пользователей с id = {} и id = {}.", userId, friendId);
         User user = userStorage.getById(userId);
         User friend = userStorage.getById(friendId);
 
-        friendStorage.add(userId, friendId);
+        friendStorage.add(user.getId(), friend.getId());
         log.info("Пользователь login = {} добавил в друзья login = {}.", user.getLogin(), friend.getLogin());
-        friendStorage.add(friendId, userId);
         return user;
     }
 
+    @Override
     public User removeFromFriends(int userId, int friendId) {
+        log.info("Начало выполнения метода removeFromFriends.");
+        log.info("Проверка существования пользователей с id = {} и id = {}.", userId, friendId);
         User user = userStorage.getById(userId);
         User friend = userStorage.getById(friendId);
 
@@ -60,37 +86,44 @@ public class UserServiceImpl implements UserService {
         } else {
             log.info("Пользователя login = {} нет в друзьях у пользователя login = {}.", user.getLogin(), friend.getLogin());
         }
-        friendStorage.remove(friendId, userId);
         return user;
     }
 
+    @Override
     public List<User> findAllFriendsByUser(int userId) {
+        log.info("Начало выполнения метода findAllFriendsByUser.");
         List<User> friends = new ArrayList<>();
-        User user = userStorage.getById(userId);
 
-        for (Integer friend : friendStorage.valuesByUser(userId)) {
-            friends.add(userStorage.getById(friend));
+        log.info("Проверка существования пользователя с id = {}.", userId);
+        User user = userStorage.getById(userId);
+        for (Integer friendId : friendStorage.valuesByUser(user.getId())) {
+            friends.add(userStorage.getById(friendId));
         }
+        log.info("Список друзей пользователя с id = {} успешно получен.", userId);
         return friends;
     }
 
+    @Override
     public List<User> findAllCommonFriends(int userId, int otherId) {
+        log.info("Начало выполнения метода findAllCommonFriends.");
         List<User> commonFriends = new ArrayList<>();
+
+        log.info("Проверка существования пользователей с id = {} и id = {}.", userId, otherId);
+        userStorage.getById(userId);
+        userStorage.getById(otherId);
+
+        log.info("Начало поиска общих друзей среди пользователей с id = {} и id = {}.", userId, otherId);
         Set<Integer> userFriends = new HashSet<>(friendStorage.valuesByUser(userId));
-        Set<Integer> otherFriends = new HashSet<>(friendStorage.valuesByUser(otherId));
 
-        userFriends.retainAll(otherFriends);
+        userFriends.retainAll(friendStorage.valuesByUser(otherId));
 
-        for (Integer friend : userFriends) {
-            commonFriends.add(userStorage.getById(friend));
+        for (Integer friendId : userFriends) {
+            commonFriends.add(userStorage.getById(friendId));
         }
         if (commonFriends.isEmpty()) {
             log.info("У пользователей id = {} и id = {} отсутсвуют общие друзья.", userId, otherId);
         }
+        log.info("Общие друзья у пользователей с id = {} и id = {} успешно найдены.", userId, otherId);
         return commonFriends;
-    }
-
-    public List<User> findAllUsers() {
-        return userStorage.values();
     }
 }
