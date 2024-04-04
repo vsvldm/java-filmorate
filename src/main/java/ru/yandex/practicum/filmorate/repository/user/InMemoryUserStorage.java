@@ -46,6 +46,6 @@ public class InMemoryUserStorage implements UserStorage {
 
     @Override
     public User getLast() {
-        return users.get(users.size()-1);
+        return users.get(users.size() - 1);
     }
 }
