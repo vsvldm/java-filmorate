@@ -13,7 +13,7 @@ import java.util.Collection;
 
 @Repository
 @RequiredArgsConstructor
-public class GenreDbRepository implements GenreRepository{
+public class GenreDbRepository implements GenreRepository {
     private final JdbcOperations jdbcOperations;
 
 

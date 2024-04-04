@@ -10,7 +10,7 @@ import java.util.Collection;
 @Repository
 @RequiredArgsConstructor
 @Primary
-public class LikeDbStorage implements LikeStorage{
+public class LikeDbStorage implements LikeStorage {
     private final JdbcOperations jdbcOperations;
 
     @Override

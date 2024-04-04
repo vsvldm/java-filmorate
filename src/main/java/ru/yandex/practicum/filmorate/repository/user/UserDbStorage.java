@@ -16,7 +16,7 @@ import java.util.Collection;
 @Repository
 @RequiredArgsConstructor
 @Primary
-public class UserDbStorage implements UserStorage{
+public class UserDbStorage implements UserStorage {
     private final JdbcOperations jdbcOperations;
 
     @Override

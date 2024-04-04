@@ -12,7 +12,7 @@ import java.util.Collection;
 @Repository
 @RequiredArgsConstructor
 @Primary
-public class FriendDbStorage implements FriendStorage{
+public class FriendDbStorage implements FriendStorage {
     private final JdbcTemplate jdbcTemplate;
 
     @Override
