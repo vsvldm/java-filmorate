@@ -7,8 +7,10 @@ import javax.validation.Validation;
 import javax.validation.Validator;
 import javax.validation.ValidatorFactory;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.Set;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 
 @SpringBootTest
 class FilmTest {
@@ -17,33 +19,50 @@ class FilmTest {
 
     @Test
     public void filmNameNotBeEmptyTest() {
-        Film film = new Film("", "Description", LocalDate.now(), 0);
+        Set<Genre> genres =  new HashSet<>();
+        genres.add(new Genre(1, null));
+        Film film = new Film(1, " ", "Description", LocalDate.now(), 0, new Mpa(1, null), genres);
         assertFalse(validator.validate(film).isEmpty());
     }
 
     @Test
     public void filmDescriptionMaxLengthTest() {
-        Film film = new Film("Name",
+        Set<Genre> genres =  new HashSet<>();
+
+        genres.add(new Genre(1, null));
+        Film film = new Film(1, "Name",
                 "asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasd" +
                 "asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasda" +
                 "asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasda",
                 LocalDate.now(),
-                0);
+                0,
+                new Mpa(1, null),
+                genres);
+
         assertFalse(validator.validate(film).isEmpty());
     }
 
     @Test
     public void filmValidDateTest() {
-        Film film = new Film("Name",
+        Set<Genre> genres =  new HashSet<>();
+
+        genres.add(new Genre(1, null));
+        Film film = new Film(1, "Name",
                 "Description",
                 LocalDate.of(1700, 1, 1),
-                0);
+                0,
+                new Mpa(1, null),
+                genres);
+
         assertFalse(validator.validate(film).isEmpty()); // Проверяем, что есть ошибки валидации
     }
 
     @Test
     public void filmDurationPositiveOrZeroTest() {
-        Film film = new Film("Name", "Description", LocalDate.now(), -10);
+        Set<Genre> genres =  new HashSet<>();
+
+        genres.add(new Genre(1, null));
+        Film film = new Film(1, "Name", "Description", LocalDate.now(), -10, new Mpa(1, null), genres);
         assertFalse(validator.validate(film).isEmpty()); // Проверяем, что есть ошибки валидации
     }
 }
