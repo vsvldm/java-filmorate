@@ -27,12 +27,10 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public Film create(Film film) {
         log.info("Начало выполнения метода create.");
-        filmStorage.add(film);
-
-        Film filmFromBD = filmStorage.getLast();
+        Film filmFromBD = filmStorage.add(film);
 
         filmGenreRepository.add(filmFromBD.getId(),film.getGenres());
-        filmFromBD.getGenres().addAll(filmGenreRepository.valuesByFilm(filmFromBD.getId()));
+        filmFromBD.getGenres().addAll(filmGenreRepository.genreByFilm(filmFromBD.getId()));
         log.info("Фильм id = {} успешно создан", filmFromBD.getId());
         return filmFromBD;
     }
@@ -108,6 +106,6 @@ public class FilmServiceImpl implements FilmService {
     }
 
     private int compare(Film f1, Film f2) {
-        return Integer.compare(likeStorage.valuesByFilm(f2.getId()).size(), likeStorage.valuesByFilm(f1.getId()).size());
+        return Integer.compare(likeStorage.getUserLikesByFilm(f2.getId()).size(), likeStorage.getUserLikesByFilm(f1.getId()).size());
     }
 }

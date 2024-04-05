@@ -21,7 +21,7 @@ public class LikeDbStorage implements LikeStorage {
     }
 
     @Override
-    public Collection<Integer> valuesByFilm(int filmId) {
+    public Collection<Integer> getUserLikesByFilm(int filmId) {
         String sql = "select USER_ID from LIKES where FILM_ID = ?";
 
         return jdbcOperations.query(sql, (rs, rowNum) -> {

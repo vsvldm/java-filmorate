@@ -7,5 +7,5 @@ import java.util.Collection;
 public interface MpaRepository {
     public Mpa getById(int mpaId);
 
-    public Collection<Mpa> values();
+    public Collection<Mpa> getMpas();
 }

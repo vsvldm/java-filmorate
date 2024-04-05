@@ -22,6 +22,6 @@ public class MpaServiceImpl implements MpaService {
 
     @Override
     public List<Mpa> findAll() {
-        return new ArrayList<>(mpaRepository.values());
+        return new ArrayList<>(mpaRepository.getMpas());
     }
 }

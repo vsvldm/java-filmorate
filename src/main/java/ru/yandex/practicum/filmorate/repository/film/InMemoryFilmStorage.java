@@ -12,9 +12,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     private final Map<Integer, Film> films = new HashMap<>();
 
     @Override
-    public void add(Film film) {
+    public Film add(Film film) {
         film.setId(++id);
-        films.put(film.getId(), film);
+        return films.put(film.getId(), film);
     }
 
     @Override
@@ -47,10 +47,5 @@ public class InMemoryFilmStorage implements FilmStorage {
     @Override
     public Collection<Film> values() {
         return new ArrayList<>(films.values());
-    }
-
-    @Override
-    public Film getLast() {
-        return films.get(films.size() - 1);
     }
 }

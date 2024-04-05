@@ -25,11 +25,12 @@ public class FilmDbStorage implements FilmStorage {
     private final JdbcOperations jdbcOperations;
 
     @Override
-    public void add(Film film) {
+    public Film add(Film film) {
         String sqlIntoFilms = "insert into FILMS(FILM_NAME," +
                     " FILM_DESCRIPTION," +
                     " FILM_RELEASE_DATE," +
-                    " FILM_DURATION, FILM_MPA)" +
+                    " FILM_DURATION," +
+                    " FILM_MPA)" +
                 "values (?, ?, ?, ?, ?)";
 
         jdbcOperations.update(sqlIntoFilms,
@@ -38,6 +39,8 @@ public class FilmDbStorage implements FilmStorage {
                 film.getReleaseDate(),
                 film.getDuration(),
                 film.getMpa().getId());
+
+        return getLast();
     }
 
     @Override
@@ -72,7 +75,7 @@ public class FilmDbStorage implements FilmStorage {
                 "F.FILM_RELEASE_DATE," +
                 "F.FILM_DURATION," +
                 "F.FILM_MPA," +
-                "M.MPA_TITLE," +
+                "M.MPA_TITLE " +
                 "from FILMS F " +
                 "join MPA M on F.FILM_MPA = M.MPA_ID " +
                 "where F.FILM_ID = ?";
@@ -91,22 +94,21 @@ public class FilmDbStorage implements FilmStorage {
                 "F.FILM_RELEASE_DATE," +
                 "F.FILM_DURATION," +
                 "F.FILM_MPA," +
-                "M.MPA_TITLE," +
+                "M.MPA_TITLE " +
                 "from FILMS F " +
                 "join MPA M on F.FILM_MPA = M.MPA_ID";
 
         return jdbcOperations.query(sql, this::makeFilm);
     }
 
-    @Override
-    public Film getLast() {
+    private Film getLast() {
         String sqlQuery = "select F.FILM_ID," +
                 "F.FILM_NAME," +
                 "F.FILM_DESCRIPTION," +
                 "F.FILM_RELEASE_DATE," +
                 "F.FILM_DURATION," +
                 "F.FILM_MPA," +
-                "M.MPA_TITLE," +
+                "M.MPA_TITLE " +
                 "from FILMS F " +
                 "join MPA M on F.FILM_MPA = M.MPA_ID " +
                 "order by F.FILM_ID desc " +
@@ -116,9 +118,9 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     private Film makeFilm(ResultSet resultSet, int rn) throws SQLException {
-        String sql = "select FILM_GENRE.GENRE_ID, GENRE_TITLE " +
-                "from FILM_GENRE " +
-                "join PUBLIC.GENRES G2 on G2.GENRE_ID = FILM_GENRE.GENRE_ID " +
+        String sql = "select FG.GENRE_ID, GENRE_TITLE " +
+                "from FILM_GENRE FG " +
+                "join GENRES G on G.GENRE_ID = FG.GENRE_ID " +
                 "where FILM_ID = ?";
 
         Collection<Genre> genres = jdbcOperations.query(sql, (rs, rowNum) -> {

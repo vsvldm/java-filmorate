@@ -28,7 +28,7 @@ public class MpaDbRepository implements MpaRepository {
     }
 
     @Override
-    public Collection<Mpa> values() {
+    public Collection<Mpa> getMpas() {
         String sql = "select * from MPA";
 
         return jdbcOperations.query(sql, this::makeMpa);

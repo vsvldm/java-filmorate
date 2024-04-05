@@ -56,7 +56,8 @@ create table if not exists FRIENDS
     constraint FRIENDS_USER_ID_FK
         foreign key (USER_ID) references USERS,
     constraint FRIENDS_FRIEND_ID_FK
-        foreign key (FRIEND_ID) references USERS
+        foreign key (FRIEND_ID) references USERS,
+    constraint UNIQUE_FRIENDS unique (USER_ID, FRIEND_ID)
 );
 
 create table if not exists LIKES

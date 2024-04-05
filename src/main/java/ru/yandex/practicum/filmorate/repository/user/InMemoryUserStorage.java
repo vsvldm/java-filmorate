@@ -1,10 +1,13 @@
 package ru.yandex.practicum.filmorate.repository.user;
 
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.NotFoundUserException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Component
 public class InMemoryUserStorage implements UserStorage {
@@ -12,9 +15,9 @@ public class InMemoryUserStorage implements UserStorage {
     private final Map<Integer,User> users = new HashMap<>();
 
     @Override
-    public void add(User user) {
+    public User add(User user) {
         user.setId(++id);
-        users.put(user.getId(), user);
+        return users.put(user.getId(), user);
     }
 
     @Override
@@ -23,14 +26,14 @@ public class InMemoryUserStorage implements UserStorage {
             users.put(user.getId(), user);
             return true;
         } else {
-            throw new NotFoundUserException(String.format("Пользователя с id = %d не существует.", user.getId()));
+            throw new NotFoundException(String.format("Пользователя с id = %d не существует.", user.getId()));
         }
     }
 
     @Override
     public void remove(int userId) {
         if (users.remove(userId) == null) {
-            throw new NotFoundUserException(String.format("Пользователя с id = %d не существует.", userId));
+            throw new NotFoundException(String.format("Пользователя с id = %d не существует.", userId));
         }
     }
 
@@ -42,10 +45,5 @@ public class InMemoryUserStorage implements UserStorage {
     @Override
     public List<User> values() {
         return new ArrayList<>(users.values());
-    }
-
-    @Override
-    public User getLast() {
-        return users.get(users.size() - 1);
     }
 }

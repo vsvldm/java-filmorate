@@ -28,10 +28,10 @@ public class FilmGenreDbRepository implements FilmGenreRepository {
     }
 
     @Override
-    public Collection<Genre> valuesByFilm(int filmId) {
-        String sql = "select FILM_GENRE.GENRE_ID, GENRE_TITLE " +
-                "from FILM_GENRE " +
-                "join PUBLIC.GENRES G2 on G2.GENRE_ID = FILM_GENRE.GENRE_ID " +
+    public Collection<Genre> genreByFilm(int filmId) {
+        String sql = "select FG.GENRE_ID, GENRE_TITLE " +
+                "from FILM_GENRE FG " +
+                "join GENRES G on G.GENRE_ID = FG.GENRE_ID " +
                 "where FILM_ID = ?";
 
         return jdbcOperations.query(sql,this::makeGenre, filmId);

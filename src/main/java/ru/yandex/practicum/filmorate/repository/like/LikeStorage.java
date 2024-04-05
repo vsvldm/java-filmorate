@@ -5,7 +5,7 @@ import java.util.Collection;
 public interface LikeStorage {
     public boolean add(int filmId, int userId);
 
-    public Collection<Integer> valuesByFilm(int filmId);
+    public Collection<Integer> getUserLikesByFilm(int filmId);
 
     public boolean remove(int filmId, int userId);
 }

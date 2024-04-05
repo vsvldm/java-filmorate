@@ -20,7 +20,7 @@ public class UserDbStorage implements UserStorage {
     private final JdbcOperations jdbcOperations;
 
     @Override
-    public void add(User user) {
+    public User add(User user) {
         String sql = "insert into USERS(USER_NAME, USER_LOGIN, USER_BIRTHDAY, USER_EMAIL)" +
                 "values (?, ?, ?, ?)";
 
@@ -29,6 +29,8 @@ public class UserDbStorage implements UserStorage {
                 user.getLogin(),
                 user.getBirthday(),
                 user.getEmail());
+
+        return getLast();
     }
 
     @Override
@@ -70,8 +72,7 @@ public class UserDbStorage implements UserStorage {
         return jdbcOperations.query(sql, this::makeUser);
     }
 
-    @Override
-    public User getLast() {
+    private User getLast() {
         String sqlQuery = "select * from USERS order by USER_ID desc limit 1";
 
         try {

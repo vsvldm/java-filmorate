@@ -17,7 +17,8 @@ public class FriendDbStorage implements FriendStorage {
 
     @Override
     public void add(int userId, int friendId) {
-        String sql = "insert into FRIENDS(USER_ID, FRIEND_ID) values(?, ?)";
+        String sql = "insert into FRIENDS(USER_ID, FRIEND_ID) " +
+                "values(?, ?)";
 
         jdbcTemplate.update(sql, userId, friendId);
     }
@@ -34,6 +35,17 @@ public class FriendDbStorage implements FriendStorage {
         String sql = "select FRIEND_ID from FRIENDS where USER_ID = ?";
 
         return jdbcTemplate.query(sql, this::mapRowToInteger, userId);
+    }
+
+    @Override
+    public Collection<Integer> getCommonFriends(int userId, int otherId) {
+        String sql = "select FRIEND_ID " +
+                "from FRIENDS " +
+                "where USER_ID in (?, ?) " +
+                "group by FRIEND_ID " +
+                "having count(FRIEND_ID) = 2";
+
+        return jdbcTemplate.query(sql, this::mapRowToInteger, userId, otherId);
     }
 
     private Integer mapRowToInteger(ResultSet resultSet, int rowNum) throws SQLException {

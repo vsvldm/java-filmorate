@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.service.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.friend.FriendStorage;
@@ -28,9 +29,9 @@ public class UserServiceImpl implements UserService {
             log.info("Отсутствует имя пользоваителя. Будет использован login = {} в качестве имени пользователя.", user.getLogin());
             user.setName(user.getLogin());
         }
-        userStorage.add(user);
+        User userFromDb = userStorage.add(user);
         log.info("Пользователь с login = {} успешно создан.", user.getLogin());
-        return userStorage.getLast();
+        return userFromDb;
     }
 
     @Override
@@ -65,6 +66,9 @@ public class UserServiceImpl implements UserService {
     @Override
     public User addToFriends(int userId, int friendId) {
         log.info("Начало выполнения метода addToFriends.");
+        if (userId == friendId) {
+            throw new BadRequestException("Параметры не могут быть равны.");
+        }
         log.info("Проверка существования пользователей с id = {} и id = {}.", userId, friendId);
         User user = userStorage.getById(userId);
         User friend = userStorage.getById(friendId);
@@ -113,11 +117,9 @@ public class UserServiceImpl implements UserService {
         userStorage.getById(otherId);
 
         log.info("Начало поиска общих друзей среди пользователей с id = {} и id = {}.", userId, otherId);
-        Set<Integer> userFriends = new HashSet<>(friendStorage.valuesByUser(userId));
+        Set<Integer> usersCommonFriends = new HashSet<>(friendStorage.getCommonFriends(userId, otherId));
 
-        userFriends.retainAll(friendStorage.valuesByUser(otherId));
-
-        for (Integer friendId : userFriends) {
+        for (Integer friendId : usersCommonFriends) {
             commonFriends.add(userStorage.getById(friendId));
         }
         if (commonFriends.isEmpty()) {

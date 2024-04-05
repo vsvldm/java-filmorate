@@ -14,7 +14,7 @@ public class InMemoryLikeStorage implements LikeStorage {
     }
 
     @Override
-    public Collection<Integer> valuesByFilm(int filmId) {
+    public Collection<Integer> getUserLikesByFilm(int filmId) {
         return likes.get(filmId);
     }
 
