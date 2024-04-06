@@ -3,18 +3,26 @@ package ru.yandex.practicum.filmorate.repository.film;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.repository.like.InMemoryLikeStorage;
+import ru.yandex.practicum.filmorate.repository.like.LikeStorage;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Component
 public class InMemoryFilmStorage implements FilmStorage {
     private int id = 0;
+    private final LikeStorage likeStorage = new InMemoryLikeStorage();
     private final Map<Integer, Film> films = new HashMap<>();
 
     @Override
-    public Film add(Film film) {
+    public int add(Film film) {
         film.setId(++id);
-        return films.put(film.getId(), film);
+        films.put(film.getId(), film);
+        return film.getId();
     }
 
     @Override
@@ -45,7 +53,19 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Collection<Film> values() {
+    public Collection<Film> getAllFilms() {
         return new ArrayList<>(films.values());
+    }
+
+    @Override
+    public Collection<Film> getPopularFilms(int count) {
+        return getAllFilms().stream()
+                .sorted(this::compare)
+                .limit(count)
+                .collect(Collectors.toList());
+    }
+
+    private int compare(Film f1, Film f2) {
+        return Integer.compare(likeStorage.getUserLikesByFilm(f2.getId()).size(), likeStorage.getUserLikesByFilm(f1.getId()).size());
     }
 }

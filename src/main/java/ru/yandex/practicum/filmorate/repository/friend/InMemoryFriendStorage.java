@@ -1,13 +1,11 @@
 package ru.yandex.practicum.filmorate.repository.friend;
 
-import lombok.ToString;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 
 import java.util.*;
 
 @Component
-@ToString
 public class InMemoryFriendStorage implements FriendStorage {
     private final Map<Integer,Set<Integer>> friends = new HashMap<>();
 
@@ -22,7 +20,7 @@ public class InMemoryFriendStorage implements FriendStorage {
     }
 
     @Override
-    public Set<Integer> valuesByUser(int userId) {
+    public Set<Integer> getFriendIdsByUser(int userId) {
         Set<Integer> friendsByUser = friends.getOrDefault(userId, null);
 
         if (friendsByUser != null) {
@@ -34,9 +32,9 @@ public class InMemoryFriendStorage implements FriendStorage {
 
     @Override
     public Collection<Integer> getCommonFriends(int userId, int otherId) {
-        Set<Integer> usersFriends = new HashSet<>(valuesByUser(userId));
+        Set<Integer> usersFriends = new HashSet<>(getFriendIdsByUser(userId));
 
-        usersFriends.retainAll(valuesByUser(otherId));
+        usersFriends.retainAll(getFriendIdsByUser(otherId));
         return usersFriends;
     }
 }

@@ -29,9 +29,10 @@ public class UserServiceImpl implements UserService {
             log.info("Отсутствует имя пользоваителя. Будет использован login = {} в качестве имени пользователя.", user.getLogin());
             user.setName(user.getLogin());
         }
-        User userFromDb = userStorage.add(user);
+        int userId = userStorage.add(user);
+        user.setId(userId);
         log.info("Пользователь с login = {} успешно создан.", user.getLogin());
-        return userFromDb;
+        return user;
     }
 
     @Override
@@ -57,7 +58,7 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> findAll() {
         log.info("Начало выполнения метода findAll.");
-        List<User> users = new ArrayList<>(userStorage.values());
+        List<User> users = new ArrayList<>(userStorage.getAllUsers());
 
         log.info("Список всех пользователей найден.");
         return users;
@@ -100,7 +101,7 @@ public class UserServiceImpl implements UserService {
 
         log.info("Проверка существования пользователя с id = {}.", userId);
         User user = userStorage.getById(userId);
-        for (Integer friendId : friendStorage.valuesByUser(user.getId())) {
+        for (Integer friendId : friendStorage.getFriendIdsByUser(user.getId())) {
             friends.add(userStorage.getById(friendId));
         }
         log.info("Список друзей пользователя с id = {} успешно получен.", userId);

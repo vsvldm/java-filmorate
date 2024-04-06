@@ -13,7 +13,6 @@ import ru.yandex.practicum.filmorate.repository.user.UserStorage;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -27,12 +26,12 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public Film create(Film film) {
         log.info("Начало выполнения метода create.");
-        Film filmFromBD = filmStorage.add(film);
+        int filmId = filmStorage.add(film);
 
-        filmGenreRepository.add(filmFromBD.getId(),film.getGenres());
-        filmFromBD.getGenres().addAll(filmGenreRepository.genreByFilm(filmFromBD.getId()));
-        log.info("Фильм id = {} успешно создан", filmFromBD.getId());
-        return filmFromBD;
+        filmGenreRepository.add(filmId,film.getGenres());
+        film.setId(filmId);
+        log.info("Фильм id = {} успешно создан", filmId);
+        return film;
     }
 
     @Override
@@ -60,7 +59,7 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public List<Film> findAll() {
         log.info("Начало выполнения метода findAll.");
-        List<Film> films = new ArrayList<>(filmStorage.values());
+        List<Film> films = new ArrayList<>(filmStorage.getAllFilms());
 
         log.info("Список всех фильмом найден.");
         return films;
@@ -69,10 +68,12 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public List<Film> findPopular(int count) {
         log.info("Начало выполнения метода findPopular.");
-        List<Film> films = filmStorage.values().stream()
+        List<Film> films =new ArrayList<>(filmStorage.getPopularFilms(count));
+
+        /*List<Film> films = filmStorage.getAllFilms().stream()
                 .sorted(this::compare)
                 .limit(count)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList());*/
 
         log.info("Список из count = {} самых популярных фильмов найден.", count);
         return films;
@@ -105,7 +106,5 @@ public class FilmServiceImpl implements FilmService {
         return film;
     }
 
-    private int compare(Film f1, Film f2) {
-        return Integer.compare(likeStorage.getUserLikesByFilm(f2.getId()).size(), likeStorage.getUserLikesByFilm(f1.getId()).size());
-    }
+
 }

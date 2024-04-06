@@ -4,12 +4,16 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcOperations;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
+import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -25,22 +29,27 @@ public class FilmDbStorage implements FilmStorage {
     private final JdbcOperations jdbcOperations;
 
     @Override
-    public Film add(Film film) {
-        String sqlIntoFilms = "insert into FILMS(FILM_NAME," +
+    public int add(Film film) {
+        String sql = "insert into FILMS(FILM_NAME," +
                     " FILM_DESCRIPTION," +
                     " FILM_RELEASE_DATE," +
                     " FILM_DURATION," +
                     " FILM_MPA)" +
                 "values (?, ?, ?, ?, ?)";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        jdbcOperations.update(sqlIntoFilms,
-                film.getName(),
-                film.getDescription(),
-                film.getReleaseDate(),
-                film.getDuration(),
-                film.getMpa().getId());
+        jdbcOperations.update(
+                connection -> {
+                    PreparedStatement ps = connection.prepareStatement(sql, new String[]{"FILM_ID"});
+                    ps.setString(1, film.getName());
+                    ps.setString(2, film.getDescription());
+                    ps.setDate(3, Date.valueOf(film.getReleaseDate()));
+                    ps.setLong(4, film.getDuration());
+                    ps.setInt(5, film.getMpa().getId());
+                    return ps;
+                }, keyHolder);
 
-        return getLast();
+        return keyHolder.getKey().intValue();
     }
 
     @Override
@@ -87,7 +96,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Collection<Film> values() {
+    public Collection<Film> getAllFilms() {
         String sql = "select F.FILM_ID," +
                 "F.FILM_NAME," +
                 "F.FILM_DESCRIPTION," +
@@ -101,20 +110,23 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcOperations.query(sql, this::makeFilm);
     }
 
-    private Film getLast() {
-        String sqlQuery = "select F.FILM_ID," +
-                "F.FILM_NAME," +
-                "F.FILM_DESCRIPTION," +
-                "F.FILM_RELEASE_DATE," +
-                "F.FILM_DURATION," +
-                "F.FILM_MPA," +
+    @Override
+    public Collection<Film> getPopularFilms(int count) {
+        String sql = "select F.FILM_ID, " +
+                "FILM_NAME, " +
+                "FILM_DESCRIPTION, " +
+                "FILM_RELEASE_DATE, " +
+                "FILM_DURATION, " +
+                "FILM_MPA, " +
                 "M.MPA_TITLE " +
                 "from FILMS F " +
+                "join LIKES L on F.FILM_ID = L.FILM_ID " +
                 "join MPA M on F.FILM_MPA = M.MPA_ID " +
-                "order by F.FILM_ID desc " +
-                "limit 1";
+                "group by L.FILM_ID " +
+                "order by count(L.USER_ID) desc " +
+                "limit ?";
 
-        return jdbcOperations.queryForObject(sqlQuery, this::makeFilm);
+        return jdbcOperations.query(sql, this::makeFilm, count);
     }
 
     private Film makeFilm(ResultSet resultSet, int rn) throws SQLException {

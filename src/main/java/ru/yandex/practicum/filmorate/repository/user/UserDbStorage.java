@@ -4,10 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcOperations;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
+import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
+import java.sql.Date;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -20,17 +24,21 @@ public class UserDbStorage implements UserStorage {
     private final JdbcOperations jdbcOperations;
 
     @Override
-    public User add(User user) {
+    public int add(User user) {
         String sql = "insert into USERS(USER_NAME, USER_LOGIN, USER_BIRTHDAY, USER_EMAIL)" +
                 "values (?, ?, ?, ?)";
+        KeyHolder keyHolder = new GeneratedKeyHolder();
 
-        jdbcOperations.update(sql,
-                user.getName(),
-                user.getLogin(),
-                user.getBirthday(),
-                user.getEmail());
+        jdbcOperations.update(connection -> {
+            PreparedStatement ps = connection.prepareStatement(sql, new String[]{"USER_ID"});
+            ps.setString(1, user.getName());
+            ps.setString(2, user.getLogin());
+            ps.setDate(3, Date.valueOf(user.getBirthday()));
+            ps.setString(4, user.getEmail());
+            return ps;
+        }, keyHolder);
 
-        return getLast();
+        return keyHolder.getKey().intValue();
     }
 
     @Override
@@ -66,20 +74,10 @@ public class UserDbStorage implements UserStorage {
     }
 
     @Override
-    public Collection<User> values() {
+    public Collection<User> getAllUsers() {
         String sql = "select * from USERS";
 
         return jdbcOperations.query(sql, this::makeUser);
-    }
-
-    private User getLast() {
-        String sqlQuery = "select * from USERS order by USER_ID desc limit 1";
-
-        try {
-            return jdbcOperations.queryForObject(sqlQuery,this::makeUser);
-        } catch (DataAccessException e) {
-            throw new NotFoundException("Список пользователей пуст.");
-        }
     }
 
     private User makeUser(ResultSet resultSet, int rowNum) throws SQLException {

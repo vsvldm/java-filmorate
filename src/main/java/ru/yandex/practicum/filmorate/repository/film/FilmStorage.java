@@ -5,7 +5,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.util.Collection;
 
 public interface FilmStorage {
-    public Film add(Film film);
+    public int add(Film film);
 
     public boolean update(Film film);
 
@@ -13,5 +13,7 @@ public interface FilmStorage {
 
     public Film getById(int filmId);
 
-    public Collection<Film> values();
+    public Collection<Film> getAllFilms();
+
+    public Collection<Film> getPopularFilms(int count);
 }

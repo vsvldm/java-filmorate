@@ -31,7 +31,7 @@ public class FriendDbStorage implements FriendStorage {
     }
 
     @Override
-    public Collection<Integer> valuesByUser(int userId) {
+    public Collection<Integer> getFriendIdsByUser(int userId) {
         String sql = "select FRIEND_ID from FRIENDS where USER_ID = ?";
 
         return jdbcTemplate.query(sql, this::mapRowToInteger, userId);

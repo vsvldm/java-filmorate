@@ -15,9 +15,10 @@ public class InMemoryUserStorage implements UserStorage {
     private final Map<Integer,User> users = new HashMap<>();
 
     @Override
-    public User add(User user) {
+    public int add(User user) {
         user.setId(++id);
-        return users.put(user.getId(), user);
+        users.put(user.getId(), user);
+        return user.getId();
     }
 
     @Override
@@ -43,7 +44,7 @@ public class InMemoryUserStorage implements UserStorage {
     }
 
     @Override
-    public List<User> values() {
+    public List<User> getAllUsers() {
         return new ArrayList<>(users.values());
     }
 }
