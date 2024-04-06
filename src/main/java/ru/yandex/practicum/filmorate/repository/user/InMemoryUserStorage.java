@@ -1,7 +1,7 @@
-package ru.yandex.practicum.filmorate.storage.user;
+package ru.yandex.practicum.filmorate.repository.user;
 
 import org.springframework.stereotype.Component;
-import ru.yandex.practicum.filmorate.exception.NotFoundUserException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
 
 import java.util.ArrayList;
@@ -15,39 +15,36 @@ public class InMemoryUserStorage implements UserStorage {
     private final Map<Integer,User> users = new HashMap<>();
 
     @Override
-    public void add(User user) {
+    public int add(User user) {
         user.setId(++id);
         users.put(user.getId(), user);
+        return user.getId();
     }
 
     @Override
-    public void update(User user) {
+    public boolean update(User user) {
         if (users.get(user.getId()) != null) {
             users.put(user.getId(), user);
+            return true;
         } else {
-            throw new NotFoundUserException(String.format("Пользователя с id = %d не существует.", user.getId()));
+            throw new NotFoundException(String.format("Пользователя с id = %d не существует.", user.getId()));
         }
     }
 
     @Override
     public void remove(int userId) {
         if (users.remove(userId) == null) {
-            throw new NotFoundUserException(String.format("Пользователя с id = %d не существует.", userId));
+            throw new NotFoundException(String.format("Пользователя с id = %d не существует.", userId));
         }
     }
 
     @Override
     public User getById(int userId) {
-        User user = users.get(userId);
-        if (user != null) {
-            return user;
-        } else {
-            throw new NotFoundUserException(String.format("Пользователя с id = %d не существует.", userId));
-        }
+        return users.get(userId);
     }
 
     @Override
-    public List<User> values() {
+    public List<User> getAllUsers() {
         return new ArrayList<>(users.values());
     }
 }

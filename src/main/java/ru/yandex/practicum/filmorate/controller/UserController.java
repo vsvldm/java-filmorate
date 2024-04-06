@@ -16,12 +16,12 @@ public class UserController {
 
     @GetMapping
     public List<User> findAllUsers() {
-        return userService.findAllUsers();
+        return userService.findAll();
     }
 
     @GetMapping("/{userId}")
     public User findUser(@PathVariable int userId) {
-        return userService.findUser(userId);
+        return userService.findById(userId);
     }
 
     @GetMapping("/{userId}/friends")
@@ -36,12 +36,12 @@ public class UserController {
 
     @PostMapping
     public User createUser(@Valid @RequestBody User user) {
-        return userService.createUser(user);
+        return userService.create(user);
     }
 
     @PutMapping
     public User updateUser(@Valid @RequestBody User user) {
-        return userService.updateUser(user);
+        return userService.update(user);
     }
 
     @PutMapping("/{userId}/friends/{friendId}")

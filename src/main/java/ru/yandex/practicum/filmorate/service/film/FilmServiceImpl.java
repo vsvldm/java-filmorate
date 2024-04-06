@@ -3,12 +3,16 @@ package ru.yandex.practicum.filmorate.service.film;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.storage.film.FilmStorage;
-import ru.yandex.practicum.filmorate.storage.like.LikeStorage;
+import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.repository.film.FilmStorage;
+import ru.yandex.practicum.filmorate.repository.film_genre.FilmGenreRepository;
+import ru.yandex.practicum.filmorate.repository.like.LikeStorage;
+import ru.yandex.practicum.filmorate.repository.user.UserStorage;
 
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -16,48 +20,80 @@ import java.util.stream.Collectors;
 public class FilmServiceImpl implements FilmService {
     private final FilmStorage filmStorage;
     private final LikeStorage likeStorage;
+    private final UserStorage userStorage;
+    private final FilmGenreRepository filmGenreRepository;
 
-    public List<Film> findAllFilms() {
-        return filmStorage.values();
-    }
+    @Override
+    public Film create(Film film) {
+        log.info("Начало выполнения метода create.");
+        int filmId = filmStorage.add(film);
 
-    public Film createFilm(Film film) {
-        filmStorage.add(film);
-        likeStorage.createStorage(film.getId());
-        log.info("Фильм {} успешно создан", film.getName());
+        filmGenreRepository.add(filmId,film.getGenres());
+        film.setId(filmId);
+        log.info("Фильм id = {} успешно создан", filmId);
         return film;
     }
 
-    public Film updateFilm(Film film) {
-        filmStorage.update(film);
-        log.info("Фильм с id = {} успешно обновлен", film.getId());
+    @Override
+    public Film update(Film film) {
+        log.info("Начало выполнения метода update.");
+        log.info("Проверка существования фильма с id ={}.", film.getId());
+        if (filmStorage.update(film)) {
+            Film filmFromDB = filmStorage.getById(film.getId());
+
+            log.info("Фильм с id = {} успешно обновлен", film.getId());
+            return filmFromDB;
+        } else {
+            throw new NotFoundException(String.format("Фильма с id = %d не существует.", film.getId()));
+        }
+    }
+
+    @Override
+    public Film findById(int filmId) {
+        log.info("Начало выполнения метода findById.");
+        Film film = filmStorage.getById(filmId);
+        log.info("Фильм с id = {} найден.", filmId);
         return film;
     }
 
-    public Film findFilm(int filmId) {
-        return filmStorage.getById(filmId);
+    @Override
+    public List<Film> findAll() {
+        log.info("Начало выполнения метода findAll.");
+        List<Film> films = new ArrayList<>(filmStorage.getAllFilms());
+
+        log.info("Список всех фильмом найден.");
+        return films;
     }
 
-    public List<Film> findPopularFilms(int count) {
-        return filmStorage.values().stream()
-                .sorted(this::compare)
-                .limit(count)
-                .collect(Collectors.toList());
+    @Override
+    public List<Film> findPopular(int count) {
+        log.info("Начало выполнения метода findPopular.");
+        List<Film> films = new ArrayList<>(filmStorage.getPopularFilms(count));
+
+        log.info("Список из count = {} самых популярных фильмов найден.", count);
+        return films;
     }
 
+    @Override
     public Film addLike(int filmId, int userId) {
+        log.info("Начало выполнения метода addLike.");
+        log.info("Проверка существования фильма с id = {} и  пользователя с id = {}.", filmId, userId);
         Film film = filmStorage.getById(filmId);
+        User user = userStorage.getById(userId);
 
-        likeStorage.add(filmId, userId);
-        log.info("Пользователь с id = {} поставил лайк фильму {}.", userId, film.getName());
+        likeStorage.add(film.getId(), user.getId());
+        log.info("Пользователь с id = {} поставил лайк фильму c id = {}.", userId, film.getId());
         return film;
 
     }
 
+    @Override
     public Film removeLike(int filmId, int userId) {
+        log.info("Начало выполнения метода removeLike.");
+        log.info("Проверка существования фильма с id = {}.", filmId);
         Film film = filmStorage.getById(filmId);
 
-        if (likeStorage.remove(filmId, userId)) {
+        if (likeStorage.remove(film.getId(), userId)) {
             log.info("Лайк пользователя с id = {} удален.", userId);
         } else {
             log.info("Пользователь с id = {} не ставил лайк фильму {}.", userId, film.getName());
@@ -65,7 +101,5 @@ public class FilmServiceImpl implements FilmService {
         return film;
     }
 
-    private int compare(Film f1, Film f2) {
-        return Integer.compare(likeStorage.getByFilm(f2.getId()).size(), likeStorage.getByFilm(f1.getId()).size());
-    }
+
 }

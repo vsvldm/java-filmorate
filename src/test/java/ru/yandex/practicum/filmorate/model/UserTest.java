@@ -3,8 +3,8 @@ package ru.yandex.practicum.filmorate.model;
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.service.user.UserService;
 import ru.yandex.practicum.filmorate.service.user.UserServiceImpl;
-import ru.yandex.practicum.filmorate.storage.friend.InMemoryFriendStorage;
-import ru.yandex.practicum.filmorate.storage.user.InMemoryUserStorage;
+import ru.yandex.practicum.filmorate.repository.friend.InMemoryFriendStorage;
+import ru.yandex.practicum.filmorate.repository.user.InMemoryUserStorage;
 
 import javax.validation.Validation;
 import javax.validation.Validator;
@@ -17,18 +17,18 @@ class UserTest {
 
     @Test
     public void ifUserNameIsEmptyThenNameIsLoginValidateTest() {
-        User user = new User("Login",
+        User user = new User(1," ", "Login",
                 LocalDate.of(1990, 1, 1),
                 "nameorlogin@example.com");
         UserService userService = new UserServiceImpl(new InMemoryUserStorage(), new InMemoryFriendStorage());
-        userService.createUser(user);
+        userService.create(user);
         assertNotNull(user);
         assertEquals(user.getName(), user.getLogin());
     }
 
     @Test
     public void userLoginNotBeEmptyTest() {
-        User user = new User(null,
+        User user = new User(1, "Name", null,
                 LocalDate.of(1990, 1, 1),
                 "nameorlogin@example.com");
         assertFalse(validator.validate(user).isEmpty());
@@ -36,7 +36,7 @@ class UserTest {
 
     @Test
     public void userBirthdayNotBeAFutureTest() {
-        User user = new User("Login",
+        User user = new User(1, "Name", "Login",
                 LocalDate.of(2100, 1, 1),
                 "nameorlogin@example.com");
         assertFalse(validator.validate(user).isEmpty());
@@ -44,7 +44,7 @@ class UserTest {
 
     @Test
     public void userEmailNotBeEmptyTest() {
-        User user = new User("Login",
+        User user = new User(1, "Name","Login",
                 LocalDate.of(1990, 1, 1),
                 null);
         assertFalse(validator.validate(user).isEmpty());
@@ -52,7 +52,7 @@ class UserTest {
 
     @Test
     public void userEmailCannotBeWithoutASpecialCharacterTest() {
-        User user = new User("Login",
+        User user = new User(1, "Name","Login",
                 LocalDate.of(2100, 1, 1),
                 "InvalidEmail");
         assertTrue(validator.validate(user)
