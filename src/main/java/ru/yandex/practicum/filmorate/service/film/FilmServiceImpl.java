@@ -68,12 +68,7 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public List<Film> findPopular(int count) {
         log.info("Начало выполнения метода findPopular.");
-        List<Film> films =new ArrayList<>(filmStorage.getPopularFilms(count));
-
-        /*List<Film> films = filmStorage.getAllFilms().stream()
-                .sorted(this::compare)
-                .limit(count)
-                .collect(Collectors.toList());*/
+        List<Film> films = new ArrayList<>(filmStorage.getPopularFilms(count));
 
         log.info("Список из count = {} самых популярных фильмов найден.", count);
         return films;
