@@ -5,15 +5,17 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.util.Collection;
 
 public interface FilmStorage {
-    public int add(Film film);
+    int add(Film film);
 
-    public boolean update(Film film);
+    boolean update(Film film);
 
-    public void remove(int filmId);
+    boolean deleteById(Integer filmID);
 
-    public Film getById(int filmId);
+    boolean deleteAll();
 
-    public Collection<Film> getAllFilms();
+    Film getById(int filmId);
 
-    public Collection<Film> getPopularFilms(int count);
+    Collection<Film> getAllFilms();
+
+    Collection<Film> getPopularFilms(int count);
 }

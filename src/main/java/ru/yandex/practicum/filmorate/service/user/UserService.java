@@ -13,6 +13,10 @@ public interface UserService {
 
     public List<User> findAll();
 
+    boolean deleteById(Integer userID);
+
+    boolean deleteAll();
+
     public User addToFriends(int userId, int friendId);
 
     public User removeFromFriends(int userId, int friendId);

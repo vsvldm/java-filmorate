@@ -31,11 +31,22 @@ public class InMemoryUserStorage implements UserStorage {
         }
     }
 
+//    @Override
+//    public void remove(int userId) {
+//        if (users.remove(userId) == null) {
+//            throw new NotFoundException(String.format("Пользователя с id = %d не существует.", userId));
+//        }
+//    }
+
+
     @Override
-    public void remove(int userId) {
-        if (users.remove(userId) == null) {
-            throw new NotFoundException(String.format("Пользователя с id = %d не существует.", userId));
-        }
+    public boolean deleteById(Integer userID) {
+        return false;
+    }
+
+    @Override
+    public boolean deleteAll() {
+        return false;
     }
 
     @Override

@@ -3,6 +3,8 @@ package ru.yandex.practicum.filmorate.service.user;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.User;
@@ -63,6 +65,38 @@ public class UserServiceImpl implements UserService {
         log.info("Список всех пользователей найден.");
         return users;
     }
+
+    @Override
+    public boolean deleteById(Integer userID) {
+        log.info("Начало выполнения метода deleteById.");
+        boolean isDeleted = userStorage.deleteById(userID);
+        log.info("Пользователь c id = {} удалён.", userID);
+        return isDeleted;
+    }
+
+    @Override
+    public boolean deleteAll() {
+        log.info("Начало выполнения метода deleteAll.");
+        boolean areDeleted = userStorage.deleteAll();
+        log.info("Все пользователи удалены");
+        return areDeleted;
+    }
+
+//    @DeleteMapping(value = "/{id}")
+//    public boolean deleteById(@PathVariable("id") Integer userID) {
+//        log.info("Start deleting user with id = {}", userID);
+//        boolean isDeleted = userService.deleteById(userID);
+//        log.info("Finish deleting user with id = {}", userID);
+//        return isDeleted;
+//    }
+//
+//    @DeleteMapping
+//    public boolean deleteAll() {
+//        log.info("Start deleting all users");
+//        boolean areDeleted = userService.deleteAll();
+//        log.info("Finish deleting all users");
+//        return areDeleted;
+//    }
 
     @Override
     public User addToFriends(int userId, int friendId) {
