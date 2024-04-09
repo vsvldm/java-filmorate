@@ -8,5 +8,7 @@ import java.util.Set;
 public interface FilmGenreRepository {
     public void add(int filmId, Set<Genre> genres);
 
+    boolean remove(int filmId);
+
     public Collection<Genre> genreByFilm(int filmId);
 }
