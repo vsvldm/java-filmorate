@@ -19,6 +19,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.stream.Collectors;
 
@@ -147,7 +148,8 @@ public class FilmDbStorage implements FilmStorage {
                 resultSet.getLong("FILM_DURATION"),
                 new Mpa(resultSet.getInt("FILM_MPA"),
                         resultSet.getString("MPA_TITLE")),
-                new LinkedHashSet<>(genres.stream().sorted(Comparator.comparing(Genre::getId)).collect(Collectors.toSet())));
+                new LinkedHashSet<>(genres.stream().sorted(Comparator.comparing(Genre::getId)).collect(Collectors.toSet())),
+                new HashSet<>());
     }
 }
 
