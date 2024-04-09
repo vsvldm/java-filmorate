@@ -39,48 +39,53 @@ public class FilmServiceImpl implements FilmService {
         return film;
     }
 
-//    @Override
-//    public Film update(Film film) {
-//        log.info("Начало выполнения метода update.");
-//        log.info("Проверка существования фильма с id ={}.", film.getId());
-//        if (filmStorage.update(film)) {
-//            Film filmFromDB = filmStorage.getById(film.getId());
-//
-//            log.info("Фильм с id = {} успешно обновлен", film.getId());
-//            return filmFromDB;
-//        } else {
-//            throw new NotFoundException(String.format("Фильма с id = %d не существует.", film.getId()));
-//        }
-//    }
-
     @Override
     public Film update(Film film) {
+        log.info("Начало выполнения метода update.");
+        log.info("Проверка существования фильма с id ={}.", film.getId());
+        if (filmStorage.update(film)) {
+            Film filmFromDB = filmStorage.getById(film.getId());
 
-        boolean isSuccess = filmRepository.update(film);
-
-        if (!isSuccess) {
-            throw new NotFoundException("Film with id = " + film.getId() + " hasn't been found");
+            log.info("Фильм с id = {} успешно обновлен", film.getId());
+            return filmFromDB;
+        } else {
+            throw new NotFoundException(String.format("Фильма с id = %d не существует.", film.getId()));
         }
-
-        genreRepository.removeGenresForFilm(film.getId());
-
-        Set<Integer> uniqueGenreIds = new HashSet<>();
-
-        for (Genre genre : film.getGenres()) {
-            uniqueGenreIds.add(genre.getId());
-        }
-
-        List<Genre> uniqueGenres = new ArrayList<>();
-        for (Integer genreId : uniqueGenreIds) {
-            Genre genre = new Genre();
-            genre.setId(genreId);
-            uniqueGenres.add(genre);
-        }
-
-        genreRepository.add(film.getId(), uniqueGenres);
-        film.setGenres(uniqueGenres);
-
     }
+
+    /**
+     * метод update() нужно заставить обновлять жанры, может быть стоит сделать, как ниже
+     */
+
+
+//    @Override
+//    public Film update(Film film) {
+//
+//        boolean isSuccess = filmRepository.update(film);
+//
+//        if (!isSuccess) {
+//            throw new NotFoundException("Film with id = " + film.getId() + " hasn't been found");
+//        }
+//
+//        genreRepository.removeGenresForFilm(film.getId());
+//
+//        Set<Integer> uniqueGenreIds = new HashSet<>();
+//
+//        for (Genre genre : film.getGenres()) {
+//            uniqueGenreIds.add(genre.getId());
+//        }
+//
+//        List<Genre> uniqueGenres = new ArrayList<>();
+//        for (Integer genreId : uniqueGenreIds) {
+//            Genre genre = new Genre();
+//            genre.setId(genreId);
+//            uniqueGenres.add(genre);
+//        }
+//
+//        genreRepository.add(film.getId(), uniqueGenres);
+//        film.setGenres(uniqueGenres);
+//
+//    }
 
     @Override
     public Film findById(int filmId) {
