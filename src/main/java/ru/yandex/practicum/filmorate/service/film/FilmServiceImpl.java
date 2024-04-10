@@ -39,6 +39,9 @@ public class FilmServiceImpl implements FilmService {
         log.info("Начало выполнения метода update.");
         log.info("Проверка существования фильма с id ={}.", film.getId());
         if (filmStorage.update(film)) {
+            filmGenreRepository.remove(film.getId());
+            filmGenreRepository.add(film.getId(), film.getGenres());
+
             Film filmFromDB = filmStorage.getById(film.getId());
 
             log.info("Фильм с id = {} успешно обновлен", film.getId());
@@ -90,13 +93,14 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public Film removeLike(int filmId, int userId) {
         log.info("Начало выполнения метода removeLike.");
-        log.info("Проверка существования фильма с id = {}.", filmId);
+        log.info("Проверка существования фильма с id = {} и пользователя с id = {}.", filmId, userId);
         Film film = filmStorage.getById(filmId);
+        User user = userStorage.getById(userId);
 
-        if (likeStorage.remove(film.getId(), userId)) {
-            log.info("Лайк пользователя с id = {} удален.", userId);
+        if (likeStorage.remove(film.getId(), user.getId())) {
+            log.info("Лайк пользователя с id = {} удален.", user.getId());
         } else {
-            log.info("Пользователь с id = {} не ставил лайк фильму {}.", userId, film.getName());
+            log.info("Пользователь с id = {} не ставил лайк фильму c id = {}.", user.getId(), film.getId());
         }
         return film;
     }
