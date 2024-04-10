@@ -22,7 +22,6 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.stream.Collectors;
 
-
 @Service
 @Slf4j
 @RequiredArgsConstructor
@@ -149,6 +148,7 @@ public class FilmServiceImpl implements FilmService {
         }
         return films;
     }
+
     @Override
     public List<Film> findByDirector(int directorId, String sortBy) {
         directorRepository.findById(directorId).orElseThrow(() -> new NotFoundException(
