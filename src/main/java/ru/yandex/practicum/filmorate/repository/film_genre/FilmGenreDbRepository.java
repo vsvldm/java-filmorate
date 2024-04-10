@@ -41,7 +41,7 @@ public class FilmGenreDbRepository implements FilmGenreRepository {
                 "join GENRES G on G.GENRE_ID = FG.GENRE_ID " +
                 "where FILM_ID = ?";
 
-        return jdbcOperations.query(sql,this::makeGenre, filmId);
+        return (Set<Genre>) jdbcOperations.query(sql,this::makeGenre, filmId);
     }
 
     private Genre makeGenre(ResultSet rs, int rowNum) throws SQLException {
