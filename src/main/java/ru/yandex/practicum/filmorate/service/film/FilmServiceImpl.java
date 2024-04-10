@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.director.DirectorRepository;
 import ru.yandex.practicum.filmorate.repository.film.FilmStorage;
@@ -38,11 +37,9 @@ public class FilmServiceImpl implements FilmService {
     @Override
     public Film create(Film film) {
         Set<Director> directors = film.getDirectors();
-
         log.info("Начало выполнения метода create.");
         int filmId = filmStorage.add(film);
         film.setId(filmId);
-
         filmGenreRepository.add(filmId, film.getGenres());
         film.setId(filmId);
         filmGenreRepository.add(filmId,film.getGenres());
@@ -51,7 +48,6 @@ public class FilmServiceImpl implements FilmService {
                 directorRepository.addDirectorsToFilm(directors, film.getId());
             }
         }
-
         log.info("Фильм id = {} успешно создан", filmId);
         return film;
     }
