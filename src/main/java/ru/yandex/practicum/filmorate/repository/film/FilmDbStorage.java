@@ -155,21 +155,9 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getRecommendations(int userId) {
-        String sql =
-                "SELECT DISTINCT F.* " +
-                        "FROM FILMS F " +
-                        "JOIN FILM_GENRE FG ON F.FILM_ID = FG.FILM_ID " +
-                        "JOIN GENRES G ON FG.GENRE_ID = G.GENRE_ID " +
-                        "JOIN LIKES L ON F.FILM_ID = L.FILM_ID " +
-                        "JOIN FRIENDS FR ON L.USER_ID = FR.FRIEND_ID " +
-                        "JOIN USERS U ON FR.USER_ID = U.USER_ID " +
-                        "WHERE U.USER_ID = ? " +
-                        "AND L.USER_ID != ? " +
-                        "AND F.FILM_ID NOT IN (SELECT FILM_ID FROM LIKES WHERE USER_ID = ?) " +
-                        "ORDER BY RAND() LIMIT 3";
-
-        return jdbcTemplate.query(sql, this::makeFilm, userId, userId, userId);
+    public Collection<Film> getFilmsByUser(int id) {
+        String sql = "SELECT * FROM FILMS WHERE FILM_ID NOT IN (SELECT DISTINCT FILM_ID FROM LIKES)";
+        return jdbcOperations.query(sql, this::makeFilm);
     }
 }
 

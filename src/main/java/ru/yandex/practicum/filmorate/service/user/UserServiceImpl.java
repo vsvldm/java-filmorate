@@ -11,10 +11,8 @@ import ru.yandex.practicum.filmorate.repository.film.FilmStorage;
 import ru.yandex.practicum.filmorate.repository.friend.FriendStorage;
 import ru.yandex.practicum.filmorate.repository.user.UserStorage;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -133,8 +131,40 @@ public class UserServiceImpl implements UserService {
         return commonFriends;
     }
 
-    public List<Film> getRecommendations(int userId) {
-        findById(userId);
-        return filmStorage.getRecommendations(userId);
+    /**
+     * Метод предоставляет рекомендуемые фильмы для пользователя.
+     * Точность таргета зависит от активности пользователя.
+     *
+     * @param id id пользователя для которого запрашиваются рекомендации.
+     * @return возвращает список рекомендуемых фильмов или пустой список если таргет недостаточно обогащен.
+     * @throws NotFoundException генерирует 404 ошибку в случае если пользователь не зарегистрирован.
+     */
+    public List<Film> getRecommendations(int id) {
+        if (userStorage.getById(id) == null) {
+            throw new NotFoundException(String.format("пользователь с id %d не зарегистрирован.", id));
+        } else {
+            log.info("Запрошены рекомендации для пользователя с id {}", id);
+            final Collection<Film> userFilms = filmStorage.getFilmsByUser(id);
+            int userId = 0;
+            long countCoincidences = 0;
+            for (User user : userStorage.getAllUsers()) {
+                if (user.getId() != id) {
+                    long count = 0;
+                    for (Film film : filmStorage.getFilmsByUser(user.getId())) {
+                        if (userFilms.contains(film)) {
+                            count++;
+                        }
+                    }
+                    if (count > countCoincidences) {
+                        userId = user.getId();
+                        countCoincidences = count;
+                    }
+                }
+            }
+            log.info("Рекомендации для пользователя с id {} успешно предоставлены", id);
+            return filmStorage.getFilmsByUser(userId).stream()
+                    .filter(film -> !userFilms.contains(film))
+                    .collect(Collectors.toList());
+        }
     }
 }
