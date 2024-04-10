@@ -18,4 +18,6 @@ public interface FilmService {
     public Film addLike(int filmId, int userId);
 
     public Film removeLike(int filmId, int userId);
+
+    public List<Film> findByDirector(int directorId, String sortBy);
 }

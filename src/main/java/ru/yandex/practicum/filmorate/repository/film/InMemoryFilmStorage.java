@@ -6,10 +6,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.repository.like.InMemoryLikeStorage;
 import ru.yandex.practicum.filmorate.repository.like.LikeStorage;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -63,6 +60,16 @@ public class InMemoryFilmStorage implements FilmStorage {
                 .sorted(this::compare)
                 .limit(count)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<Film> findFilmsByDirectorSortByYear(int directorId) {
+        return null;
+    }
+
+    @Override
+    public List<Film> findFilmsByDirectorSortByLikes(int directorId) {
+        return null;
     }
 
     private int compare(Film f1, Film f2) {
