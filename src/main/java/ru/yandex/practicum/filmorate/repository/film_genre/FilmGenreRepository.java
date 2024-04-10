@@ -2,7 +2,7 @@ package ru.yandex.practicum.filmorate.repository.film_genre;
 
 import ru.yandex.practicum.filmorate.model.Genre;
 
-import java.util.Collection;
+import javax.validation.Valid;
 import java.util.Set;
 
 public interface FilmGenreRepository {
@@ -10,5 +10,5 @@ public interface FilmGenreRepository {
 
     boolean remove(int filmId);
 
-    public Collection<Genre> genreByFilm(int filmId);
+    public @Valid Set<Genre> genreByFilm(int filmId);
 }

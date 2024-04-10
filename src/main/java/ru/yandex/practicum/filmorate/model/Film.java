@@ -2,6 +2,8 @@ package ru.yandex.practicum.filmorate.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.jetbrains.annotations.NotNull;
 import ru.yandex.practicum.filmorate.annotation.ValidDate;
 
@@ -15,6 +17,7 @@ import java.util.Set;
 @Data
 @AllArgsConstructor
 public class Film {
+    @Getter
     private int id;
     @NotNull
     @NotBlank
@@ -25,8 +28,10 @@ public class Film {
     private final LocalDate releaseDate;
     @PositiveOrZero
     private final long duration;
+    @Setter
     @Valid
-    private final Mpa mpa;
+    private Mpa mpa;
+    @Setter
     @Valid
-    private final Set<Genre> genres;
+    private  Set<Genre> genres;
 }

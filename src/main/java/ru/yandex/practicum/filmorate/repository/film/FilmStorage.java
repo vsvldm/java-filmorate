@@ -16,4 +16,6 @@ public interface FilmStorage {
     public Collection<Film> getAllFilms();
 
     public Collection<Film> getPopularFilms(int count);
+
+    Collection<Film> getFilmsByUser(int id);
 }

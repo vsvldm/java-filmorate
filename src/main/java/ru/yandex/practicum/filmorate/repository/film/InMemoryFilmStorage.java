@@ -68,4 +68,12 @@ public class InMemoryFilmStorage implements FilmStorage {
     private int compare(Film f1, Film f2) {
         return Integer.compare(likeStorage.getUserLikesByFilm(f2.getId()).size(), likeStorage.getUserLikesByFilm(f1.getId()).size());
     }
+    /**
+     * Метод заглушка для неактуальной реализации.
+     */
+    @Override
+    public Collection<Film> getFilmsByUser(int id) {
+        return null;
+    }
+
 }

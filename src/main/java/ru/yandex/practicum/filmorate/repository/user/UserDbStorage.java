@@ -87,4 +87,5 @@ public class UserDbStorage implements UserStorage {
                 resultSet.getObject("USER_BIRTHDAY", LocalDate.class),
                 resultSet.getString("USER_EMAIL"));
     }
+
 }

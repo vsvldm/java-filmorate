@@ -5,14 +5,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.repository.film.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.repository.friend.FriendStorage;
 import ru.yandex.practicum.filmorate.repository.user.UserStorage;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -21,6 +21,11 @@ import java.util.Set;
 public class UserServiceImpl implements UserService {
     private final UserStorage userStorage;
     private final FriendStorage friendStorage;
+    /**
+     * Поле для доступа к операциям с фильмами
+     */
+    private final InMemoryFilmStorage filmService;
+
 
     @Override
     public User create(User user) {
@@ -128,5 +133,41 @@ public class UserServiceImpl implements UserService {
         }
         log.info("Общие друзья у пользователей с id = {} и id = {} успешно найдены.", userId, otherId);
         return commonFriends;
+    }
+    /**
+     * Метод предоставляет рекомендуемые фильмы для пользователя.
+     * Точность таргета зависит от активности пользователя.
+     *
+     * @param id id пользователя для которого запрашиваются рекомендации.
+     * @return возвращает список рекомендуемых фильмов или пустой список если таргет недостаточно обогащен.
+     * @throws NotFoundException генерирует 404 ошибку в случае если пользователь не зарегистрирован.
+     */
+    public List<Film> getRecommendations(int id) {
+        if (userStorage.getById(id) == null) {
+            throw new NotFoundException(String.format("пользователь с id %d не зарегистрирован.", id));
+        } else {
+            log.info("Запрошены рекомендации для пользователя с id {}", id);
+            final Collection<Film> userFilms = filmService.getFilmsByUser(id);
+            int userId = 0;
+            long countCoincidences = 0;
+            for (User user : userStorage.getAllUsers()) {
+                if (user.getId() != id) {
+                    long count = 0;
+                    for (Film film : filmService.getFilmsByUser(user.getId())) {
+                        if (userFilms.contains(film)) {
+                            count++;
+                        }
+                    }
+                    if (count > countCoincidences) {
+                        userId = user.getId();
+                        countCoincidences = count;
+                    }
+                }
+            }
+            log.info("Рекомендации для пользователя с id {} успешно предоставлены", id);
+            return filmService.getFilmsByUser(userId).stream()
+                    .filter(film -> !userFilms.contains(film))
+                    .collect(Collectors.toList());
+        }
     }
 }

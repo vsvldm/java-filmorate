@@ -9,9 +9,11 @@ import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.film.FilmStorage;
 import ru.yandex.practicum.filmorate.repository.film_genre.FilmGenreRepository;
 import ru.yandex.practicum.filmorate.repository.like.LikeStorage;
+import ru.yandex.practicum.filmorate.repository.mpa.MpaDbRepository;
 import ru.yandex.practicum.filmorate.repository.user.UserStorage;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 @Service
@@ -22,6 +24,7 @@ public class FilmServiceImpl implements FilmService {
     private final LikeStorage likeStorage;
     private final UserStorage userStorage;
     private final FilmGenreRepository filmGenreRepository;
+    private final MpaDbRepository mpaDao;
 
     @Override
     public Film create(Film film) {
@@ -105,5 +108,13 @@ public class FilmServiceImpl implements FilmService {
         return film;
     }
 
+    public Collection<Film> getFilmsByUser(int id) {
+        Collection<Film> films = filmStorage.getFilmsByUser(id);
+        for (Film film : films) {
+            film.setGenres(filmGenreRepository.genreByFilm(film.getId()));
+            film.setMpa(mpaDao.getById(film.getMpa().getId()));
+        }
+        return films;
+    }
 
 }
