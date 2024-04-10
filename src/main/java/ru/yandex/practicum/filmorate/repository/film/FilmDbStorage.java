@@ -20,6 +20,7 @@ import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Repository
@@ -149,6 +150,32 @@ public class FilmDbStorage implements FilmStorage {
                 new Mpa(resultSet.getInt("FILM_MPA"),
                         resultSet.getString("MPA_TITLE")),
                 new LinkedHashSet<>(genres.stream().sorted(Comparator.comparing(Genre::getId)).collect(Collectors.toSet())));
+    }
+
+    @Override
+    public List<Film> getRecommendations(int userId) {
+        String sql =
+                "SELECT * FROM FILM F " + //(4)
+                        "JOIN RATING R ON F.RATING_ID = R.RATING_ID " +
+                        "WHERE F.FILM_ID IN (" +
+                        "SELECT FILM_ID FROM FILM_LIKE " + //(2)
+                        "WHERE USER_ID IN (" +
+                        "SELECT FL1.USER_ID FROM FILM_LIKE FL1 " + //(1)
+                        "RIGHT JOIN FILM_LIKE FL2 ON FL2.FILM_ID = FL1.FILM_ID " +
+                        "GROUP BY FL1.USER_ID, FL2.USER_ID " +
+                        "HAVING FL1.USER_ID IS NOT NULL AND " +
+                        "FL1.USER_ID != ? AND " +
+                        "FL2.USER_ID = ? " +
+                        "ORDER BY COUNT(FL1.USER_ID) DESC " +
+                        "LIMIT 3 " +
+                        ") " +
+                        "AND FILM_ID NOT IN (" +
+                        "SELECT FILM_ID FROM FILM_LIKE " + //(3)
+                        "WHERE USER_ID = ?" +
+                        ")" +
+                        ")";
+
+        return jdbcOperations.query(sql,this::makeFilm, userId, userId, userId);
     }
 }
 

@@ -6,10 +6,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.repository.like.InMemoryLikeStorage;
 import ru.yandex.practicum.filmorate.repository.like.LikeStorage;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -67,5 +64,10 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     private int compare(Film f1, Film f2) {
         return Integer.compare(likeStorage.getUserLikesByFilm(f2.getId()).size(), likeStorage.getUserLikesByFilm(f1.getId()).size());
+    }
+
+    @Override
+    public List<Film> getRecommendations(int userId) {
+        return null; //inmemory больше не поддерживаем, поэтому просто заглушка
     }
 }
