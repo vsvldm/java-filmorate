@@ -155,27 +155,19 @@ public class FilmDbStorage implements FilmStorage {
     @Override
     public List<Film> getRecommendations(int userId) {
         String sql =
-                "SELECT * FROM FILM F " + //(4)
-                        "JOIN RATING R ON F.RATING_ID = R.RATING_ID " +
-                        "WHERE F.FILM_ID IN (" +
-                        "SELECT FILM_ID FROM FILM_LIKE " + //(2)
-                        "WHERE USER_ID IN (" +
-                        "SELECT FL1.USER_ID FROM FILM_LIKE FL1 " + //(1)
-                        "RIGHT JOIN FILM_LIKE FL2 ON FL2.FILM_ID = FL1.FILM_ID " +
-                        "GROUP BY FL1.USER_ID, FL2.USER_ID " +
-                        "HAVING FL1.USER_ID IS NOT NULL AND " +
-                        "FL1.USER_ID != ? AND " +
-                        "FL2.USER_ID = ? " +
-                        "ORDER BY COUNT(FL1.USER_ID) DESC " +
-                        "LIMIT 3 " +
-                        ") " +
-                        "AND FILM_ID NOT IN (" +
-                        "SELECT FILM_ID FROM FILM_LIKE " + //(3)
-                        "WHERE USER_ID = ?" +
-                        ")" +
-                        ")";
+                "SELECT DISTINCT F.* " +
+                        "FROM FILMS F " +
+                        "JOIN FILM_GENRE FG ON F.FILM_ID = FG.FILM_ID " +
+                        "JOIN GENRES G ON FG.GENRE_ID = G.GENRE_ID " +
+                        "JOIN LIKES L ON F.FILM_ID = L.FILM_ID " +
+                        "JOIN FRIENDS FR ON L.USER_ID = FR.FRIEND_ID " +
+                        "JOIN USERS U ON FR.USER_ID = U.USER_ID " +
+                        "WHERE U.USER_ID = ? " +
+                        "AND L.USER_ID != ? " +
+                        "AND F.FILM_ID NOT IN (SELECT FILM_ID FROM LIKES WHERE USER_ID = ?) " +
+                        "ORDER BY RAND() LIMIT 3";
 
-        return jdbcOperations.query(sql,this::makeFilm, userId, userId, userId);
+        return jdbcOperations.query(sql, this::makeFilm, userId, userId, userId);
     }
 }
 
