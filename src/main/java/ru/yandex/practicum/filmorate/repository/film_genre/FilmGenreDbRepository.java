@@ -28,13 +28,6 @@ public class FilmGenreDbRepository implements FilmGenreRepository {
     }
 
     @Override
-    public boolean remove(int filmId) {
-        String sql = "delete from FILM_GENRE where FILM_ID = ?";
-
-        return jdbcOperations.update(sql, filmId) > 0;
-    }
-
-    @Override
     public Collection<Genre> genreByFilm(int filmId) {
         String sql = "select FG.GENRE_ID, GENRE_TITLE " +
                 "from FILM_GENRE FG " +

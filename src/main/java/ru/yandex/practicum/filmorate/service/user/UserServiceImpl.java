@@ -5,7 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.repository.feed.FeedDBRepository;
 import ru.yandex.practicum.filmorate.repository.friend.FriendStorage;
 import ru.yandex.practicum.filmorate.repository.user.UserStorage;
 
@@ -21,6 +23,7 @@ import java.util.Set;
 public class UserServiceImpl implements UserService {
     private final UserStorage userStorage;
     private final FriendStorage friendStorage;
+    private final FeedDBRepository feedStorage;
 
     @Override
     public User create(User user) {
@@ -76,6 +79,11 @@ public class UserServiceImpl implements UserService {
 
         friendStorage.add(user.getId(), friend.getId());
         log.info("Пользователь login = {} добавил в друзья login = {}.", user.getLogin(), friend.getLogin());
+
+        log.info("Запись информации о событии в таблицу");
+        feedStorage.addFeed("FRIEND", "ADD", friendId, userId);
+        log.info("Информация о событии успешно сохранена");
+
         return user;
     }
 
@@ -91,6 +99,11 @@ public class UserServiceImpl implements UserService {
         } else {
             log.info("Пользователя login = {} нет в друзьях у пользователя login = {}.", user.getLogin(), friend.getLogin());
         }
+
+        log.info("Запись информации о событии в таблицу");
+        feedStorage.addFeed("FRIEND", "REMOVE", friendId, userId);
+        log.info("Информация о событии успешно сохранена");
+
         return user;
     }
 
@@ -128,5 +141,22 @@ public class UserServiceImpl implements UserService {
         }
         log.info("Общие друзья у пользователей с id = {} и id = {} успешно найдены.", userId, otherId);
         return commonFriends;
+    }
+
+    @Override
+    public List<Feed> getFeed(int userId) {//Скорее всего потребуется перенести в другой сервис
+        List<User> friendList = findAllFriendsByUser(userId);
+        List<Integer> friendIdList = new ArrayList<>();
+
+        for (User friend : friendList) {
+            friendIdList.add(friend.getId());
+        }
+
+        List<Feed> feedList = new ArrayList<>();
+        for (int id : friendIdList) {
+            feedList.addAll(feedStorage.getFeedById(id));
+        }
+
+        return feedList;
     }
 }
