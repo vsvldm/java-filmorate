@@ -19,7 +19,6 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.stream.Collectors;
 
@@ -132,6 +131,22 @@ public class FilmDbStorage implements FilmStorage {
         return jdbcOperations.query(sql, this::makeFilm, count);
     }
 
+    @Override
+    public Collection<Film> getFilmsByUser(int id) {
+        String sql = "SELECT F.FILM_ID, " +
+                "F.FILM_NAME, " +
+                "F.FILM_DESCRIPTION, " +
+                "F.FILM_RELEASE_DATE, " +
+                "F.FILM_DURATION, " +
+                "F.FILM_MPA, " +
+                "M.MPA_TITLE " +
+                "FROM FILMS F " +
+                "JOIN MPA M ON F.FILM_MPA = M.MPA_ID " +
+                "WHERE F.FILM_ID IN (SELECT FILM_ID FROM LIKES WHERE USER_ID = ?)";
+
+        return jdbcOperations.query(sql, this::makeFilm, id);
+    }
+
     private Film makeFilm(ResultSet resultSet, int rn) throws SQLException {
         String sql = "select FG.GENRE_ID, GENRE_TITLE " +
                 "from FILM_GENRE FG " +
@@ -151,15 +166,6 @@ public class FilmDbStorage implements FilmStorage {
                 new Mpa(resultSet.getInt("FILM_MPA"),
                         resultSet.getString("MPA_TITLE")),
                 new LinkedHashSet<>(genres.stream().sorted(Comparator.comparing(Genre::getId)).collect(Collectors.toSet())));
-    }
-
-    @Override
-    public Collection<Film> getFilmsByUser(int id) {
-        String sql = "SELECT F.FILM_ID, F.FILM_NAME, F.FILM_DESCRIPTION, F.FILM_RELEASE_DATE, F.FILM_DURATION, M.MPA_TITLE " +
-                "FROM FILMS F " +
-                "JOIN MPA M ON F.FILM_MPA = M.MPA_ID " +
-                "WHERE F.FILM_ID IN (SELECT FILM_ID FROM LIKES WHERE USER_ID = ?)";
-        return jdbcOperations.query(sql, this::makeFilm, id);
     }
 }
 
