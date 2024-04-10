@@ -19,5 +19,6 @@ public interface FilmService {
     public Film addLike(int filmId, int userId);
 
     public Film removeLike(int filmId, int userId);
+
     public Collection<Film> getFilmsByUser(int id);
 }
