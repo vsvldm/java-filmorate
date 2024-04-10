@@ -1,10 +1,8 @@
 package ru.yandex.practicum.filmorate.repository.film;
 
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 
 import java.util.Collection;
-import java.util.HashSet;
 
 public interface FilmStorage {
     public int add(Film film);

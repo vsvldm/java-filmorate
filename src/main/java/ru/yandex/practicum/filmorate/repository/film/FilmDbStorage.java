@@ -155,7 +155,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Collection<Film> getFilmsByUser(int id) {
-        String sql = "SELECT F.FILM_ID, F.FILM_NAME, F.FILM_DESCRIPTION, F.FILM_RELEASE_DATE, F.FILM_DURATION, M.MPA_TITLE " +
+        String sql = "SELECT F.FILM_ID, F.FILM_NAME, F.FILM_DESCRIPTION, F.FILM_RELEASE_DATE, F.FILM_DURATION, F.FILM_MPA, M.MPA_TITLE " +
                 "FROM FILMS F " +
                 "JOIN MPA M ON F.FILM_MPA = M.MPA_ID " +
                 "WHERE F.FILM_ID IN (SELECT FILM_ID FROM LIKES WHERE USER_ID = ?)";
