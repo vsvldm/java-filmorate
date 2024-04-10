@@ -18,10 +18,10 @@ class UserTest {
 
     @Test
     public void ifUserNameIsEmptyThenNameIsLoginValidateTest() {
-        User user = new User(1," ", "Login",
+        User user = new User(1, " ", "Login",
                 LocalDate.of(1990, 1, 1),
                 "nameorlogin@example.com");
-        UserService userService = new UserServiceImpl(new InMemoryUserStorage(), new InMemoryFriendStorage(), new InMemoryFilmStorage ());
+        UserService userService = new UserServiceImpl(new InMemoryUserStorage(), new InMemoryFriendStorage(), new InMemoryFilmStorage());
         userService.create(user);
         assertNotNull(user);
         assertEquals(user.getName(), user.getLogin());
