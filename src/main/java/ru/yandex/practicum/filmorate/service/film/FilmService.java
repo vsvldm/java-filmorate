@@ -21,4 +21,5 @@ public interface FilmService {
     public Film removeLike(int filmId, int userId);
 
     public Collection<Film> getFilmsByUser(int id);
+    public List<Film> findByDirector(int directorId, String sortBy);
 }

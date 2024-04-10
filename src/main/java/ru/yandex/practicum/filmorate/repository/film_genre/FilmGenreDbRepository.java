@@ -5,9 +5,9 @@ import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Genre;
 
+import javax.validation.Valid;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Collection;
 import java.util.Set;
 
 @Repository
@@ -35,7 +35,7 @@ public class FilmGenreDbRepository implements FilmGenreRepository {
     }
 
     @Override
-    public Collection<Genre> genreByFilm(int filmId) {
+    public @Valid Set<Genre> genreByFilm(int filmId) {
         String sql = "select FG.GENRE_ID, GENRE_TITLE " +
                 "from FILM_GENRE FG " +
                 "join GENRES G on G.GENRE_ID = FG.GENRE_ID " +
