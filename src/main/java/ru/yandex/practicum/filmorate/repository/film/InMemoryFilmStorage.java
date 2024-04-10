@@ -73,7 +73,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public HashSet<Genre> getGenresByFilm(int id){
+    public HashSet<Genre> getGenresByFilm(int id) {
         return null; //inmemory больше не поддерживаем, поэтому просто заглушка
     }
 }
