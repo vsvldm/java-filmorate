@@ -134,6 +134,7 @@ public class UserServiceImpl implements UserService {
         log.info("Общие друзья у пользователей с id = {} и id = {} успешно найдены.", userId, otherId);
         return commonFriends;
     }
+
     /**
      * Метод предоставляет рекомендуемые фильмы для пользователя.
      * Точность таргета зависит от активности пользователя.
