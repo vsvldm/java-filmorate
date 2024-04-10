@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcOperations;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 @Primary
 public class FilmDbStorage implements FilmStorage {
     private final JdbcOperations jdbcOperations;
+    private final JdbcTemplate jdbcTemplate;
 
     @Override
     public int add(Film film) {
@@ -167,7 +169,7 @@ public class FilmDbStorage implements FilmStorage {
                         "AND F.FILM_ID NOT IN (SELECT FILM_ID FROM LIKES WHERE USER_ID = ?) " +
                         "ORDER BY RAND() LIMIT 3";
 
-        return jdbcOperations.query(sql, this::makeFilm, userId, userId, userId);
+        return jdbcTemplate.query(sql, this::makeFilm, userId, userId, userId);
     }
 }
 

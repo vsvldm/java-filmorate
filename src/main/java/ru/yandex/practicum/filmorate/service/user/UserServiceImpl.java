@@ -133,16 +133,8 @@ public class UserServiceImpl implements UserService {
         return commonFriends;
     }
 
-    public User findUserById(int id) {
-        User user = userStorage.getById(id);
-        if (user == null) {
-            log.warn("Пользователя с id {} не найдено", id);
-        }
-        return user;
-    }
-
     public List<Film> getRecommendations(int userId) {
-        findUserById(userId);
+        findById(userId);
         return filmStorage.getRecommendations(userId);
     }
 }
