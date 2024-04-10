@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.film.FilmStorage;
 import ru.yandex.practicum.filmorate.repository.film_genre.FilmGenreRepository;
@@ -15,6 +16,7 @@ import ru.yandex.practicum.filmorate.service.mpa.MpaService;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -111,7 +113,7 @@ public class FilmServiceImpl implements FilmService {
     public Collection<Film> getFilmsByUser(int id) {
         Collection<Film> films = filmStorage.getFilmsByUser(id);
         for (Film film : films) {
-            film.setGenres(filmStorage.getGenresByFilm(film.getId()));
+            film.setGenres((Set<Genre>) filmGenreRepository.genreByFilm(film.getId()));
             film.setMpa(mpaDao.findById(film.getMpa().getId()));
         }
         return films;

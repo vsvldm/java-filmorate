@@ -154,20 +154,11 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public HashSet<Genre> getGenresByFilm(int filmId) {
-        String sql = "SELECT FG.GENRE_ID, G.GENRE_TITLE " +
-                "FROM FILM_GENRE FG " +
-                "JOIN GENRES G ON FG.GENRE_ID = G.GENRE_ID " +
-                "WHERE FG.FILM_ID = ? " +
-                "ORDER BY G.GENRE_ID";
-
-        return new HashSet<>(jdbcOperations.query(sql, (rs, rowNum) ->
-                new Genre(rs.getInt("GENRE_ID"), rs.getString("GENRE_TITLE")), filmId));
-    }
-
-    @Override
     public Collection<Film> getFilmsByUser(int id) {
-        String sql = "SELECT * FROM FILMS WHERE FILM_ID IN (SELECT FILM_ID FROM LIKES WHERE USER_ID = ?)";
+        String sql = "SELECT F.FILM_ID, F.FILM_NAME, F.FILM_DESCRIPTION, F.FILM_RELEASE_DATE, F.FILM_DURATION, M.MPA_TITLE " +
+                "FROM FILMS F " +
+                "JOIN MPA M ON F.FILM_MPA = M.MPA_ID " +
+                "WHERE F.FILM_ID IN (SELECT FILM_ID FROM LIKES WHERE USER_ID = ?)";
         return jdbcOperations.query(sql, this::makeFilm, id);
     }
 }
