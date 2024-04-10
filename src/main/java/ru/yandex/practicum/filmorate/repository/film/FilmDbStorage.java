@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 @Primary
 public class FilmDbStorage implements FilmStorage {
     private final JdbcOperations jdbcOperations;
-    private final JdbcTemplate jdbcTemplate;
+
     @Override
     public int add(Film film) {
         String sql = "insert into FILMS(FILM_NAME," +
@@ -151,10 +151,11 @@ public class FilmDbStorage implements FilmStorage {
                         resultSet.getString("MPA_TITLE")),
                 new LinkedHashSet<>(genres.stream().sorted(Comparator.comparing(Genre::getId)).collect(Collectors.toSet())));
     }
+
     @Override
     public Collection<Film> getFilmsByUser(int id) {
-        String sql="SELECT * FROM film WHERE film_id IN (SELECT film_id FROM likes WHERE user_id = ?)";
-        return  jdbcOperations.query(sql, this::makeFilm, id);
+        String sql = "SELECT * FROM film WHERE film_id IN (SELECT film_id FROM likes WHERE user_id = ?)";
+        return jdbcOperations.query(sql, this::makeFilm, id);
     }
 }
 
