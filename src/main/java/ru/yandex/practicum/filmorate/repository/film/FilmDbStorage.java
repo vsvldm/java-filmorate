@@ -155,7 +155,7 @@ public class FilmDbStorage implements FilmStorage {
 
     @Override
     public Collection<Film> getFilmsByUser(int id) {
-        String sql ="SELECT F.* FROM FILMS F JOIN LIKES L ON F.FILM_ID = L.FILM_ID WHERE L.USER_ID = ?";
+        String sql = "SELECT F.* FROM FILMS F JOIN LIKES L ON F.FILM_ID = L.FILM_ID WHERE L.USER_ID = ?";
 
         return jdbcOperations.query(sql, this::makeFilm);
     }
