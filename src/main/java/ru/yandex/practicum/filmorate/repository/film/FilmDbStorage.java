@@ -20,6 +20,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.stream.Collectors;
 
@@ -28,7 +29,7 @@ import java.util.stream.Collectors;
 @Primary
 public class FilmDbStorage implements FilmStorage {
     private final JdbcOperations jdbcOperations;
-    private final JdbcTemplate jdbcTemplate;
+
 
     @Override
     public int add(Film film) {
@@ -154,10 +155,21 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
+    public HashSet<Genre> getGenresByFilm(int filmId) {
+        String sql = "SELECT FG.GENRE_ID, G.GENRE_TITLE " +
+                "FROM FILM_GENRE FG " +
+                "JOIN GENRES G ON FG.GENRE_ID = G.GENRE_ID " +
+                "WHERE FG.FILM_ID = ? " +
+                "ORDER BY G.GENRE_ID";
+
+        return new HashSet<>(jdbcOperations.query(sql, (rs, rowNum) ->
+                new Genre(rs.getInt("GENRE_ID"), rs.getString("GENRE_TITLE")), filmId));
+    }
+
+    @Override
     public Collection<Film> getFilmsByUser(int id) {
         String sql = "SELECT * FROM FILMS WHERE FILM_ID IN (SELECT FILM_ID FROM LIKES WHERE USER_ID = ?)";
-
-        return jdbcOperations.query(sql, this::makeFilm,id);
+        return jdbcOperations.query(sql, this::makeFilm, id);
     }
 }
 

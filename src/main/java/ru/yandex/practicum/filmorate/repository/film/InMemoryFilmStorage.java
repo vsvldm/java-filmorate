@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.repository.film;
 import org.springframework.stereotype.Component;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.repository.like.InMemoryLikeStorage;
 import ru.yandex.practicum.filmorate.repository.like.LikeStorage;
 
@@ -68,6 +69,11 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public List<Film> getFilmsByUser(int userId) {
+        return null; //inmemory больше не поддерживаем, поэтому просто заглушка
+    }
+
+    @Override
+    public HashSet<Genre> getGenresByFilm(int id){
         return null; //inmemory больше не поддерживаем, поэтому просто заглушка
     }
 }
