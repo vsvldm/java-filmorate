@@ -70,3 +70,21 @@ create table if not exists LIKES
         foreign key (USER_ID) references USERS
 );
 
+create table if not exists REVIEWS
+(
+    REVIEW_ID      INTEGER auto_increment,
+    REVIEW_CONTENT CHARACTER VARYING(2000) not null,
+    REVIEW_TYPE    BOOLEAN not null,
+    REVIEW_USER_ID INTEGER not null,
+    REVIEW_FILM_ID INTEGER not null,
+    REVIEW_USEFUL  INTEGER default 0,
+    constraint REVIEWS_PK
+    primary key (REVIEW_ID),
+    constraint REVIEWS_FILMS_FILM_ID_FK
+    foreign key (REVIEW_FILM_ID) references FILMS,
+    constraint REVIEWS_USERS_USER_ID_FK
+    foreign key (REVIEW_USER_ID) references USERS
+    );
+
+
+
