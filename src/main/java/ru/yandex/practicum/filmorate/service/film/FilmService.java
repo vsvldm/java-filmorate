@@ -20,4 +20,6 @@ public interface FilmService {
     public Film removeLike(int filmId, int userId);
 
     public List<Film> findByDirector(int directorId, String sortBy);
+
+    public List<Film> findCommonFilms(int userId, int friendId);
 }

@@ -167,9 +167,35 @@ public class FilmDbStorage implements FilmStorage {
                 "JOIN PUBLIC.MPA m on f.FILM_MPA = m.MPA_ID " +
                 "WHERE fd.DIRECTOR_ID = ? " +
                 "GROUP BY f.FILM_ID " +
-                "ORDER BY COUNT(l.USER_ID)";
+                "ORDER BY COUNT(l.USER_ID) DESC";
         try {
             return jdbcOperations.query(sql, this::makeFilm, directorId);
+        } catch (EmptyResultDataAccessException e) {
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
+    public List<Film> findCommonFilms(int userId, int friendId) {
+        String sql = "SELECT f.FILM_ID, " +
+                "f.FILM_NAME," +
+                "f.FILM_DESCRIPTION, " +
+                "f.FILM_RELEASE_DATE, " +
+                "f.FILM_DURATION, " +
+                "f.FILM_MPA, " +
+                "m.MPA_TITLE " +
+                "FROM PUBLIC.FILMS f " +
+                "LEFT JOIN PUBLIC.LIKES l on f.FILM_ID = l.FILM_ID " +
+                "JOIN PUBLIC.MPA m on F.FILM_MPA = M.MPA_ID " +
+                "WHERE l.USER_ID = ? AND  l.FILM_ID IN ( " +
+                "                                       SELECT FILM_ID " +
+                "                                       FROM PUBLIC.LIKES " +
+                "                                       WHERE USER_ID = ?) " +
+                "GROUP BY f.FILM_ID " +
+                "ORDER BY COUNT(l.USER_ID) DESC ";
+
+        try {
+            return jdbcOperations.query(sql, this::makeFilm, userId, friendId);
         } catch (EmptyResultDataAccessException e) {
             return new ArrayList<>();
         }

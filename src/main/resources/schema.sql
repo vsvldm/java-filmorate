@@ -64,6 +64,7 @@ create table if not exists LIKES
 (
     FILM_ID INTEGER not null,
     USER_ID INTEGER not null,
+    CONSTRAINT LIKES_PK PRIMARY KEY (FILM_ID, USER_ID),
     constraint LIKES_FILMS_FILM_ID_FK
         foreign key (FILM_ID) references FILMS,
     constraint LIKES_USERS_USER_ID_FK

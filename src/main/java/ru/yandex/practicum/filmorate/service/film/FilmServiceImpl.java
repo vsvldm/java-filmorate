@@ -151,5 +151,13 @@ public class FilmServiceImpl implements FilmService {
         throw new BadRequestException("Неверный параметр сортировки");
     }
 
+    @Override
+    public List<Film> findCommonFilms(int userId, int friendId) {
+        userStorage.getById(userId);
+        userStorage.getById(friendId);
+
+        return filmStorage.findCommonFilms(userId, friendId);
+    }
+
 
 }

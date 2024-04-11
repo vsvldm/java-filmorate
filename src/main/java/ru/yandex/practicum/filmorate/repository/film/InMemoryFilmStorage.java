@@ -72,6 +72,11 @@ public class InMemoryFilmStorage implements FilmStorage {
         return null;
     }
 
+    @Override
+    public List<Film> findCommonFilms(int userId, int friendId) {
+        return null;
+    }
+
     private int compare(Film f1, Film f2) {
         return Integer.compare(likeStorage.getUserLikesByFilm(f2.getId()).size(), likeStorage.getUserLikesByFilm(f1.getId()).size());
     }

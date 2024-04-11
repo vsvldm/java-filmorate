@@ -21,4 +21,6 @@ public interface FilmStorage {
     public List<Film> findFilmsByDirectorSortByYear(int directorId);
 
     public List<Film> findFilmsByDirectorSortByLikes(int directorId);
+
+    public List<Film> findCommonFilms(int userId, int friendId);
 }
