@@ -20,7 +20,9 @@ public class ReviewServiceImpl implements ReviewService {
 
     @Override
     public Review create(Review review) {
-        return null;
+        log.info("Начало выполнения метода create.");
+        review.setReviewId(reviewRepository.add(review));
+        return review;
     }
 
     @Override

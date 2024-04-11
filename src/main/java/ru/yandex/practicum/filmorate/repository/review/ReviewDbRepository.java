@@ -24,8 +24,8 @@ public class ReviewDbRepository implements ReviewRepository {
         String sql = "insert into REVIEWS(REVIEW_CONTENT, " +
                 "REVIEW_TYPE, " +
                 "REVIEW_USER_ID, " +
-                "REVIEW_FILM_ID " +
-                "values(?, ?, ?, ?)";
+                "REVIEW_FILM_ID) " +
+                "values (?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcOperations.update(
