@@ -65,19 +65,19 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public boolean deleteById(Integer userID) {
+    public void deleteById(int userID) {
         log.info("Начало выполнения метода deleteById.");
-        boolean isDeleted = userStorage.deleteById(userID);
+        userStorage.deleteById(userID);
+
         log.info("Пользователь c id = {} удалён.", userID);
-        return isDeleted;
     }
 
     @Override
-    public boolean deleteAll() {
+    public void deleteAll() {
         log.info("Начало выполнения метода deleteAll.");
-        boolean areDeleted = userStorage.deleteAll();
+        userStorage.deleteAll();
+
         log.info("Все пользователи удалены");
-        return areDeleted;
     }
 
     @Override

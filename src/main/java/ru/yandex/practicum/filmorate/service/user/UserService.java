@@ -13,9 +13,9 @@ public interface UserService {
 
     public List<User> findAll();
 
-    boolean deleteById(Integer userID);
+    public void deleteById(int userID);
 
-    boolean deleteAll();
+    public void deleteAll();
 
     public User addToFriends(int userId, int friendId);
 

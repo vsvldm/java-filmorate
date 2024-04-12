@@ -45,13 +45,13 @@ public class UserController {
     }
 
     @DeleteMapping( "/{id}")
-    public boolean deleteById(@PathVariable("id") Integer userID) {
-        return userService.deleteById(userID);
+    public void deleteById(@PathVariable("id") Integer userID) {
+        userService.deleteById(userID);
     }
 
     @DeleteMapping
-    public boolean deleteAll() {
-        return userService.deleteAll();
+    public void deleteAll() {
+        userService.deleteAll();
     }
 
     @PutMapping("/{userId}/friends/{friendId}")
