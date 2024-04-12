@@ -9,7 +9,9 @@ public interface UserStorage {
 
     public boolean update(User user);
 
-    public void remove(int userId);
+    boolean deleteById(Integer userID);
+
+    boolean deleteAll();
 
     public User getById(int userId);
 

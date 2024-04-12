@@ -10,7 +10,9 @@ public interface FilmStorage {
 
     public boolean update(Film film);
 
-    public void remove(int filmId);
+    public boolean deleteById(int filmID);
+
+    public boolean deleteAll();
 
     public Film getById(int filmId);
 
