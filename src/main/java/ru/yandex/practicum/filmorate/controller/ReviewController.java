@@ -43,7 +43,6 @@ public class ReviewController {
     }
 
     @PutMapping("/{reviewId}/like/{userId}")
-    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void addLikeReview(@PathVariable int reviewId, @PathVariable int userId) {
         reviewService.addLike(reviewId, userId);
     }
