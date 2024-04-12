@@ -25,7 +25,7 @@ create table if not exists FILMS
     constraint FILMS_PK
         primary key (FILM_ID),
     constraint FILMS_RATINGS_MPA_FK
-        foreign key (FILM_MPA) references MPA
+        foreign key (FILM_MPA) references MPA ON DELETE CASCADE
 );
 
 create table if not exists FILM_GENRE
@@ -33,9 +33,10 @@ create table if not exists FILM_GENRE
     FILM_ID  INTEGER not null,
     GENRE_ID INTEGER not null,
     constraint FILM_GENRE_FK
-        foreign key (FILM_ID) references FILMS,
+        foreign key (FILM_ID) references FILMS ON DELETE CASCADE,
     constraint FILM_GENRE___FK
-        foreign key (GENRE_ID) references GENRES
+        foreign key (GENRE_ID) references GENRES ON DELETE CASCADE,
+    constraint UNIQUE_GENRES unique (FILM_ID, GENRE_ID)
 );
 
 create table if not exists USERS
@@ -54,9 +55,9 @@ create table if not exists FRIENDS
     USER_ID   INTEGER not null,
     FRIEND_ID INTEGER not null,
     constraint FRIENDS_USER_ID_FK
-        foreign key (USER_ID) references USERS,
+        foreign key (USER_ID) references USERS ON DELETE CASCADE,
     constraint FRIENDS_FRIEND_ID_FK
-        foreign key (FRIEND_ID) references USERS,
+        foreign key (FRIEND_ID) references USERS ON DELETE CASCADE,
     constraint UNIQUE_FRIENDS unique (USER_ID, FRIEND_ID)
 );
 
@@ -65,9 +66,9 @@ create table if not exists LIKES
     FILM_ID INTEGER not null,
     USER_ID INTEGER not null,
     constraint LIKES_FILMS_FILM_ID_FK
-        foreign key (FILM_ID) references FILMS,
+        foreign key (FILM_ID) references FILMS ON DELETE CASCADE,
     constraint LIKES_USERS_USER_ID_FK
-        foreign key (USER_ID) references USERS
+        foreign key (USER_ID) references USERS ON DELETE CASCADE
 );
 
 create table if not exists REVIEWS
