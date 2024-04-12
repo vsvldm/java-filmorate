@@ -69,12 +69,17 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public void remove(int filmId) {
-        String sqlRemoveFromFilmGenre = "delete from FILM_GENRE where FILM_ID = ?";
-        String sqlRemoveFromFilms = "delete from FILMS where FILM_ID = ?";
+    public boolean deleteById(int filmID) {
+        String sqlQuery = "DELETE FROM FILMS WHERE FILM_ID = ?";
 
-        jdbcOperations.update(sqlRemoveFromFilmGenre, filmId);
-        jdbcOperations.update(sqlRemoveFromFilms, filmId);
+        return jdbcOperations.update(sqlQuery, filmID) > 0;
+    }
+
+    @Override
+    public boolean deleteAll() {
+        String sqlQuery = "DELETE FROM FILMS";
+
+        return jdbcOperations.update(sqlQuery) > 0;
     }
 
     @Override
@@ -219,7 +224,7 @@ public class FilmDbStorage implements FilmStorage {
                 resultSet.getLong("FILM_DURATION"),
                 new Mpa(resultSet.getInt("FILM_MPA"),
                         resultSet.getString("MPA_TITLE")),
-                new LinkedHashSet<>(genres.stream().sorted(Comparator.comparing(Genre::getId)).collect(Collectors.toSet())),
+                new LinkedHashSet<>(genres.stream().sorted(Comparator.comparing(Genre::getId)).collect(Collectors.toCollection(LinkedHashSet::new))),
                 new HashSet<>(directorRepository.findDirectorsByFilm(resultSet.getInt("FILM_ID"))));
     }
 }

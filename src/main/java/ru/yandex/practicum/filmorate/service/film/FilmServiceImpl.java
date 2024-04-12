@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
+import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.director.DirectorRepository;
 import ru.yandex.practicum.filmorate.repository.film.FilmStorage;
@@ -14,10 +15,7 @@ import ru.yandex.practicum.filmorate.repository.film_genre.FilmGenreRepository;
 import ru.yandex.practicum.filmorate.repository.like.LikeStorage;
 import ru.yandex.practicum.filmorate.repository.user.UserStorage;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -36,9 +34,17 @@ public class FilmServiceImpl implements FilmService {
 
         log.info("Начало выполнения метода create.");
         int filmId = filmStorage.add(film);
-        film.setId(filmId);
 
-        filmGenreRepository.add(filmId,film.getGenres());
+        film.setId(filmId);
+        filmGenreRepository.add(filmId, film.getGenres());
+        if (film.getGenres() != null) {
+            film.setGenres(new LinkedHashSet<>(film.getGenres().stream()
+                    .sorted(Comparator.comparing(Genre::getId))
+                    .collect(Collectors.toCollection(LinkedHashSet::new))));
+        } else {
+            film.setGenres(new LinkedHashSet<>());
+        }
+
         if (directors != null) {
             if (!directors.isEmpty()) {
                 directorRepository.addDirectorsToFilm(directors, film.getId());
@@ -99,6 +105,22 @@ public class FilmServiceImpl implements FilmService {
 
         log.info("Список всех фильмом найден.");
         return films;
+    }
+
+    @Override
+    public void deleteById(int filmID) {
+        log.info("Начало выполнения метода deleteById.");
+        filmStorage.deleteById(filmID);
+
+        log.info("Фильм с id = {} удалён.", filmID);
+    }
+
+    @Override
+    public void deleteAll() {
+        log.info("Начало выполнения метода deleteAll.");
+        filmStorage.deleteAll();
+
+        log.info("Все фильмы удалены.");
     }
 
     @Override

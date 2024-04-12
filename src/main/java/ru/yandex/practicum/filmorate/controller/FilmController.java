@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
@@ -37,6 +38,18 @@ public class FilmController {
     @PutMapping
     public Film updateFilm(@Valid @RequestBody Film film) {
          return filmService.update(film);
+    }
+
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteById(@PathVariable("id") Integer filmID) {
+        filmService.deleteById(filmID);
+    }
+
+    @DeleteMapping
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteAll() {
+        filmService.deleteAll();
     }
 
     @PutMapping("/{filmId}/like/{userId}")

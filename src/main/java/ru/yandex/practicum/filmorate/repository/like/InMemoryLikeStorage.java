@@ -22,4 +22,9 @@ public class InMemoryLikeStorage implements LikeStorage {
     public boolean remove(int filmId, int userId) {
         return likes.get(filmId).remove(userId);
     }
+
+    @Override
+    public boolean existsLike(Integer filmId, Integer userId) {
+        return false;
+    }
 }
