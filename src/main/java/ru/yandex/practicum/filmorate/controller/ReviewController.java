@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.service.review.ReviewService;
@@ -25,6 +26,7 @@ public class ReviewController {
     }
 
     @DeleteMapping("/{reviewId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeReview(@PathVariable int reviewId) {
         reviewService.removeById(reviewId);
     }
@@ -41,6 +43,7 @@ public class ReviewController {
     }
 
     @PutMapping("/{reviewId}/like/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void addLikeReview(@PathVariable int reviewId, @PathVariable int userId) {
         reviewService.addLike(reviewId, userId);
     }
@@ -51,11 +54,13 @@ public class ReviewController {
     }
 
     @DeleteMapping("/{reviewId}/like/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeLikeReview(@PathVariable int reviewId, @PathVariable int userId) {
         reviewService.removeLike(reviewId, userId);
     }
 
     @DeleteMapping("/{reviewId}/dislike/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public void removeDislikeReview(@PathVariable int reviewId, @PathVariable int userId) {
         reviewService.removeDislike(reviewId, userId);
     }
