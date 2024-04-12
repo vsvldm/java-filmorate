@@ -37,7 +37,7 @@ public class FilmServiceImpl implements FilmService {
 
         film.setId(filmId);
         filmGenreRepository.add(filmId, film.getGenres());
-        if(film.getGenres() != null) {
+        if (film.getGenres() != null) {
             film.setGenres(new LinkedHashSet<>(film.getGenres().stream()
                     .sorted(Comparator.comparing(Genre::getId))
                     .collect(Collectors.toCollection(LinkedHashSet::new))));
