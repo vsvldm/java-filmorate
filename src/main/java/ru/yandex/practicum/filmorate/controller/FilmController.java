@@ -58,4 +58,10 @@ public class FilmController {
     public Film removeLike(@PathVariable int filmId, @PathVariable int userId) {
         return filmService.removeLike(filmId, userId);
     }
+
+    @GetMapping("director/{directorId}")
+    public List<Film> findByDirector(@PathVariable int directorId,
+                                     @RequestParam(required = false, defaultValue = "year") String sortBy) {
+        return filmService.findByDirector(directorId, sortBy);
+    }
 }

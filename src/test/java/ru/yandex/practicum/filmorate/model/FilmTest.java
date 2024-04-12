@@ -20,14 +20,17 @@ class FilmTest {
     @Test
     public void filmNameNotBeEmptyTest() {
         Set<Genre> genres =  new HashSet<>();
+        Set<Director> directors = new HashSet<>();
         genres.add(new Genre(1, null));
-        Film film = new Film(1, " ", "Description", LocalDate.now(), 0, new Mpa(1, null), genres);
+        Film film = new Film(1, " ", "Description",
+                LocalDate.now(), 0, new Mpa(1, null), genres, directors);
         assertFalse(validator.validate(film).isEmpty());
     }
 
     @Test
     public void filmDescriptionMaxLengthTest() {
         Set<Genre> genres =  new HashSet<>();
+        Set<Director> directors = new HashSet<>();
 
         genres.add(new Genre(1, null));
         Film film = new Film(1, "Name",
@@ -37,7 +40,8 @@ class FilmTest {
                 LocalDate.now(),
                 0,
                 new Mpa(1, null),
-                genres);
+                genres,
+                directors);
 
         assertFalse(validator.validate(film).isEmpty());
     }
@@ -45,6 +49,7 @@ class FilmTest {
     @Test
     public void filmValidDateTest() {
         Set<Genre> genres =  new HashSet<>();
+        Set<Director> directors = new HashSet<>();
 
         genres.add(new Genre(1, null));
         Film film = new Film(1, "Name",
@@ -52,7 +57,8 @@ class FilmTest {
                 LocalDate.of(1700, 1, 1),
                 0,
                 new Mpa(1, null),
-                genres);
+                genres,
+                directors);
 
         assertFalse(validator.validate(film).isEmpty()); // Проверяем, что есть ошибки валидации
     }
@@ -60,9 +66,11 @@ class FilmTest {
     @Test
     public void filmDurationPositiveOrZeroTest() {
         Set<Genre> genres =  new HashSet<>();
+        Set<Director> directors = new HashSet<>();
 
         genres.add(new Genre(1, null));
-        Film film = new Film(1, "Name", "Description", LocalDate.now(), -10, new Mpa(1, null), genres);
+        Film film = new Film(1, "Name", "Description",
+                LocalDate.now(), -10, new Mpa(1, null), genres, directors);
         assertFalse(validator.validate(film).isEmpty()); // Проверяем, что есть ошибки валидации
     }
 }

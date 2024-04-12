@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.repository.film;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.dao.DataAccessException;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
@@ -11,15 +12,14 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
+import ru.yandex.practicum.filmorate.repository.director.DirectorRepository;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.LinkedHashSet;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 @Primary
 public class FilmDbStorage implements FilmStorage {
     private final JdbcOperations jdbcOperations;
+    private final DirectorRepository directorRepository;
 
     @Override
     public int add(Film film) {
@@ -68,7 +69,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public boolean deleteById(Integer filmID) {
+    public boolean deleteById(int filmID) {
         String sqlQuery = "DELETE FROM FILMS WHERE FILM_ID = ?";
 
         return jdbcOperations.update(sqlQuery, filmID) > 0;
@@ -125,13 +126,58 @@ public class FilmDbStorage implements FilmStorage {
                 "FILM_MPA, " +
                 "M.MPA_TITLE " +
                 "from FILMS F " +
-                "join LIKES L on F.FILM_ID = L.FILM_ID " +
+                "left join LIKES L on F.FILM_ID = L.FILM_ID " +
                 "join MPA M on F.FILM_MPA = M.MPA_ID " +
-                "group by L.FILM_ID " +
+                "group by F.FILM_ID " +
+                "having count(L.USER_ID) >= 0 " +
                 "order by count(L.USER_ID) desc " +
                 "limit ?";
 
         return jdbcOperations.query(sql, this::makeFilm, count);
+    }
+
+    @Override
+    public List<Film> findFilmsByDirectorSortByYear(int directorId) {
+        String sql = "SELECT f.FILM_ID, " +
+                "f.FILM_NAME," +
+                "f.FILM_DESCRIPTION, " +
+                "f.FILM_RELEASE_DATE, " +
+                "f.FILM_DURATION, " +
+                "f.FILM_MPA, " +
+                "m.MPA_TITLE " +
+                "FROM PUBLIC.FILM_DIRECTOR fd " +
+                "JOIN PUBLIC.FILMS f ON fd.FILM_ID = f.FILM_ID " +
+                "JOIN PUBLIC.MPA m on f.FILM_MPA = m.MPA_ID " +
+                "WHERE fd.DIRECTOR_ID = ? " +
+                "ORDER BY EXTRACT(YEAR FROM f.FILM_RELEASE_DATE)";
+        try {
+            return jdbcOperations.query(sql, this::makeFilm, directorId);
+        } catch (EmptyResultDataAccessException e) {
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
+    public List<Film> findFilmsByDirectorSortByLikes(int directorId) {
+        String sql = "SELECT f.FILM_ID, " +
+                "f.FILM_NAME," +
+                "f.FILM_DESCRIPTION, " +
+                "f.FILM_RELEASE_DATE, " +
+                "f.FILM_DURATION, " +
+                "f.FILM_MPA, " +
+                "m.MPA_TITLE " +
+                "FROM PUBLIC.FILM_DIRECTOR fd " +
+                "JOIN PUBLIC.FILMS f ON fd.FILM_ID = f.FILM_ID " +
+                "LEFT JOIN LIKES l on f.FILM_ID = l.FILM_ID " +
+                "JOIN PUBLIC.MPA m on f.FILM_MPA = m.MPA_ID " +
+                "WHERE fd.DIRECTOR_ID = ? " +
+                "GROUP BY f.FILM_ID " +
+                "ORDER BY COUNT(l.USER_ID)";
+        try {
+            return jdbcOperations.query(sql, this::makeFilm, directorId);
+        } catch (EmptyResultDataAccessException e) {
+            return new ArrayList<>();
+        }
     }
 
     private Film makeFilm(ResultSet resultSet, int rn) throws SQLException {
@@ -152,7 +198,8 @@ public class FilmDbStorage implements FilmStorage {
                 resultSet.getLong("FILM_DURATION"),
                 new Mpa(resultSet.getInt("FILM_MPA"),
                         resultSet.getString("MPA_TITLE")),
-                new LinkedHashSet<>(genres.stream().sorted(Comparator.comparing(Genre::getId)).collect(Collectors.toSet())));
+                new LinkedHashSet<>(genres.stream().sorted(Comparator.comparing(Genre::getId)).collect(Collectors.toCollection(LinkedHashSet::new))),
+                new HashSet<>(directorRepository.findDirectorsByFilm(resultSet.getInt("FILM_ID"))));
     }
 }
 

@@ -5,21 +5,23 @@ import ru.yandex.practicum.filmorate.model.Film;
 import java.util.List;
 
 public interface FilmService {
-    Film create(Film film);
+    public Film create(Film film);
 
-    Film update(Film film);
+    public Film update(Film film);
 
-    Film findById(int filmId);
+    public Film findById(int filmId);
 
-    List<Film> findAll();
+    public List<Film> findAll();
 
-    List<Film> findPopular(int count);
+    public List<Film> findPopular(int count);
 
-    boolean deleteById(Integer filmID);
+    public boolean deleteById(int filmID);
 
-    boolean deleteAll();
+    public boolean deleteAll();
 
-    Film addLike(int filmId, int userId);
+    public Film addLike(int filmId, int userId);
 
-    Film removeLike(int filmId, int userId);
+    public Film removeLike(int filmId, int userId);
+
+    public List<Film> findByDirector(int directorId, String sortBy);
 }

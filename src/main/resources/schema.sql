@@ -1,6 +1,3 @@
--- DROP TABLE FILM_GENRE, GENRES, MPA, LIKES, USERS, FRIENDS, FILMS;
-
-
 create table if not exists GENRES
 (
     GENRE_ID    INTEGER auto_increment,
@@ -71,5 +68,24 @@ create table if not exists LIKES
         foreign key (FILM_ID) references FILMS ON DELETE CASCADE,
     constraint LIKES_USERS_USER_ID_FK
         foreign key (USER_ID) references USERS ON DELETE CASCADE
+);
+
+create table if not exists DIRECTORS
+(
+    DIRECTOR_ID INTEGER auto_increment,
+    DIRECTOR_NAME CHARACTER VARYING(64) not null,
+    constraint DIRECTORS_PK
+        primary key (DIRECTOR_ID)
+);
+
+create table if not exists FILM_DIRECTOR
+(
+    FILM_ID  INTEGER not null,
+    DIRECTOR_ID INTEGER not null,
+    CONSTRAINT FILM_DIRECTOR_PK PRIMARY KEY (FILM_ID, DIRECTOR_ID),
+    constraint FILM_DIRECTOR_FK
+        foreign key (FILM_ID) references FILMS ON DELETE CASCADE ON UPDATE CASCADE,
+    constraint DIRECTOR_FILM_FK
+        foreign key (DIRECTOR_ID) references DIRECTORS ON DELETE CASCADE ON UPDATE CASCADE
 );
 
