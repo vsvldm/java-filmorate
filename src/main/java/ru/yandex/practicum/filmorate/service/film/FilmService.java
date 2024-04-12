@@ -15,9 +15,9 @@ public interface FilmService {
 
     public List<Film> findPopular(int count);
 
-    public boolean deleteById(int filmID);
+    public void deleteById(int filmID);
 
-    public boolean deleteAll();
+    public void deleteAll();
 
     public Film addLike(int filmId, int userId);
 

@@ -39,14 +39,14 @@ public class FilmController {
          return filmService.update(film);
     }
 
-    @DeleteMapping(value = "/{id}")
-    public boolean deleteById(@PathVariable("id") Integer filmID) {
-        return filmService.deleteById(filmID);
+    @DeleteMapping("/{id}")
+    public void deleteById(@PathVariable("id") Integer filmID) {
+        filmService.deleteById(filmID);
     }
 
     @DeleteMapping
-    public boolean deleteAll() {
-        return filmService.deleteAll();
+    public void deleteAll() {
+        filmService.deleteAll();
     }
 
     @PutMapping("/{filmId}/like/{userId}")

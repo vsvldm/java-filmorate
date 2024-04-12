@@ -108,19 +108,19 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public boolean deleteById(int filmID) {
+    public void deleteById(int filmID) {
         log.info("Начало выполнения метода deleteById.");
         boolean isDeleted = filmStorage.deleteById(filmID);
+
         log.info("Фильм с id = {} удалён.", filmID);
-        return isDeleted;
     }
 
     @Override
-    public boolean deleteAll() {
+    public void deleteAll() {
         log.info("Начало выполнения метода deleteAll.");
         boolean areDeleted = filmStorage.deleteAll();
+
         log.info("Все фильмы удалены.");
-        return areDeleted;
     }
 
     @Override
