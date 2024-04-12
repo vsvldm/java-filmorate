@@ -32,7 +32,7 @@ public class ReviewDbRepository implements ReviewRepository {
                 connection -> {
                     PreparedStatement ps = connection.prepareStatement(sql, new String[]{"REVIEW_ID"});
                     ps.setString(1, review.getContent());
-                    ps.setBoolean(2, review.isPositive());
+                    ps.setBoolean(2, review.getIsPositive());
                     ps.setInt(3, review.getUserId());
                     ps.setInt(4, review.getFilmId());
                     return ps;
@@ -45,16 +45,12 @@ public class ReviewDbRepository implements ReviewRepository {
     public boolean update(Review review) {
         String sql = "update REVIEWS set REVIEW_CONTENT = ?, " +
                 "REVIEW_TYPE = ?, " +
-                "REVIEW_USER_ID = ?, " +
-                "REVIEW_FILM_ID = ?, " +
                 "REVIEW_USEFUL = ? " +
                 "where REVIEW_ID = ?";
 
         return jdbcOperations.update(sql,
                 review.getContent(),
-                review.isPositive(),
-                review.getUserId(),
-                review.getFilmId(),
+                review.getIsPositive(),
                 review.getUseful(),
                 review.getReviewId()) > 0;
     }
@@ -68,16 +64,23 @@ public class ReviewDbRepository implements ReviewRepository {
 
     @Override
     public Review getById(int reviewId) {
-        String sql = "select REVIEW_ID, " +
-                "REVIEW_CONTENT, " +
-                "REVIEW_TYPE, " +
-                "REVIEW_USER_ID, " +
-                "REVIEW_FILM_ID, " +
-                "REVIEW_USEFUL " +
-                "from REVIEWS " +
-                "where REVIEW_ID = ?";
+        String sql = "select R.REVIEW_ID, " +
+                                "REVIEW_CONTENT, " +
+                                "REVIEW_TYPE, " +
+                                "REVIEW_USER_ID, " +
+                                "REVIEW_FILM_ID, " +
+                                "coalesce(RL.USEFULNESS, 0) as USEFUL " +
+                     "from REVIEWS R " +
+                     "left join (select REVIEW_ID, " +
+                                        "USER_ID, " +
+                                        "sum(case when IS_LIKE then 1 else -1 end) as USEFULNESS " +
+                                 "from REVIEW_LIKES " +
+                                 "group by REVIEW_ID, " +
+                                            "USER_ID) RL on R.REVIEW_ID = RL.REVIEW_ID " +
+                     "where R.REVIEW_ID = ?";
+
         try {
-            return jdbcOperations.queryForObject(sql, this::makeReview);
+            return jdbcOperations.queryForObject(sql, this::makeReview, reviewId);
         } catch (DataAccessException e) {
             throw new NotFoundException(String.format("Отзыва с id = %d не существует.", reviewId));
         }
@@ -85,16 +88,45 @@ public class ReviewDbRepository implements ReviewRepository {
 
     @Override
     public Collection<Review> getAllByFilm(int filmId, int count) {
-        String sql = "select REVIEW_ID, " +
-                "REVIEW_CONTENT, " +
-                "REVIEW_TYPE, " +
-                "REVIEW_USER_ID, " +
-                "REVIEW_FILM_ID, " +
-                "REVIEW_USEFUL " +
-                "from REVIEWS " +
-                "where REVIEW_FILM_ID = ? " +
-                "order by REVIEW_USEFUL desc " +
-                "limit ?";
+        String sql = "select R.REVIEW_ID, " +
+                                "REVIEW_CONTENT, " +
+                                "REVIEW_TYPE, " +
+                                "REVIEW_USER_ID, " +
+                                "REVIEW_FILM_ID, " +
+                                "coalesce(RL.USEFULNESS, 0) as USEFUL " +
+                     "from REVIEWS R " +
+                     "left join (select REVIEW_ID, " +
+                                        "USER_ID, " +
+                                        "sum(case when IS_LIKE then 1 else -1 end) as USEFULNESS " +
+                                 "from REVIEW_LIKES " +
+                                 "group by REVIEW_ID, " +
+                                            "USER_ID) RL on R.REVIEW_ID = RL.REVIEW_ID " +
+                     "where REVIEW_FILM_ID = ? " +
+                     "group by R.REVIEW_ID " +
+                     "order by USEFUL desc " +
+                     "limit ?";
+
+        return jdbcOperations.query(sql, this::makeReview, filmId, count);
+    }
+
+    @Override
+    public Collection<Review> getAll(int count) {
+        String sql = "select R.REVIEW_ID, " +
+                                "REVIEW_CONTENT, " +
+                                "REVIEW_TYPE, " +
+                                "REVIEW_USER_ID, " +
+                                "REVIEW_FILM_ID, " +
+                                "coalesce(RL.USEFULNESS, 0) as USEFUL " +
+                     "from REVIEWS R " +
+                     "left join (select REVIEW_ID, " +
+                                        "USER_ID, " +
+                                        "sum(case when IS_LIKE then 1 else -1 end) as USEFULNESS " +
+                                 "from REVIEW_LIKES " +
+                                 "group by REVIEW_ID, " +
+                                            "USER_ID) RL on R.REVIEW_ID = RL.REVIEW_ID " +
+                     "order by USEFUL desc " +
+                     "limit ?";
+
         return jdbcOperations.query(sql, this::makeReview, count);
     }
 
@@ -104,6 +136,6 @@ public class ReviewDbRepository implements ReviewRepository {
                 rs.getBoolean("REVIEW_TYPE"),
                 rs.getInt("REVIEW_USER_ID"),
                 rs.getInt("REVIEW_FILM_ID"),
-                rs.getInt("REVIEW_USEFUL"));
+                rs.getInt("USEFUL"));
     }
 }

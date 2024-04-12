@@ -14,4 +14,6 @@ public interface ReviewRepository {
     public Review getById(int reviewId);
 
     public Collection<Review> getAllByFilm(int filmId, int count);
+
+    Collection<Review> getAll(int count);
 }

@@ -32,9 +32,9 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film create(Film film) {
+        log.info("Начало выполнения метода create.");
         Set<Director> directors = film.getDirectors();
 
-        log.info("Начало выполнения метода create.");
         int filmId = filmStorage.add(film);
         film.setId(filmId);
 
@@ -51,9 +51,9 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film update(Film film) {
+        log.info("Начало выполнения метода update.");
         Set<Director> directors = film.getDirectors();
 
-        log.info("Начало выполнения метода update.");
         log.info("Проверка существования фильма с id ={}.", film.getId());
         if (filmStorage.update(film)) {
             filmGenreRepository.remove(film.getId());
@@ -78,9 +78,9 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film findById(int filmId) {
+        log.info("Начало выполнения метода findById.");
         Set<Director> directors = new HashSet<>(directorRepository.findDirectorsByFilm(filmId));
 
-        log.info("Начало выполнения метода findById.");
         Film film = filmStorage.getById(filmId);
         if (!directors.isEmpty()) {
             film.setDirectors(directors);

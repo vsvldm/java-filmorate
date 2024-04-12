@@ -15,9 +15,9 @@ public interface ReviewService {
 
     public List<Review> findAllByFilm(int filmId, int count);
 
-    public Review addLike(int reviewId, int userId);
+    public void addLike(int reviewId, int userId);
 
-    public Review addDislike(int reviewId, int userId);
+    public void addDislike(int reviewId, int userId);
 
     public void removeLike(int reviewId, int userId);
 

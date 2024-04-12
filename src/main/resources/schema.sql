@@ -81,12 +81,10 @@ create table if not exists REVIEWS
     constraint REVIEWS_PK
     primary key (REVIEW_ID),
     constraint REVIEWS_FILMS_FILM_ID_FK
-    foreign key (REVIEW_FILM_ID) references FILMS,
+    foreign key (REVIEW_FILM_ID) references FILMS ON DELETE CASCADE,
     constraint REVIEWS_USERS_USER_ID_FK
-    foreign key (REVIEW_USER_ID) references USERS
+    foreign key (REVIEW_USER_ID) references USERS ON DELETE CASCADE
     );
-
-
 
 create table if not exists DIRECTORS
 (
@@ -107,3 +105,13 @@ create table if not exists FILM_DIRECTOR
         foreign key (DIRECTOR_ID) references DIRECTORS ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+create table if not exists REVIEW_LIKES
+(
+    REVIEW_ID INTEGER not null,
+    USER_ID   INTEGER not null,
+    IS_LIKE   boolean,
+    constraint REVIEW_LIKES_REVIEWS_REVIEW_ID_FK
+        foreign key (REVIEW_ID) references REVIEWS ON DELETE CASCADE,
+    constraint REVIEW_LIKES_USERS_USER_ID_FK
+        foreign key (USER_ID) references USERS ON DELETE CASCADE
+);
