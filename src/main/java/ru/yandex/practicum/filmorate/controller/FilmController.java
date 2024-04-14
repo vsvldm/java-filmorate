@@ -70,7 +70,7 @@ public class FilmController {
 
     @GetMapping("/search")
     public List<Film> searchFilms(@RequestParam(required = false) String query,
-                                  @RequestParam(required = false) String by){
+                                  @RequestParam(required = false) String by) {
         return filmService.searchFilms(query, by);
     }
 }
