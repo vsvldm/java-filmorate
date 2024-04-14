@@ -180,6 +180,42 @@ public class FilmDbStorage implements FilmStorage {
         }
     }
 
+    @Override
+    public List<Film> searchFilmForDirector(String query) {
+        String sql = "SELECT f.*, m.MPA_TITLE " +
+                "FROM FILMS f " +
+                "LEFT JOIN FILM_DIRECTOR fd ON fd.FILM_ID = f.FILM_ID " +
+                "LEFT JOIN DIRECTORS d ON d.DIRECTOR_ID = fd.DIRECTOR_ID " +
+                "LEFT JOIN MPA m ON f.FILM_MPA = m.MPA_ID " +
+                "WHERE LOWER(d.DIRECTOR_NAME) LIKE ?";
+        return jdbcOperations.query(sql, this::makeFilm, "%" + query.toLowerCase() + "%");
+    }
+
+    @Override
+    public List<Film> searchFilmForTitle(String query) {
+        String sql = "SELECT f.*, m.MPA_TITLE " +
+                "FROM FILMS f " +
+                "LEFT JOIN MPA m ON f.FILM_MPA = m.MPA_ID " +
+                "WHERE LOWER(f.FILM_NAME) LIKE ?";
+        return jdbcOperations.query(sql, this::makeFilm, "%" + query.toLowerCase() + "%");
+    }
+
+    @Override
+    public List<Film> searchFilmForTitleAndDirector(String query) {
+        String sql = "SELECT f.*, m.MPA_TITLE " +
+                "FROM FILMS f " +
+                "LEFT JOIN FILM_DIRECTOR fd ON fd.FILM_ID = f.FILM_ID " +
+                "LEFT JOIN DIRECTORS d ON d.DIRECTOR_ID = fd.DIRECTOR_ID " +
+                "LEFT JOIN MPA m ON f.FILM_MPA = m.MPA_ID " +
+                "LEFT JOIN LIKES l ON f.FILM_ID = l.FILM_ID " +
+                "WHERE LOWER(d.DIRECTOR_NAME) LIKE ? OR LOWER(f.FILM_NAME) LIKE ? " +
+                "GROUP BY f.FILM_ID, m.MPA_TITLE " +
+                "ORDER BY COUNT(l.USER_ID) DESC";
+        return jdbcOperations.query(sql, this::makeFilm,
+                "%" + query.toLowerCase() + "%", "%" + query.toLowerCase() + "%");
+    }
+
+
     private Film makeFilm(ResultSet resultSet, int rn) throws SQLException {
         String sql = "select FG.GENRE_ID, GENRE_TITLE " +
                 "from FILM_GENRE FG " +
