@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.repository.film.FilmStorage;
 import ru.yandex.practicum.filmorate.repository.film_genre.FilmGenreRepository;
 import ru.yandex.practicum.filmorate.repository.like.LikeStorage;
 import ru.yandex.practicum.filmorate.repository.user.UserStorage;
+import ru.yandex.practicum.filmorate.service.mpa.MpaService;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,13 +27,14 @@ public class FilmServiceImpl implements FilmService {
     private final LikeStorage likeStorage;
     private final UserStorage userStorage;
     private final FilmGenreRepository filmGenreRepository;
+    private final MpaService mpaDao;
     private final DirectorRepository directorRepository;
 
     @Override
     public Film create(Film film) {
+        log.info("Начало выполнения метода create.");
         Set<Director> directors = film.getDirectors();
 
-        log.info("Начало выполнения метода create.");
         int filmId = filmStorage.add(film);
 
         film.setId(filmId);
@@ -211,7 +213,5 @@ public class FilmServiceImpl implements FilmService {
         }
 
         return result;
-
     }
-
 }

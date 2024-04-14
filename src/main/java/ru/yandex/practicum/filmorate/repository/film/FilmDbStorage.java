@@ -29,6 +29,7 @@ public class FilmDbStorage implements FilmStorage {
     private final JdbcOperations jdbcOperations;
     private final DirectorRepository directorRepository;
 
+
     @Override
     public int add(Film film) {
         String sql = "insert into FILMS(FILM_NAME," +
@@ -236,6 +237,31 @@ public class FilmDbStorage implements FilmStorage {
                         resultSet.getString("MPA_TITLE")),
                 new LinkedHashSet<>(genres.stream().sorted(Comparator.comparing(Genre::getId)).collect(Collectors.toCollection(LinkedHashSet::new))),
                 new HashSet<>(directorRepository.findDirectorsByFilm(resultSet.getInt("FILM_ID"))));
+    }
+
+    @Override
+    public List<Film> getRecommendations(int id) {
+        String sql = "SELECT * FROM FILMS F " +
+                        "JOIN MPA M ON F.FILM_MPA = M.MPA_ID " +
+                        "WHERE F.FILM_ID IN (" +
+                        "SELECT FILM_ID FROM LIKES " +
+                        "WHERE USER_ID IN (" +
+                        "SELECT FL1.USER_ID FROM LIKES FL1 " +
+                        "RIGHT JOIN LIKES FL2 ON FL2.FILM_ID = FL1.FILM_ID " +
+                        "GROUP BY FL1.USER_ID, FL2.USER_ID " +
+                        "HAVING FL1.USER_ID IS NOT NULL AND " +
+                        "FL1.USER_ID != ? AND " +
+                        "FL2.USER_ID = ? " +
+                        "ORDER BY COUNT(FL1.USER_ID) DESC " +
+                        "LIMIT 3 " +
+                        ") " +
+                        "AND FILM_ID NOT IN (" +
+                        "SELECT FILM_ID FROM LIKES " +
+                        "WHERE USER_ID = ?" +
+                        ")" +
+                        ")";
+
+        return jdbcOperations.query(sql, this::makeFilm, id,id,id);
     }
 }
 

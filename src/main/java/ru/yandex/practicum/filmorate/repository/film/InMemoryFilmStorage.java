@@ -93,4 +93,9 @@ public class InMemoryFilmStorage implements FilmStorage {
     private int compare(Film f1, Film f2) {
         return Integer.compare(likeStorage.getUserLikesByFilm(f2.getId()).size(), likeStorage.getUserLikesByFilm(f1.getId()).size());
     }
+
+    @Override
+    public List<Film> getRecommendations(int userId) {
+        return null;
+    }
 }
