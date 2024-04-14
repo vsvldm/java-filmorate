@@ -32,13 +32,11 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film create(Film film) {
-        Set<Director> directors = film.getDirectors();
         log.info("Начало выполнения метода create.");
+        Set<Director> directors = film.getDirectors();
+
         int filmId = filmStorage.add(film);
-        film.setId(filmId);
-        filmGenreRepository.add(filmId, film.getGenres());
-        film.setId(filmId);
-        filmGenreRepository.add(filmId,film.getGenres());
+
         film.setId(filmId);
         filmGenreRepository.add(filmId, film.getGenres());
         if (film.getGenres() != null) {
@@ -48,11 +46,13 @@ public class FilmServiceImpl implements FilmService {
         } else {
             film.setGenres(new LinkedHashSet<>());
         }
+
         if (directors != null) {
             if (!directors.isEmpty()) {
                 directorRepository.addDirectorsToFilm(directors, film.getId());
             }
         }
+
         log.info("Фильм id = {} успешно создан", filmId);
         return film;
     }
