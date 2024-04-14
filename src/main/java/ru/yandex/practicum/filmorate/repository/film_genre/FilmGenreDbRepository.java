@@ -33,19 +33,4 @@ public class FilmGenreDbRepository implements FilmGenreRepository {
 
         return jdbcOperations.update(sql, filmId) > 0;
     }
-
-    @Override
-    public @Valid Set<Genre> genreByFilm(int filmId) {
-        String sql = "select FG.GENRE_ID, GENRE_TITLE " +
-                "from FILM_GENRE FG " +
-                "join GENRES G on G.GENRE_ID = FG.GENRE_ID " +
-                "where FILM_ID = ?";
-
-        return (Set<Genre>) jdbcOperations.query(sql,this::makeGenre, filmId);
-    }
-
-    private Genre makeGenre(ResultSet rs, int rowNum) throws SQLException {
-        return new Genre(rs.getInt("GENRE_ID"),
-                rs.getString("GENRE_TITLE"));
-    }
 }

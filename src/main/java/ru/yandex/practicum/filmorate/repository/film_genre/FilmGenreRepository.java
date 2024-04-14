@@ -10,5 +10,4 @@ public interface FilmGenreRepository {
 
     public boolean remove(int filmId);
 
-    public @Valid Set<Genre> genreByFilm(int filmId);
 }
