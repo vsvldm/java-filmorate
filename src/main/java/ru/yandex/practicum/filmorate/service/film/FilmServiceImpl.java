@@ -162,15 +162,6 @@ public class FilmServiceImpl implements FilmService {
         return film;
     }
 
-    public Collection<Film> getFilmsByUser(int id) {
-        Collection<Film> films = filmStorage.getFilmsByUser(id);
-        for (Film film : films) {
-            film.setGenres(filmGenreRepository.genreByFilm(film.getId()));
-            film.setMpa(mpaDao.findById(film.getMpa().getId()));
-        }
-        return films;
-    }
-
     @Override
     public List<Film> findByDirector(int directorId, String sortBy) {
         directorRepository.findById(directorId).orElseThrow(() -> new NotFoundException(

@@ -20,9 +20,9 @@ public interface FilmStorage {
 
     public Collection<Film> getPopularFilms(int count);
 
-    Collection<Film> getFilmsByUser(int id);
-
     public List<Film> findFilmsByDirectorSortByYear(int directorId);
+
+    public List<Film> getRecommendations(int id);
 
     public List<Film> findFilmsByDirectorSortByLikes(int directorId);
 

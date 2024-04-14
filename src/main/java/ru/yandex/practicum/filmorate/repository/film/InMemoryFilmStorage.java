@@ -80,7 +80,8 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getFilmsByUser(int userId) {
-        return null; //inmemory больше не поддерживаем, поэтому просто заглушка
+    public List<Film> getRecommendations(int userId)
+    {
+        return null;
     }
 }
