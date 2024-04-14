@@ -80,8 +80,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getRecommendations(int userId)
-    {
+    public List<Film> getRecommendations(int userId) {
         return null;
     }
 }
