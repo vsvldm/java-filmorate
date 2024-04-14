@@ -174,4 +174,44 @@ public class FilmServiceImpl implements FilmService {
         }
         throw new BadRequestException("Неверный параметр сортировки");
     }
+
+    @Override
+    public List<Film> searchFilms(String query, String by) {
+
+        log.info("Начало выполнения метода searchFilms.");
+
+        if (query == null && by == null) {
+            return new ArrayList<>(filmStorage.getPopularFilms(10));
+        }
+
+        if (query == null || query.isBlank()) {
+            log.warn("Пустой запрос");
+            return Collections.emptyList();
+        }
+
+        if (!("director".equals(by) || "title".equals(by) || "director,title".equals(by) ||
+                "title,director".equals(by))) {
+            throw new BadRequestException("Недопустимое значение параметра сортировки 'by': " + by);
+        }
+
+        List<Film> result = new ArrayList<>();
+
+        switch (by) {
+            case "director":
+                result = filmStorage.searchFilmForDirector(query);
+                log.debug("Получены все фильмы по имени режиссёра {}", query);
+                break;
+            case "title":
+                result = filmStorage.searchFilmForTitle(query);
+                log.debug("Получены все фильмы по названию {}", query);
+                break;
+            case "director,title":
+            case "title,director":
+                result = filmStorage.searchFilmForTitleAndDirector(query);
+                log.debug("Получены все фильмы по названию и режиссёру");
+                break;
+        }
+
+        return result;
+    }
 }

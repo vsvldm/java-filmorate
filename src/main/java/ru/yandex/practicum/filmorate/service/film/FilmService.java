@@ -24,4 +24,6 @@ public interface FilmService {
     public Film removeLike(int filmId, int userId);
 
     public List<Film> findByDirector(int directorId, String sortBy);
+
+    List<Film> searchFilms(String query, String by);
 }
