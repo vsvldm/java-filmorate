@@ -66,6 +66,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public void deleteById(int userID) {
+        log.info("Начало выполнения метода deleteById.");
+        userStorage.deleteById(userID);
+
+        log.info("Пользователь c id = {} удалён.", userID);
+    }
+
+    @Override
+    public void deleteAll() {
+        log.info("Начало выполнения метода deleteAll.");
+        userStorage.deleteAll();
+
+        log.info("Все пользователи удалены");
+    }
+
+    @Override
     public User addToFriends(int userId, int friendId) {
         log.info("Начало выполнения метода addToFriends.");
         if (userId == friendId) {
