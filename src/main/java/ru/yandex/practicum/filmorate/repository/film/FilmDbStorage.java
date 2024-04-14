@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 @Primary
 public class FilmDbStorage implements FilmStorage {
     private final JdbcOperations jdbcOperations;
-    private final DirectorRepository directorRepository;
 
 
     @Override
@@ -200,7 +199,7 @@ public class FilmDbStorage implements FilmStorage {
                 new Mpa(resultSet.getInt("FILM_MPA"),
                         resultSet.getString("MPA_TITLE")),
                 new LinkedHashSet<>(genres.stream().sorted(Comparator.comparing(Genre::getId)).collect(Collectors.toCollection(LinkedHashSet::new))),
-                new HashSet<>(directorRepository.findDirectorsByFilm(resultSet.getInt("FILM_ID"))));
+                new HashSet<>());
     }
 
     @Override

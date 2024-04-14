@@ -27,7 +27,6 @@ public class FilmServiceImpl implements FilmService {
     private final LikeStorage likeStorage;
     private final UserStorage userStorage;
     private final FilmGenreRepository filmGenreRepository;
-    private final MpaService mpaDao;
     private final DirectorRepository directorRepository;
 
     @Override
@@ -102,7 +101,7 @@ public class FilmServiceImpl implements FilmService {
         log.info("Начало выполнения метода findAll.");
         List<Film> films = filmStorage.getAllFilms()
                 .stream()
-                .peek(film -> film.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(film.getId()))))
+                .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
                 .collect(Collectors.toList());
 
         log.info("Список всех фильмом найден.");
@@ -164,13 +163,23 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public List<Film> findByDirector(int directorId, String sortBy) {
+        List<Film> films;
+
         directorRepository.findById(directorId).orElseThrow(() -> new NotFoundException(
                 String.format("Режиссер с ID = %d не найден ", directorId)));
         if ("year".equals(sortBy)) {
-            return filmStorage.findFilmsByDirectorSortByYear(directorId);
+            films = filmStorage.findFilmsByDirectorSortByYear(directorId)
+                    .stream()
+                    .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
+                    .collect(Collectors.toList());
+            return films;
         }
         if ("likes".equals(sortBy)) {
-            return filmStorage.findFilmsByDirectorSortByLikes(directorId);
+            films = filmStorage.findFilmsByDirectorSortByLikes(directorId)
+                    .stream()
+                    .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
+                    .collect(Collectors.toList());
+            return films;
         }
         throw new BadRequestException("Неверный параметр сортировки");
     }
