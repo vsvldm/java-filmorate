@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.repository.film.FilmStorage;
 import ru.yandex.practicum.filmorate.repository.film_genre.FilmGenreRepository;
 import ru.yandex.practicum.filmorate.repository.like.LikeStorage;
 import ru.yandex.practicum.filmorate.repository.user.UserStorage;
+import ru.yandex.practicum.filmorate.service.mpa.MpaService;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,6 +27,7 @@ public class FilmServiceImpl implements FilmService {
     private final LikeStorage likeStorage;
     private final UserStorage userStorage;
     private final FilmGenreRepository filmGenreRepository;
+    private final MpaService mpaDao;
     private final DirectorRepository directorRepository;
 
     @Override
@@ -172,6 +174,4 @@ public class FilmServiceImpl implements FilmService {
         }
         throw new BadRequestException("Неверный параметр сортировки");
     }
-
-
 }

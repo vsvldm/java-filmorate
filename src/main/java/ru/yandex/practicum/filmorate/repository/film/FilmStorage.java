@@ -22,5 +22,8 @@ public interface FilmStorage {
 
     public List<Film> findFilmsByDirectorSortByYear(int directorId);
 
+    public List<Film> getRecommendations(int id);
+
     public List<Film> findFilmsByDirectorSortByLikes(int directorId);
+
 }
