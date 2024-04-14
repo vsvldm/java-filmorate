@@ -14,7 +14,6 @@ import ru.yandex.practicum.filmorate.repository.film.FilmStorage;
 import ru.yandex.practicum.filmorate.repository.film_genre.FilmGenreRepository;
 import ru.yandex.practicum.filmorate.repository.like.LikeStorage;
 import ru.yandex.practicum.filmorate.repository.user.UserStorage;
-import ru.yandex.practicum.filmorate.service.mpa.MpaService;
 
 import java.util.*;
 import java.util.stream.Collectors;
