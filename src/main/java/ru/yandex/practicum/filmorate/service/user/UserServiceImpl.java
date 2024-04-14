@@ -145,9 +145,12 @@ public class UserServiceImpl implements UserService {
         return commonFriends;
     }
 
-    public List<Film> getRecommendations(int id) {
-        userStorage.getById(id);
-       return filmStorage.getRecommendations(id);
+    public List<Film> getRecommendations(int userId) {
+        log.info("Начало выполнения метода getRecommendations.");
+        log.info("Проверка на существование");
+        userStorage.getById(userId);
+        log.info("Рекомендации для пользователя с id {} успешно представлены",userId);
+       return filmStorage.getRecommendations(userId);
 
     }
 }
