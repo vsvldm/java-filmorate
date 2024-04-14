@@ -204,10 +204,8 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public List<Film> getRecommendations(int id)
-    {
-        String sql =
-                "SELECT * FROM FILMS F " +
+    public List<Film> getRecommendations(int id) {
+        String sql = "SELECT * FROM FILMS F " +
                         "JOIN MPA M ON F.FILM_MPA = M.MPA_ID " +
                         "WHERE F.FILM_ID IN (" +
                         "SELECT FILM_ID FROM LIKES " +
@@ -226,6 +224,7 @@ public class FilmDbStorage implements FilmStorage {
                         "WHERE USER_ID = ?" +
                         ")" +
                         ")";
+
         return jdbcOperations.query(sql, this::makeFilm, id,id,id);
     }
 }
