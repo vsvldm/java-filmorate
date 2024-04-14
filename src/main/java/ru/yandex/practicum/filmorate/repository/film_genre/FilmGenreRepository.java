@@ -2,7 +2,6 @@ package ru.yandex.practicum.filmorate.repository.film_genre;
 
 import ru.yandex.practicum.filmorate.model.Genre;
 
-import javax.validation.Valid;
 import java.util.Set;
 
 public interface FilmGenreRepository {

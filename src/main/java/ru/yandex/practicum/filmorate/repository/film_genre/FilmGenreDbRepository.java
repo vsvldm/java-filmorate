@@ -5,9 +5,6 @@ import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Genre;
 
-import javax.validation.Valid;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Set;
 
 @Repository
