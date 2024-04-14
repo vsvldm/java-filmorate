@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.model;
 
 import org.junit.jupiter.api.Test;
+import ru.yandex.practicum.filmorate.repository.film.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.service.user.UserService;
 import ru.yandex.practicum.filmorate.service.user.UserServiceImpl;
 import ru.yandex.practicum.filmorate.repository.friend.InMemoryFriendStorage;
@@ -20,7 +21,7 @@ class UserTest {
         User user = new User(1," ", "Login",
                 LocalDate.of(1990, 1, 1),
                 "nameorlogin@example.com");
-        UserService userService = new UserServiceImpl(new InMemoryUserStorage(), new InMemoryFriendStorage());
+        UserService userService = new UserServiceImpl(new InMemoryUserStorage(), new InMemoryFriendStorage(), new InMemoryFilmStorage());
         userService.create(user);
         assertNotNull(user);
         assertEquals(user.getName(), user.getLogin());
