@@ -168,8 +168,10 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public List<Feed> getFeed(int userId) {//Скорее всего потребуется перенести в другой сервис
+    public List<Feed> getFeed(int userId) {
         log.info("Начало выполнения метода getFeed.");
+        log.info("Проверка на существование");
+        userStorage.getById(userId);
         return feedStorage.getFeedById(userId);
     }
 }

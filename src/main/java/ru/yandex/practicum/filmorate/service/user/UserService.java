@@ -26,6 +26,7 @@ public interface UserService {
     public List<User> findAllFriendsByUser(int userId);
 
     public List<User> findAllCommonFriends(int userId, int otherId);
+
     public List<Feed> getFeed(int userId);
 
     public List<Film> getRecommendations(int userId);

@@ -52,7 +52,7 @@ public class ReviewServiceImpl implements ReviewService {
         log.info("Проверка существования отзыва с id ={}.", review.getReviewId());
         if (reviewRepository.update(review)) {
             log.info("Запись информации о событии в таблицу");
-            feedStorage.addFeed("REVIEW", "UPDATE", review.getReviewId(), review.getUserId());
+            feedStorage.addFeed("REVIEW", "UPDATE", review.getUserId(), review.getReviewId());
             log.info("Информация о событии успешно сохранена");
 
             log.info("Отзыв с id = {} успешно обновлен", review.getReviewId());
@@ -67,7 +67,7 @@ public class ReviewServiceImpl implements ReviewService {
         log.info("Начало выполнения метода removeById.");
 
         log.info("Запись информации о событии в таблицу");
-        feedStorage.addFeed("REVIEW", "REMOVE", reviewId, findById(reviewId).getUserId());
+        feedStorage.addFeed("REVIEW", "REMOVE", findById(reviewId).getUserId(), reviewId) ;
         log.info("Информация о событии успешно сохранена");
 
         reviewRepository.remove(reviewId);
@@ -111,7 +111,7 @@ public class ReviewServiceImpl implements ReviewService {
         reviewLikesRepository.addLike(review.getReviewId(), user.getId());
 
         log.info("Запись информации о событии в таблицу");
-        feedStorage.addFeed("LIKE", "ADD", userId, reviewId);
+        feedStorage.addFeed("REVIEW", "UPDATE", userId, reviewId);
         log.info("Информация о событии успешно сохранена");
 
         log.info("Отзыв с id = {} успешно создан.", reviewId);
