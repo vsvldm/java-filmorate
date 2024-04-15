@@ -26,7 +26,9 @@ public class Film {
     @PositiveOrZero
     private final long duration;
     @Valid
-    private final Mpa mpa;
+    private Mpa mpa;
     @Valid
-    private final Set<Genre> genres;
+    private Set<Genre> genres;
+    @Valid
+    private Set<Director> directors;
 }

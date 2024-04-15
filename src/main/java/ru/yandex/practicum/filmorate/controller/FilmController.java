@@ -1,6 +1,7 @@
 package ru.yandex.practicum.filmorate.controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.service.film.FilmService;
@@ -39,6 +40,18 @@ public class FilmController {
          return filmService.update(film);
     }
 
+    @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteById(@PathVariable("id") Integer filmID) {
+        filmService.deleteById(filmID);
+    }
+
+    @DeleteMapping
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteAll() {
+        filmService.deleteAll();
+    }
+
     @PutMapping("/{filmId}/like/{userId}")
     public Film addLike(@PathVariable int filmId, @PathVariable int userId) {
         return filmService.addLike(filmId, userId);
@@ -47,5 +60,17 @@ public class FilmController {
     @DeleteMapping("/{filmId}/like/{userId}")
     public Film removeLike(@PathVariable int filmId, @PathVariable int userId) {
         return filmService.removeLike(filmId, userId);
+    }
+
+    @GetMapping("director/{directorId}")
+    public List<Film> findByDirector(@PathVariable int directorId,
+                                     @RequestParam(required = false, defaultValue = "year") String sortBy) {
+        return filmService.findByDirector(directorId, sortBy);
+    }
+
+    @GetMapping("/search")
+    public List<Film> searchFilms(@RequestParam(required = false) String query,
+                                  @RequestParam(required = false) String by) {
+        return filmService.searchFilms(query, by);
     }
 }

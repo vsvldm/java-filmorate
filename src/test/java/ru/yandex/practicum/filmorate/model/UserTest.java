@@ -3,6 +3,7 @@ package ru.yandex.practicum.filmorate.model;
 import org.junit.jupiter.api.Test;
 import org.springframework.jdbc.core.JdbcTemplate;
 import ru.yandex.practicum.filmorate.repository.feed.FeedDBRepository;
+import ru.yandex.practicum.filmorate.repository.film.InMemoryFilmStorage;
 import ru.yandex.practicum.filmorate.service.user.UserService;
 import ru.yandex.practicum.filmorate.service.user.UserServiceImpl;
 import ru.yandex.practicum.filmorate.repository.friend.InMemoryFriendStorage;
@@ -25,6 +26,7 @@ class UserTest {
         JdbcTemplate jdbcTemplate = new JdbcTemplate();
         UserService userService = new UserServiceImpl(new InMemoryUserStorage(), new InMemoryFriendStorage(),
                 new FeedDBRepository(jdbcTemplate));
+        UserService userService = new UserServiceImpl(new InMemoryUserStorage(), new InMemoryFriendStorage(), new InMemoryFilmStorage());
         userService.create(user);
         assertNotNull(user);
         assertEquals(user.getName(), user.getLogin());

@@ -6,10 +6,7 @@ import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.repository.like.InMemoryLikeStorage;
 import ru.yandex.practicum.filmorate.repository.like.LikeStorage;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Component
@@ -36,10 +33,13 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public void remove(int filmId) {
-        if (films.remove(filmId) == null) {
-            throw new NotFoundException(String.format("Филма с id = %d не существует.", filmId));
-        }
+    public boolean deleteById(int filmID) {
+        return false;
+    }
+
+    @Override
+    public boolean deleteAll() {
+        return false;
     }
 
     @Override
@@ -65,7 +65,37 @@ public class InMemoryFilmStorage implements FilmStorage {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<Film> findFilmsByDirectorSortByYear(int directorId) {
+        return null;
+    }
+
+    @Override
+    public List<Film> findFilmsByDirectorSortByLikes(int directorId) {
+        return null;
+    }
+
+    @Override
+    public List<Film> searchFilmForDirector(String query) {
+        return null;
+    }
+
+    @Override
+    public List<Film> searchFilmForTitle(String query) {
+        return null;
+    }
+
+    @Override
+    public List<Film> searchFilmForTitleAndDirector(String query) {
+        return null;
+    }
+
     private int compare(Film f1, Film f2) {
         return Integer.compare(likeStorage.getUserLikesByFilm(f2.getId()).size(), likeStorage.getUserLikesByFilm(f1.getId()).size());
+    }
+
+    @Override
+    public List<Film> getRecommendations(int userId) {
+        return null;
     }
 }

@@ -8,4 +8,7 @@ public interface LikeStorage {
     public Collection<Integer> getUserLikesByFilm(int filmId);
 
     public boolean remove(int filmId, int userId);
+
+    boolean existsLike(Integer filmId, Integer userId);
+
 }
