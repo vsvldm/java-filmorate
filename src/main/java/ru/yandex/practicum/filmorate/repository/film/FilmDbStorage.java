@@ -10,7 +10,6 @@ import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
 
 import java.sql.Date;
@@ -19,7 +18,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
@@ -186,6 +184,7 @@ public class FilmDbStorage implements FilmStorage {
                 "LEFT JOIN DIRECTORS d ON d.DIRECTOR_ID = fd.DIRECTOR_ID " +
                 "LEFT JOIN MPA m ON f.FILM_MPA = m.MPA_ID " +
                 "WHERE LOWER(d.DIRECTOR_NAME) LIKE ?";
+
         return jdbcOperations.query(sql, this::makeFilm, "%" + query.toLowerCase() + "%");
     }
 
@@ -195,6 +194,7 @@ public class FilmDbStorage implements FilmStorage {
                 "FROM FILMS f " +
                 "LEFT JOIN MPA m ON f.FILM_MPA = m.MPA_ID " +
                 "WHERE LOWER(f.FILM_NAME) LIKE ?";
+
         return jdbcOperations.query(sql, this::makeFilm, "%" + query.toLowerCase() + "%");
     }
 
@@ -209,56 +209,46 @@ public class FilmDbStorage implements FilmStorage {
                 "WHERE LOWER(d.DIRECTOR_NAME) LIKE ? OR LOWER(f.FILM_NAME) LIKE ? " +
                 "GROUP BY f.FILM_ID, m.MPA_TITLE " +
                 "ORDER BY COUNT(l.USER_ID) DESC";
+
         return jdbcOperations.query(sql, this::makeFilm,
                 "%" + query.toLowerCase() + "%", "%" + query.toLowerCase() + "%");
-    }
-
-
-    private Film makeFilm(ResultSet resultSet, int rn) throws SQLException {
-        String sql = "select FG.GENRE_ID, GENRE_TITLE " +
-                "from FILM_GENRE FG " +
-                "join GENRES G on G.GENRE_ID = FG.GENRE_ID " +
-                "where FILM_ID = ?";
-
-        Collection<Genre> genres = jdbcOperations.query(sql, (rs, rowNum) -> {
-            return new Genre(rs.getInt("GENRE_ID"),
-                    rs.getString("GENRE_TITLE"));
-        }, resultSet.getInt("FILM_ID"));
-
-        return new Film(resultSet.getInt("FILM_ID"),
-                resultSet.getString("FILM_NAME"),
-                resultSet.getString("FILM_DESCRIPTION"),
-                resultSet.getObject("FILM_RELEASE_DATE", LocalDate.class),
-                resultSet.getLong("FILM_DURATION"),
-                new Mpa(resultSet.getInt("FILM_MPA"),
-                        resultSet.getString("MPA_TITLE")),
-                new LinkedHashSet<>(genres.stream().sorted(Comparator.comparing(Genre::getId)).collect(Collectors.toCollection(LinkedHashSet::new))),
-                new HashSet<>());
     }
 
     @Override
     public List<Film> getRecommendations(int id) {
         String sql = "SELECT * FROM FILMS F " +
-                        "JOIN MPA M ON F.FILM_MPA = M.MPA_ID " +
-                        "WHERE F.FILM_ID IN (" +
-                        "SELECT FILM_ID FROM LIKES " +
-                        "WHERE USER_ID IN (" +
-                        "SELECT FL1.USER_ID FROM LIKES FL1 " +
-                        "RIGHT JOIN LIKES FL2 ON FL2.FILM_ID = FL1.FILM_ID " +
-                        "GROUP BY FL1.USER_ID, FL2.USER_ID " +
-                        "HAVING FL1.USER_ID IS NOT NULL AND " +
-                        "FL1.USER_ID != ? AND " +
-                        "FL2.USER_ID = ? " +
-                        "ORDER BY COUNT(FL1.USER_ID) DESC " +
-                        "LIMIT 3 " +
-                        ") " +
-                        "AND FILM_ID NOT IN (" +
-                        "SELECT FILM_ID FROM LIKES " +
-                        "WHERE USER_ID = ?" +
-                        ")" +
-                        ")";
+                "JOIN MPA M ON F.FILM_MPA = M.MPA_ID " +
+                "WHERE F.FILM_ID IN (" +
+                "SELECT FILM_ID FROM LIKES " +
+                "WHERE USER_ID IN (" +
+                "SELECT FL1.USER_ID FROM LIKES FL1 " +
+                "RIGHT JOIN LIKES FL2 ON FL2.FILM_ID = FL1.FILM_ID " +
+                "GROUP BY FL1.USER_ID, FL2.USER_ID " +
+                "HAVING FL1.USER_ID IS NOT NULL AND " +
+                "FL1.USER_ID != ? AND " +
+                "FL2.USER_ID = ? " +
+                "ORDER BY COUNT(FL1.USER_ID) DESC " +
+                "LIMIT 3 " +
+                ") " +
+                "AND FILM_ID NOT IN (" +
+                "SELECT FILM_ID FROM LIKES " +
+                "WHERE USER_ID = ?" +
+                ")" +
+                ")";
 
         return jdbcOperations.query(sql, this::makeFilm, id,id,id);
+    }
+
+    private Film makeFilm(ResultSet rs, int rn) throws SQLException {
+        return new Film(rs.getInt("FILM_ID"),
+                rs.getString("FILM_NAME"),
+                rs.getString("FILM_DESCRIPTION"),
+                rs.getObject("FILM_RELEASE_DATE", LocalDate.class),
+                rs.getLong("FILM_DURATION"),
+                new Mpa(rs.getInt("FILM_MPA"),
+                        rs.getString("MPA_TITLE")),
+                new LinkedHashSet<>(),
+                new HashSet<>());
     }
 }
 
