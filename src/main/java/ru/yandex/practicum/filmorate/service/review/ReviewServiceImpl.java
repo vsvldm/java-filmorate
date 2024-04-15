@@ -7,6 +7,7 @@ import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Review;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.repository.feed.FeedDBRepository;
 import ru.yandex.practicum.filmorate.repository.film.FilmStorage;
 import ru.yandex.practicum.filmorate.repository.review.ReviewRepository;
 import ru.yandex.practicum.filmorate.repository.review_likes.ReviewLikesRepository;
@@ -23,6 +24,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final UserStorage userStorage;
     private final ReviewRepository reviewRepository;
     private final ReviewLikesRepository reviewLikesRepository;
+    private final FeedDBRepository feedStorage;
 
     @Override
     public Review create(Review review) {
@@ -35,9 +37,13 @@ public class ReviewServiceImpl implements ReviewService {
         userStorage.getById(review.getUserId());
 
         review.setReviewId(reviewRepository.add(review));
+
+        log.info("Запись информации о событии в таблицу");
+        feedStorage.addFeed("REVIEW", "ADD", review.getUserId(), review.getReviewId());
+        log.info("Информация о событии успешно сохранена");
+
         log.info("Отзыв с id = {} успешно создан.", review.getReviewId());
         return review;
-
     }
 
     @Override
@@ -45,6 +51,10 @@ public class ReviewServiceImpl implements ReviewService {
         log.info("Начало выполнения метода update.");
         log.info("Проверка существования отзыва с id ={}.", review.getReviewId());
         if (reviewRepository.update(review)) {
+            log.info("Запись информации о событии в таблицу");
+            feedStorage.addFeed("REVIEW", "UPDATE", review.getUserId(), review.getReviewId());
+            log.info("Информация о событии успешно сохранена");
+
             log.info("Отзыв с id = {} успешно обновлен", review.getReviewId());
             return reviewRepository.getById(review.getReviewId());
         } else {
@@ -55,6 +65,11 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public void removeById(int reviewId) {
         log.info("Начало выполнения метода removeById.");
+
+        log.info("Запись информации о событии в таблицу");
+        feedStorage.addFeed("REVIEW", "REMOVE", reviewId, findById(reviewId).getUserId());
+        log.info("Информация о событии успешно сохранена");
+
         reviewRepository.remove(reviewId);
         log.info("Отзыв с id = {} успешно удален.", reviewId);
     }
@@ -94,6 +109,11 @@ public class ReviewServiceImpl implements ReviewService {
         User user = userStorage.getById(userId);
 
         reviewLikesRepository.addLike(review.getReviewId(), user.getId());
+
+        log.info("Запись информации о событии в таблицу");
+        feedStorage.addFeed("LIKE", "ADD", userId, reviewId);
+        log.info("Информация о событии успешно сохранена");
+
         log.info("Отзыв с id = {} успешно создан.", reviewId);
     }
 
@@ -114,6 +134,10 @@ public class ReviewServiceImpl implements ReviewService {
         log.info("Проверка существования фильма с id = {} и  пользователя с id = {}.", reviewId, userId);
         Review review = reviewRepository.getById(reviewId);
         User user = userStorage.getById(userId);
+
+        log.info("Запись информации о событии в таблицу");
+        feedStorage.addFeed("LIKE", "REMOVE", userId, reviewId);
+        log.info("Информация о событии успешно сохранена");
 
         reviewLikesRepository.removeLike(review.getReviewId(), user.getId());
         log.info("Отзыв с id = {} успешно удален.", reviewId);

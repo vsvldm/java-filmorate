@@ -10,6 +10,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -19,24 +21,21 @@ public class FeedDBRepository implements FeedRepository{
     private final JdbcTemplate jdbcTemplate;
 
     @Override
-    public List<Feed> getFeed() {
-        return null;
-    }
-
-    public List<Feed> getFeedById(int id) {
-        String sqlQuery = "select * from feed where USER_ID = ? order by FEED_TIMESTAMP desc";
-        return jdbcTemplate.query(sqlQuery, this::feedRowToFilm, id);
+    public List<Feed> getFeedById(String id) {
+        String sqlQuery = "select * from feed where ENTITY_ID in ("+ id +") order by EVENT_ID" ;
+        return jdbcTemplate.query(sqlQuery, this::feedRowToFilm);
     }
 
     @Override
-    public void addFeed(String type, String operation, int entityId, int userId) {
+    public void addFeed(String type, String operation, int userId, int entityId) {
         LocalDateTime date = LocalDateTime.now();
-        Timestamp timestamp = new Timestamp(date.getSecond());
+        ZonedDateTime zoneDateTime = date.atZone(ZoneId.of("Europe/Moscow"));
+        Timestamp timestamp = new Timestamp(1670590017281L);
         SimpleJdbcInsert insert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("FEED")
                 .usingGeneratedKeyColumns("EVENT_ID");
         Feed feed = Feed.builder()
-                .timestamp(timestamp)
+                .timestamp(1670590017281L)
                 .userId(userId)
                 .eventType(type)
                 .operation(operation)
@@ -48,22 +47,22 @@ public class FeedDBRepository implements FeedRepository{
     public Map<String, Object> feedToMap(Feed feed) {
         return Map.of(
                 "EVENT_ID", feed.getEventId(),
-                "FEED_TIMESTAMP",feed.getTimestamp(),
                 "USER_ID", feed.getUserId(),
+                "ENTITY_ID", feed.getEntityId(),
                 "EVENT_TYPE", feed.getEventType(),
                 "OPERATION", feed.getOperation(),
-                "ENTITY_ID", feed.getEntityId()
+                "FEED_TIMESTAMP",feed.getTimestamp()
         );
     }
 
     private Feed feedRowToFilm(ResultSet resultSet, int rowNum) throws SQLException {
         return Feed.builder()
                 .eventId(resultSet.getInt("EVENT_ID"))
-                .timestamp(resultSet.getTimestamp("FEED_TIMESTAMP"))
                 .userId(resultSet.getInt("USER_ID"))
+                .entityId(resultSet.getInt("ENTITY_ID"))
                 .eventType(resultSet.getString("EVENT_TYPE"))
                 .operation(resultSet.getString("OPERATION"))
-                .entityId(resultSet.getInt("ENTITY_ID"))
+                .timestamp(resultSet.getLong("FEED_TIMESTAMP"))
                 .build();
     }
 }
