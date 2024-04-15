@@ -14,6 +14,7 @@ import ru.yandex.practicum.filmorate.repository.film.FilmStorage;
 import ru.yandex.practicum.filmorate.repository.film_genre.FilmGenreRepository;
 import ru.yandex.practicum.filmorate.repository.like.LikeStorage;
 import ru.yandex.practicum.filmorate.repository.user.UserStorage;
+import ru.yandex.practicum.filmorate.service.mpa.MpaService;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -26,6 +27,7 @@ public class FilmServiceImpl implements FilmService {
     private final LikeStorage likeStorage;
     private final UserStorage userStorage;
     private final FilmGenreRepository filmGenreRepository;
+    private final MpaService mpaDao;
     private final DirectorRepository directorRepository;
 
     @Override
@@ -100,7 +102,7 @@ public class FilmServiceImpl implements FilmService {
         log.info("Начало выполнения метода findAll.");
         List<Film> films = filmStorage.getAllFilms()
                 .stream()
-                .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
+                .peek(film -> film.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(film.getId()))))
                 .collect(Collectors.toList());
 
         log.info("Список всех фильмом найден.");
@@ -162,23 +164,13 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public List<Film> findByDirector(int directorId, String sortBy) {
-        List<Film> films;
-
         directorRepository.findById(directorId).orElseThrow(() -> new NotFoundException(
                 String.format("Режиссер с ID = %d не найден ", directorId)));
         if ("year".equals(sortBy)) {
-            films = filmStorage.findFilmsByDirectorSortByYear(directorId)
-                    .stream()
-                    .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
-                    .collect(Collectors.toList());
-            return films;
+            return filmStorage.findFilmsByDirectorSortByYear(directorId);
         }
         if ("likes".equals(sortBy)) {
-            films = filmStorage.findFilmsByDirectorSortByLikes(directorId)
-                    .stream()
-                    .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
-                    .collect(Collectors.toList());
-            return films;
+            return filmStorage.findFilmsByDirectorSortByLikes(directorId);
         }
         throw new BadRequestException("Неверный параметр сортировки");
     }
