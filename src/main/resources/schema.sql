@@ -71,6 +71,22 @@ create table if not exists LIKES
         foreign key (USER_ID) references USERS ON DELETE CASCADE
 );
 
+create table if not exists REVIEWS
+(
+    REVIEW_ID      INTEGER auto_increment,
+    REVIEW_CONTENT CHARACTER VARYING(2000) not null,
+    REVIEW_TYPE    BOOLEAN not null,
+    REVIEW_USER_ID INTEGER not null,
+    REVIEW_FILM_ID INTEGER not null,
+    REVIEW_USEFUL  INTEGER default 0,
+    constraint REVIEWS_PK
+    primary key (REVIEW_ID),
+    constraint REVIEWS_FILMS_FILM_ID_FK
+    foreign key (REVIEW_FILM_ID) references FILMS ON DELETE CASCADE,
+    constraint REVIEWS_USERS_USER_ID_FK
+    foreign key (REVIEW_USER_ID) references USERS ON DELETE CASCADE
+    );
+
 create table if not exists DIRECTORS
 (
     DIRECTOR_ID INTEGER auto_increment,
@@ -90,3 +106,13 @@ create table if not exists FILM_DIRECTOR
         foreign key (DIRECTOR_ID) references DIRECTORS ON DELETE CASCADE ON UPDATE CASCADE
 );
 
+create table if not exists REVIEW_LIKES
+(
+    REVIEW_ID INTEGER not null,
+    USER_ID   INTEGER not null,
+    IS_LIKE   boolean,
+    constraint REVIEW_LIKES_REVIEWS_REVIEW_ID_FK
+        foreign key (REVIEW_ID) references REVIEWS ON DELETE CASCADE,
+    constraint REVIEW_LIKES_USERS_USER_ID_FK
+        foreign key (USER_ID) references USERS ON DELETE CASCADE
+);

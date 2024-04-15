@@ -30,9 +30,9 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film create(Film film) {
+        log.info("Начало выполнения метода create.");
         Set<Director> directors = film.getDirectors();
 
-        log.info("Начало выполнения метода create.");
         int filmId = filmStorage.add(film);
 
         film.setId(filmId);
@@ -57,9 +57,9 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film update(Film film) {
+        log.info("Начало выполнения метода update.");
         Set<Director> directors = film.getDirectors();
 
-        log.info("Начало выполнения метода update.");
         log.info("Проверка существования фильма с id ={}.", film.getId());
         if (filmStorage.update(film)) {
             filmGenreRepository.remove(film.getId());
@@ -84,9 +84,9 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film findById(int filmId) {
+        log.info("Начало выполнения метода findById.");
         Set<Director> directors = new HashSet<>(directorRepository.findDirectorsByFilm(filmId));
 
-        log.info("Начало выполнения метода findById.");
         Film film = filmStorage.getById(filmId);
         if (!directors.isEmpty()) {
             film.setDirectors(directors);
@@ -100,7 +100,7 @@ public class FilmServiceImpl implements FilmService {
         log.info("Начало выполнения метода findAll.");
         List<Film> films = filmStorage.getAllFilms()
                 .stream()
-                .peek(film -> film.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(film.getId()))))
+                .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
                 .collect(Collectors.toList());
 
         log.info("Список всех фильмом найден.");
@@ -162,15 +162,65 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public List<Film> findByDirector(int directorId, String sortBy) {
+        List<Film> films;
+
         directorRepository.findById(directorId).orElseThrow(() -> new NotFoundException(
                 String.format("Режиссер с ID = %d не найден ", directorId)));
         if ("year".equals(sortBy)) {
-            return filmStorage.findFilmsByDirectorSortByYear(directorId);
+            films = filmStorage.findFilmsByDirectorSortByYear(directorId)
+                    .stream()
+                    .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
+                    .collect(Collectors.toList());
+            return films;
         }
         if ("likes".equals(sortBy)) {
-            return filmStorage.findFilmsByDirectorSortByLikes(directorId);
+            films = filmStorage.findFilmsByDirectorSortByLikes(directorId)
+                    .stream()
+                    .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
+                    .collect(Collectors.toList());
+            return films;
         }
         throw new BadRequestException("Неверный параметр сортировки");
+    }
+
+    @Override
+    public List<Film> searchFilms(String query, String by) {
+
+        log.info("Начало выполнения метода searchFilms.");
+
+        if (query == null && by == null) {
+            return new ArrayList<>(filmStorage.getPopularFilms(10));
+        }
+
+        if (query == null || query.isBlank()) {
+            log.warn("Пустой запрос");
+            return Collections.emptyList();
+        }
+
+        if (!("director".equals(by) || "title".equals(by) || "director,title".equals(by) ||
+                "title,director".equals(by))) {
+            throw new BadRequestException("Недопустимое значение параметра сортировки 'by': " + by);
+        }
+
+        List<Film> result = new ArrayList<>();
+
+        switch (by) {
+            case "director":
+                result = filmStorage.searchFilmForDirector(query);
+                log.debug("Получены все фильмы по имени режиссёра {}", query);
+                break;
+            case "title":
+                result = filmStorage.searchFilmForTitle(query);
+                log.debug("Получены все фильмы по названию {}", query);
+                break;
+            case "director,title":
+            case "title,director":
+                result = filmStorage.searchFilmForTitleAndDirector(query);
+                log.debug("Получены все фильмы по названию и режиссёру");
+                break;
+        }
+
+        return result;
     }
 
     @Override
@@ -180,6 +230,4 @@ public class FilmServiceImpl implements FilmService {
 
         return filmStorage.findCommonFilms(userId, friendId);
     }
-
-
 }

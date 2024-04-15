@@ -5,9 +5,6 @@ import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Genre;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.Collection;
 import java.util.Set;
 
 @Repository
@@ -32,20 +29,5 @@ public class FilmGenreDbRepository implements FilmGenreRepository {
         String sql = "delete from FILM_GENRE where FILM_ID = ?";
 
         return jdbcOperations.update(sql, filmId) > 0;
-    }
-
-    @Override
-    public Collection<Genre> genreByFilm(int filmId) {
-        String sql = "select FG.GENRE_ID, GENRE_TITLE " +
-                "from FILM_GENRE FG " +
-                "join GENRES G on G.GENRE_ID = FG.GENRE_ID " +
-                "where FILM_ID = ?";
-
-        return jdbcOperations.query(sql,this::makeGenre, filmId);
-    }
-
-    private Genre makeGenre(ResultSet rs, int rowNum) throws SQLException {
-        return new Genre(rs.getInt("GENRE_ID"),
-                rs.getString("GENRE_TITLE"));
     }
 }
