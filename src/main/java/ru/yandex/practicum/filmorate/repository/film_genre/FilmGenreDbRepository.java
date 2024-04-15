@@ -41,7 +41,8 @@ public class FilmGenreDbRepository implements FilmGenreRepository {
         String sql = "select FG.GENRE_ID, GENRE_TITLE " +
                 "from FILM_GENRE FG " +
                 "join GENRES G on G.GENRE_ID = FG.GENRE_ID " +
-                "where FILM_ID = ?";
+                "where FILM_ID = ?" +
+                "order by GENRE_ID";
 
         return jdbcOperations.query(sql, (rs, rowNum) -> {
             return new Genre(rs.getInt("GENRE_ID"),

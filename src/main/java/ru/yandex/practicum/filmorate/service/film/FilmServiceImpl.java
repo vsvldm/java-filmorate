@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.director.DirectorRepository;
 import ru.yandex.practicum.filmorate.repository.film.FilmStorage;
@@ -39,9 +38,7 @@ public class FilmServiceImpl implements FilmService {
         filmGenreRepository.add(filmId, film.getGenres());
 
         film.setGenres(film.getGenres() != null
-                ? new LinkedHashSet<>(film.getGenres().stream()
-                .sorted(Comparator.comparing(Genre::getId))
-                .collect(Collectors.toCollection(LinkedHashSet::new)))
+                ? new LinkedHashSet<>(filmGenreRepository.getByFilm(filmId))
                 : new LinkedHashSet<>());
 
         if (directors != null) {
@@ -66,9 +63,7 @@ public class FilmServiceImpl implements FilmService {
 
             Film filmFromDB = filmStorage.getById(film.getId());
 
-            filmFromDB.getGenres().addAll(filmGenreRepository.getByFilm(film.getId()).stream()
-                    .sorted(Comparator.comparing(Genre::getId))
-                    .collect(Collectors.toCollection(LinkedHashSet::new)));
+            filmFromDB.getGenres().addAll(filmGenreRepository.getByFilm(film.getId()));
 
             directorRepository.removeDirectorsFromFilms(filmFromDB.getId());
             if (directors != null) {
@@ -92,9 +87,7 @@ public class FilmServiceImpl implements FilmService {
 
         Film film = filmStorage.getById(filmId);
 
-        film.getGenres().addAll(filmGenreRepository.getByFilm(filmId).stream()
-                .sorted(Comparator.comparing(Genre::getId))
-                .collect(Collectors.toCollection(LinkedHashSet::new)));
+        film.getGenres().addAll(filmGenreRepository.getByFilm(filmId));
 
         if (!directors.isEmpty()) {
             film.setDirectors(directors);
@@ -108,9 +101,7 @@ public class FilmServiceImpl implements FilmService {
         log.info("Начало выполнения метода findAll.");
         List<Film> films = filmStorage.getAllFilms()
                 .stream()
-                .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId()).stream()
-                        .sorted(Comparator.comparing(Genre::getId))
-                        .collect(Collectors.toCollection(LinkedHashSet::new))))
+                .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId())))
                 .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
                 .collect(Collectors.toList());
 
@@ -180,21 +171,15 @@ public class FilmServiceImpl implements FilmService {
         directorRepository.findById(directorId).orElseThrow(() -> new NotFoundException(
                 String.format("Режиссер с ID = %d не найден ", directorId)));
         if ("year".equals(sortBy)) {
-            films = filmStorage.findFilmsByDirectorSortByYear(directorId)
-                    .stream()
-                    .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId()).stream()
-                            .sorted(Comparator.comparing(Genre::getId))
-                            .collect(Collectors.toCollection(LinkedHashSet::new))))
+            films = filmStorage.findFilmsByDirectorSortByYear(directorId).stream()
+                    .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId())))
                     .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
                     .collect(Collectors.toList());
             return films;
         }
         if ("likes".equals(sortBy)) {
-            films = filmStorage.findFilmsByDirectorSortByLikes(directorId)
-                    .stream()
-                    .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId()).stream()
-                            .sorted(Comparator.comparing(Genre::getId))
-                            .collect(Collectors.toCollection(LinkedHashSet::new))))
+            films = filmStorage.findFilmsByDirectorSortByLikes(directorId).stream()
+                    .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId())))
                     .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
                     .collect(Collectors.toList());
             return films;
