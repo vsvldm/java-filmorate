@@ -170,14 +170,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<Feed> getFeed(int userId) {//Скорее всего потребуется перенести в другой сервис
         log.info("Начало выполнения метода getFeed.");
-/*        List<User> friendList = findAllFriendsByUser(userId);
-        List<Integer> friendIdList = new ArrayList<>();
-        log.info("Список друзей - " + friendList);
-
-        for (User friend : friendList) {
-            friendIdList.add(friend.getId());
-        }Видимо тут вообще не про друзей речь идет */
-
         return feedStorage.getFeedById(userId);
     }
 }
