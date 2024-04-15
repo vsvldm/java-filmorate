@@ -111,7 +111,7 @@ public class ReviewServiceImpl implements ReviewService {
         reviewLikesRepository.addLike(review.getReviewId(), user.getId());
 
         log.info("Запись информации о событии в таблицу");
-        feedStorage.addFeed("REVIEW", "UPDATE", userId, reviewId);
+//        feedStorage.addFeed("REVIEW", "UPDATE", userId, reviewId);
         log.info("Информация о событии успешно сохранена");
 
         log.info("Отзыв с id = {} успешно создан.", reviewId);
@@ -136,7 +136,7 @@ public class ReviewServiceImpl implements ReviewService {
         User user = userStorage.getById(userId);
 
         log.info("Запись информации о событии в таблицу");
-        feedStorage.addFeed("LIKE", "REMOVE", userId, reviewId);
+//        feedStorage.addFeed("REVIEW", "UPDATE", userId, reviewId);
         log.info("Информация о событии успешно сохранена");
 
         reviewLikesRepository.removeLike(review.getReviewId(), user.getId());
