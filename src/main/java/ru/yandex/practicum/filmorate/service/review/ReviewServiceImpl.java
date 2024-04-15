@@ -51,6 +51,7 @@ public class ReviewServiceImpl implements ReviewService {
         log.info("Начало выполнения метода update.");
         log.info("Проверка существования отзыва с id ={}.", review.getReviewId());
         if (reviewRepository.update(review)) {
+
             log.info("Запись информации о событии в таблицу");
             feedStorage.addFeed("REVIEW", "UPDATE", review.getUserId(), review.getReviewId());
             log.info("Информация о событии успешно сохранена");
