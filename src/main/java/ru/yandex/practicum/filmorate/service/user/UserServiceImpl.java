@@ -8,10 +8,12 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.film.FilmStorage;
+import ru.yandex.practicum.filmorate.repository.film_genre.FilmGenreRepository;
 import ru.yandex.practicum.filmorate.repository.friend.FriendStorage;
 import ru.yandex.practicum.filmorate.repository.user.UserStorage;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -20,6 +22,7 @@ public class UserServiceImpl implements UserService {
     private final UserStorage userStorage;
     private final FriendStorage friendStorage;
     private final FilmStorage filmStorage;
+    private final FilmGenreRepository filmGenreRepository;
 
     @Override
     public User create(User user) {
@@ -150,7 +153,8 @@ public class UserServiceImpl implements UserService {
         log.info("Проверка на существование");
         userStorage.getById(userId);
         log.info("Рекомендации для пользователя с id {} успешно представлены",userId);
-       return filmStorage.getRecommendations(userId);
-
+       return filmStorage.getRecommendations(userId).stream()
+               .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId())))
+               .collect(Collectors.toList());
     }
 }
