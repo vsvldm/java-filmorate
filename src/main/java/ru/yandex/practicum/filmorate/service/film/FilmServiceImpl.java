@@ -78,6 +78,16 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
+    public void deleteById(int filmID) {
+
+    }
+
+    @Override
+    public void deleteAll() {
+
+    }
+
+    @Override
     public Film addLike(int filmId, int userId) {
         log.info("Начало выполнения метода addLike.");
         log.info("Проверка существования фильма с id = {} и  пользователя с id = {}.", filmId, userId);
@@ -103,6 +113,16 @@ public class FilmServiceImpl implements FilmService {
             log.info("Пользователь с id = {} не ставил лайк фильму c id = {}.", user.getId(), film.getId());
         }
         return film;
+    }
+
+    @Override
+    public List<Film> findByDirector(int directorId, String sortBy) {
+        return null;
+    }
+
+    @Override
+    public List<Film> searchFilms(String query, String by) {
+        return null;
     }
 
 
