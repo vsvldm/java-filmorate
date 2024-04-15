@@ -12,7 +12,6 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.Mpa;
-import ru.yandex.practicum.filmorate.repository.director.DirectorRepository;
 
 import java.sql.Date;
 import java.sql.PreparedStatement;
@@ -27,7 +26,6 @@ import java.util.stream.Collectors;
 @Primary
 public class FilmDbStorage implements FilmStorage {
     private final JdbcOperations jdbcOperations;
-    private final DirectorRepository directorRepository;
 
 
     @Override
@@ -235,7 +233,7 @@ public class FilmDbStorage implements FilmStorage {
                 new Mpa(resultSet.getInt("FILM_MPA"),
                         resultSet.getString("MPA_TITLE")),
                 new LinkedHashSet<>(genres.stream().sorted(Comparator.comparing(Genre::getId)).collect(Collectors.toCollection(LinkedHashSet::new))),
-                new HashSet<>(directorRepository.findDirectorsByFilm(resultSet.getInt("FILM_ID"))));
+                new HashSet<>());
     }
 
     @Override
