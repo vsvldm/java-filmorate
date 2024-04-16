@@ -29,14 +29,11 @@ public class FeedDBRepository implements FeedRepository{
 
     @Override
     public void addFeed(String type, String operation, int userId, int entityId) {
-        LocalDateTime date = LocalDateTime.now();
-        ZonedDateTime zoneDateTime = date.atZone(ZoneId.of("Europe/Moscow"));
-        Timestamp timestamp = new Timestamp(1670590017281L);
         SimpleJdbcInsert insert = new SimpleJdbcInsert(jdbcTemplate)
                 .withTableName("FEED")
                 .usingGeneratedKeyColumns("EVENT_ID");
         Feed feed = Feed.builder()
-                .timestamp(1670590017281L)
+                .timestamp(Timestamp.valueOf(LocalDateTime.now()).getTime())
                 .userId(userId)
                 .eventType(type)
                 .operation(operation)
