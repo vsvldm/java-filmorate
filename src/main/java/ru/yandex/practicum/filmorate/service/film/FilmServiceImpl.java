@@ -126,9 +126,9 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public List<Film> findPopular(int count) {
+    public List<Film> findPopular(int count,Integer genreId,Integer year) {
         log.info("Начало выполнения метода findPopular.");
-        List<Film> films = filmStorage.getPopularFilms(count).stream()
+        List<Film> films = filmStorage.getPopularFilms(count,genreId,year).stream()
                 .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId())))
                 .collect(Collectors.toList());
 
@@ -193,7 +193,7 @@ public class FilmServiceImpl implements FilmService {
         log.info("Начало выполнения метода searchFilms.");
 
         if (query == null && by == null) {
-            return filmStorage.getPopularFilms(10).stream()
+            return filmStorage.getPopularFilms(10,null,null).stream()
                     .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId())))
                     .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
                     .collect(Collectors.toList());

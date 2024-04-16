@@ -18,7 +18,7 @@ public interface FilmStorage {
 
     public Collection<Film> getAllFilms();
 
-    public Collection<Film> getPopularFilms(int count);
+    public Collection<Film> getPopularFilms(int count,Integer genreId,Integer year);
 
     public List<Film> findFilmsByDirectorSortByYear(int directorId);
 

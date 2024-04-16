@@ -13,7 +13,7 @@ public interface FilmService {
 
     public List<Film> findAll();
 
-    public List<Film> findPopular(int count);
+    public List<Film> findPopular(int count,Integer genreId,Integer year);
 
     public void deleteById(int filmID);
 
