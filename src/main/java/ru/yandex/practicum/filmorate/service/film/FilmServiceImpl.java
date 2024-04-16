@@ -246,4 +246,12 @@ public class FilmServiceImpl implements FilmService {
 
         return result;
     }
+
+    @Override
+    public List<Film> findCommonFilms(int userId, int friendId) {
+        userStorage.getById(userId);
+        userStorage.getById(friendId);
+
+        return filmStorage.findCommonFilms(userId, friendId);
+    }
 }
