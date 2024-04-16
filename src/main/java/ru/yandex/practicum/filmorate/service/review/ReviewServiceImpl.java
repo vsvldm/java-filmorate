@@ -37,25 +37,25 @@ public class ReviewServiceImpl implements ReviewService {
         userStorage.getById(review.getUserId());
 
         review.setReviewId(reviewRepository.add(review));
+        log.info("Отзыв с id = {} успешно создан.", review.getReviewId());
+
 
         log.info("Запись информации о событии в таблицу");
         feedStorage.addFeed("REVIEW", "ADD", review.getUserId(), review.getReviewId());
         log.info("Информация о событии успешно сохранена");
-
-        log.info("Отзыв с id = {} успешно создан.", review.getReviewId());
         return review;
     }
 
     @Override
     public Review update(Review review) {
+        Review r = reviewRepository.getById(review.getReviewId());
         log.info("Начало выполнения метода update.");
         log.info("Проверка существования отзыва с id ={}.", review.getReviewId());
         if (reviewRepository.update(review)) {
-            log.info("Запись информации о событии в таблицу");
-            feedStorage.addFeed("REVIEW", "UPDATE", review.getUserId(), review.getReviewId());
-            log.info("Информация о событии успешно сохранена");
-
             log.info("Отзыв с id = {} успешно обновлен", review.getReviewId());
+            log.info("Запись информации о событии в таблицу");
+            feedStorage.addFeed("REVIEW", "UPDATE", r.getUserId(), review.getReviewId());
+            log.info("Информация о событии успешно сохранена");
             return reviewRepository.getById(review.getReviewId());
         } else {
             throw new NotFoundException(String.format("Отзыва с id = %d не существует.", review.getReviewId()));
@@ -65,13 +65,14 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public void removeById(int reviewId) {
         log.info("Начало выполнения метода removeById.");
-
-        log.info("Запись информации о событии в таблицу");
-        feedStorage.addFeed("REVIEW", "REMOVE", findById(reviewId).getUserId(), reviewId) ;
-        log.info("Информация о событии успешно сохранена");
+        int userId = reviewRepository.getById(reviewId).getUserId();
 
         reviewRepository.remove(reviewId);
         log.info("Отзыв с id = {} успешно удален.", reviewId);
+
+        log.info("Запись информации о событии в таблицу");
+        feedStorage.addFeed("REVIEW", "REMOVE", userId, reviewId);
+        log.info("Информация о событии успешно сохранена");
     }
 
     @Override
@@ -109,11 +110,6 @@ public class ReviewServiceImpl implements ReviewService {
         User user = userStorage.getById(userId);
 
         reviewLikesRepository.addLike(review.getReviewId(), user.getId());
-
-        log.info("Запись информации о событии в таблицу");
-        feedStorage.addFeed("REVIEW", "UPDATE", userId, reviewId);
-        log.info("Информация о событии успешно сохранена");
-
         log.info("Отзыв с id = {} успешно создан.", reviewId);
     }
 
@@ -135,12 +131,9 @@ public class ReviewServiceImpl implements ReviewService {
         Review review = reviewRepository.getById(reviewId);
         User user = userStorage.getById(userId);
 
-        log.info("Запись информации о событии в таблицу");
-        feedStorage.addFeed("REVIEW", "UPDATE", userId, reviewId);
-        log.info("Информация о событии успешно сохранена");
-
         reviewLikesRepository.removeLike(review.getReviewId(), user.getId());
         log.info("Отзыв с id = {} успешно удален.", reviewId);
+
     }
 
     @Override

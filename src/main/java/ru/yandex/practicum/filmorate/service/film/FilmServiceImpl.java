@@ -7,7 +7,6 @@ import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.Genre;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.director.DirectorRepository;
 import ru.yandex.practicum.filmorate.repository.feed.FeedRepository;
@@ -147,8 +146,8 @@ public class FilmServiceImpl implements FilmService {
         User user = userStorage.getById(userId);
 
         likeStorage.add(film.getId(), user.getId());
-        feedRepository.addFeed("LIKE", "ADD", userId, filmId);
         log.info("Пользователь с id = {} поставил лайк фильму c id = {}.", userId, film.getId());
+        feedRepository.addFeed("LIKE", "ADD", userId, filmId);
         return film;
 
     }
@@ -162,10 +161,11 @@ public class FilmServiceImpl implements FilmService {
 
         if (likeStorage.remove(film.getId(), user.getId())) {
             log.info("Лайк пользователя с id = {} удален.", user.getId());
-            feedRepository.addFeed("LIKE", "REMOVE", userId, filmId);
+
         } else {
             log.info("Пользователь с id = {} не ставил лайк фильму c id = {}.", user.getId(), film.getId());
         }
+        feedRepository.addFeed("LIKE", "REMOVE", userId, filmId);
         return film;
     }
 

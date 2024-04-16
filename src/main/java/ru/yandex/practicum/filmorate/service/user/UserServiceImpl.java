@@ -114,10 +114,10 @@ public class UserServiceImpl implements UserService {
 
         if (friendStorage.remove(userId, friendId)) {
             log.info("Пользователь login = {} удалил из друзей login = {}.", user.getLogin(), friend.getLogin());
+
         } else {
             log.info("Пользователя login = {} нет в друзьях у пользователя login = {}.", user.getLogin(), friend.getLogin());
         }
-
         log.info("Запись информации о событии в таблицу");
         feedStorage.addFeed("FRIEND", "REMOVE", userId, friendId);
         log.info("Информация о событии успешно сохранена");
