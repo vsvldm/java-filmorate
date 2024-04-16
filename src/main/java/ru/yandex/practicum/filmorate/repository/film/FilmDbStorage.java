@@ -114,7 +114,7 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Collection<Film> getPopularFilms(int count,Integer genreId,Integer year) {
+    public Collection<Film> getPopularFilms(int count, Integer genreId, Integer year) {
         List<Film> films;
         if (genreId != null || year != null) {
             if (genreId != null && year != null) {
@@ -125,18 +125,18 @@ public class FilmDbStorage implements FilmStorage {
                         "f.FILM_DURATION, " +
                         "f.FILM_MPA, " +
                         "m.MPA_TITLE, " +
-                        "COUNT(l.FILM_ID) as likes_count" +
-                        "FROM FILMS f" +
-                        "JOIN FILM_GENRE fg ON f.FILM_ID = fg.FILM_ID" +
-                        "JOIN GENRES g ON fg.GENRE_ID = g.GENRE_ID" +
-                        "LEFT JOIN LIKES l ON f.FILM_ID = l.FILM_ID" +
-                        "JOIN MPA m ON f.FILM_MPA = m.MPA_ID" +
-                        "WHERE g.GENRE_ID = ? AND EXTRACT(YEAR FROM f.FILM_RELEASE_DATE) = ?" +
-                        "GROUP BY f.FILM_ID" +
-                        "HAVING likes_count >= 0" +
-                        "ORDER BY likes_count DESC" +
+                        "COUNT(l.FILM_ID) as likes_count " +
+                        "FROM FILMS f " +
+                        "JOIN FILM_GENRE fg ON f.FILM_ID = fg.FILM_ID " +
+                        "JOIN GENRES g ON fg.GENRE_ID = g.GENRE_ID " +
+                        "LEFT JOIN LIKES l ON f.FILM_ID = l.FILM_ID " +
+                        "JOIN MPA m ON f.FILM_MPA = m.MPA_ID " +
+                        "WHERE g.GENRE_ID = ? AND EXTRACT(YEAR FROM f.FILM_RELEASE_DATE) = ? " +
+                        "GROUP BY f.FILM_ID " +
+                        "HAVING likes_count >= 0 " +
+                        "ORDER BY likes_count DESC " +
                         "LIMIT ?";
-                films = jdbcOperations.query(sql, this::makeFilm, genreId,year,count);
+                films = jdbcOperations.query(sql, this::makeFilm, genreId, year, count);
             } else if (year != null) {
                 String sql = "SELECT f.FILM_ID, " +
                         "f.FILM_NAME, " +
@@ -145,14 +145,14 @@ public class FilmDbStorage implements FilmStorage {
                         "f.FILM_DURATION, " +
                         "f.FILM_MPA, " +
                         "m.MPA_TITLE, " +
-                        "COUNT(l.FILM_ID) as likes_count" +
-                        "FROM FILMS f" +
-                        "LEFT JOIN LIKES l ON f.FILM_ID = l.FILM_ID" +
-                        "JOIN MPA m ON f.FILM_MPA = m.MPA_ID" +
-                        "WHERE EXTRACT(YEAR FROM f.FILM_RELEASE_DATE) = ?" +
-                        "GROUP BY f.FILM_ID" +
-                        "HAVING likes_count >= 0" +
-                        "ORDER BY likes_count DESC" +
+                        "COUNT(l.FILM_ID) as likes_count " +
+                        "FROM FILMS f " +
+                        "LEFT JOIN LIKES l ON f.FILM_ID = l.FILM_ID " +
+                        "JOIN MPA m ON f.FILM_MPA = m.MPA_ID " +
+                        "WHERE EXTRACT(YEAR FROM f.FILM_RELEASE_DATE) = ? " +
+                        "GROUP BY f.FILM_ID " +
+                        "HAVING likes_count >= 0 " +
+                        "ORDER BY likes_count DESC " +
                         "LIMIT ?";
                 films = jdbcOperations.query(sql, this::makeFilm, year, count);
             } else {
@@ -163,16 +163,16 @@ public class FilmDbStorage implements FilmStorage {
                         "f.FILM_DURATION, " +
                         "f.FILM_MPA, " +
                         "m.MPA_TITLE, " +
-                        "COUNT(l.FILM_ID) as likes_count" +
-                        "FROM FILMS f" +
-                        "JOIN FILM_GENRE fg ON f.FILM_ID = fg.FILM_ID" +
-                        "JOIN GENRES g ON fg.GENRE_ID = g.GENRE_ID" +
-                        "LEFT JOIN LIKES l ON f.FILM_ID = l.FILM_ID" +
-                        "JOIN MPA m ON f.FILM_MPA = m.MPA_ID" +
+                        "COUNT(l.FILM_ID) as likes_count " +
+                        "FROM FILMS f " +
+                        "JOIN FILM_GENRE fg ON f.FILM_ID = fg.FILM_ID " +
+                        "JOIN GENRES g ON fg.GENRE_ID = g.GENRE_ID " +
+                        "LEFT JOIN LIKES l ON f.FILM_ID = l.FILM_ID " +
+                        "JOIN MPA m ON f.FILM_MPA = m.MPA_ID " +
                         "WHERE g.GENRE_ID = ? " +
-                        "GROUP BY f.FILM_ID" +
-                        "HAVING likes_count >= 0" +
-                        "ORDER BY likes_count DESC" +
+                        "GROUP BY f.FILM_ID " +
+                        "HAVING likes_count >= 0 " +
+                        "ORDER BY likes_count DESC " +
                         "LIMIT ?";
                 films = jdbcOperations.query(sql, this::makeFilm, genreId, count);
             }
@@ -184,13 +184,13 @@ public class FilmDbStorage implements FilmStorage {
                     "f.FILM_DURATION, " +
                     "f.FILM_MPA, " +
                     "m.MPA_TITLE, " +
-                    "COUNT(l.FILM_ID) as likes_count" +
-                    "FROM FILMS f" +
-                    "LEFT JOIN LIKES l ON f.FILM_ID = l.FILM_ID" +
-                    "JOIN MPA m ON f.FILM_MPA = m.MPA_ID" +
-                    "GROUP BY f.FILM_ID" +
-                    "HAVING likes_count >= 0" +
-                    "ORDER BY likes_count DESC" +
+                    "COUNT(l.FILM_ID) as likes_count " +
+                    "FROM FILMS f " +
+                    "LEFT JOIN LIKES l ON f.FILM_ID = l.FILM_ID " +
+                    "JOIN MPA m ON f.FILM_MPA = m.MPA_ID " +
+                    "GROUP BY f.FILM_ID " +
+                    "HAVING likes_count >= 0 " +
+                    "ORDER BY likes_count DESC " +
                     "LIMIT ?";
             films = jdbcOperations.query(sql, this::makeFilm, count);
 
@@ -237,6 +237,32 @@ public class FilmDbStorage implements FilmStorage {
                 "ORDER BY COUNT(l.USER_ID)";
         try {
             return jdbcOperations.query(sql, this::makeFilm, directorId);
+        } catch (EmptyResultDataAccessException e) {
+            return new ArrayList<>();
+        }
+    }
+
+    @Override
+    public List<Film> findCommonFilms(int userId, int friendId) {
+        String sql = "SELECT f.FILM_ID, " +
+                "f.FILM_NAME," +
+                "f.FILM_DESCRIPTION, " +
+                "f.FILM_RELEASE_DATE, " +
+                "f.FILM_DURATION, " +
+                "f.FILM_MPA, " +
+                "m.MPA_TITLE " +
+                "FROM PUBLIC.FILMS f " +
+                "LEFT JOIN PUBLIC.LIKES l on f.FILM_ID = l.FILM_ID " +
+                "JOIN PUBLIC.MPA m on F.FILM_MPA = M.MPA_ID " +
+                "WHERE l.USER_ID = ? AND  l.FILM_ID IN ( " +
+                "                                       SELECT FILM_ID " +
+                "                                       FROM PUBLIC.LIKES " +
+                "                                       WHERE USER_ID = ?) " +
+                "GROUP BY f.FILM_ID " +
+                "ORDER BY COUNT(l.USER_ID) DESC ";
+
+        try {
+            return jdbcOperations.query(sql, this::makeFilm, userId, friendId);
         } catch (EmptyResultDataAccessException e) {
             return new ArrayList<>();
         }

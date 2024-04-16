@@ -1,18 +1,13 @@
 package ru.yandex.practicum.filmorate.model;
 
 import org.junit.jupiter.api.Test;
-import ru.yandex.practicum.filmorate.repository.film.InMemoryFilmStorage;
-import ru.yandex.practicum.filmorate.repository.film_genre.FilmGenreRepository;
-import ru.yandex.practicum.filmorate.service.user.UserService;
-import ru.yandex.practicum.filmorate.service.user.UserServiceImpl;
-import ru.yandex.practicum.filmorate.repository.friend.InMemoryFriendStorage;
-import ru.yandex.practicum.filmorate.repository.user.InMemoryUserStorage;
 
 import javax.validation.Validation;
 import javax.validation.Validator;
 import java.time.LocalDate;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UserTest {
     private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();

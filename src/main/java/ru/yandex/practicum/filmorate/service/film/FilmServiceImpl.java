@@ -9,6 +9,7 @@ import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.model.Film;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.director.DirectorRepository;
+import ru.yandex.practicum.filmorate.repository.feed.FeedRepository;
 import ru.yandex.practicum.filmorate.repository.film.FilmStorage;
 import ru.yandex.practicum.filmorate.repository.film_genre.FilmGenreRepository;
 import ru.yandex.practicum.filmorate.repository.like.LikeStorage;
@@ -26,6 +27,7 @@ public class FilmServiceImpl implements FilmService {
     private final UserStorage userStorage;
     private final FilmGenreRepository filmGenreRepository;
     private final DirectorRepository directorRepository;
+    private final FeedRepository feedRepository;
 
     @Override
     public Film create(Film film) {
@@ -145,6 +147,7 @@ public class FilmServiceImpl implements FilmService {
 
         likeStorage.add(film.getId(), user.getId());
         log.info("Пользователь с id = {} поставил лайк фильму c id = {}.", userId, film.getId());
+        feedRepository.addFeed("LIKE", "ADD", userId, filmId);
         return film;
 
     }
@@ -158,9 +161,11 @@ public class FilmServiceImpl implements FilmService {
 
         if (likeStorage.remove(film.getId(), user.getId())) {
             log.info("Лайк пользователя с id = {} удален.", user.getId());
+
         } else {
             log.info("Пользователь с id = {} не ставил лайк фильму c id = {}.", user.getId(), film.getId());
         }
+        feedRepository.addFeed("LIKE", "REMOVE", userId, filmId);
         return film;
     }
 
@@ -240,5 +245,13 @@ public class FilmServiceImpl implements FilmService {
         }
 
         return result;
+    }
+
+    @Override
+    public List<Film> findCommonFilms(int userId, int friendId) {
+        userStorage.getById(userId);
+        userStorage.getById(friendId);
+
+        return filmStorage.findCommonFilms(userId, friendId);
     }
 }
