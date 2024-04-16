@@ -22,8 +22,7 @@ public class FeedDBRepository implements FeedRepository{
 
     @Override
     public List<Feed> getFeedById(int id) {
-        String sqlQuery = "select * from feed where USER_ID = ? order by EVENT_TYPE ASC, OPERATION ASC" ;
-        System.out.println("Запрос формируется по id - " + id);
+        String sqlQuery = "select * from feed where USER_ID = ?";
         return jdbcTemplate.query(sqlQuery, this::feedRowToFilm, id);
     }
 

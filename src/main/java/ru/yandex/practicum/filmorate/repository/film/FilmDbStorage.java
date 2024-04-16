@@ -123,9 +123,10 @@ public class FilmDbStorage implements FilmStorage {
                 "FILM_MPA, " +
                 "M.MPA_TITLE " +
                 "from FILMS F " +
-                "join LIKES L on F.FILM_ID = L.FILM_ID " +
+                "left join LIKES L on F.FILM_ID = L.FILM_ID " +
                 "join MPA M on F.FILM_MPA = M.MPA_ID " +
-                "group by L.FILM_ID " +
+                "group by F.FILM_ID " +
+                "having count(L.USER_ID) >= 0 " +
                 "order by count(L.USER_ID) desc " +
                 "limit ?";
 
