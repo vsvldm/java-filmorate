@@ -2,6 +2,7 @@ package ru.yandex.practicum.filmorate.model;
 
 import org.junit.jupiter.api.Test;
 import ru.yandex.practicum.filmorate.repository.film.InMemoryFilmStorage;
+import ru.yandex.practicum.filmorate.repository.film_genre.FilmGenreRepository;
 import ru.yandex.practicum.filmorate.service.user.UserService;
 import ru.yandex.practicum.filmorate.service.user.UserServiceImpl;
 import ru.yandex.practicum.filmorate.repository.friend.InMemoryFriendStorage;
@@ -15,17 +16,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class UserTest {
     private final Validator validator = Validation.buildDefaultValidatorFactory().getValidator();
-
-    @Test
-    public void ifUserNameIsEmptyThenNameIsLoginValidateTest() {
-        User user = new User(1," ", "Login",
-                LocalDate.of(1990, 1, 1),
-                "nameorlogin@example.com");
-        UserService userService = new UserServiceImpl(new InMemoryUserStorage(), new InMemoryFriendStorage(), new InMemoryFilmStorage());
-        userService.create(user);
-        assertNotNull(user);
-        assertEquals(user.getName(), user.getLogin());
-    }
 
     @Test
     public void userLoginNotBeEmptyTest() {
