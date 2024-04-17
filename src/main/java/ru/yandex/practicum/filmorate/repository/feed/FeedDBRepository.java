@@ -22,7 +22,6 @@ public class FeedDBRepository implements FeedRepository {
     public List<Feed> getFeedById(int id) {
         String sqlQuery = "select * from feed where USER_ID = ? ";
 
-        System.out.println("Запрос формируется по id - " + id);
         return jdbcTemplate.query(sqlQuery, this::feedRowToFilm, id);
     }
 
