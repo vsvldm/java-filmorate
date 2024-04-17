@@ -25,7 +25,6 @@ import java.util.*;
 public class FilmDbStorage implements FilmStorage {
     private final JdbcOperations jdbcOperations;
 
-
     @Override
     public int add(Film film) {
         String sql = "insert into FILMS(FILM_NAME," +
@@ -114,47 +113,24 @@ public class FilmDbStorage implements FilmStorage {
     }
 
     @Override
-    public Collection<Film> getPopularFilms(int count, Integer genreId, Integer year) {
-        if (genreId != null || year != null) {
-            String sql = "SELECT f.FILM_ID, " +
-                    "f.FILM_NAME, " +
-                    "f.FILM_DESCRIPTION, " +
-                    "f.FILM_RELEASE_DATE, " +
-                    "f.FILM_DURATION, " +
-                    "f.FILM_MPA, " +
-                    "m.MPA_TITLE, " +
-                    "COUNT(l.FILM_ID) as likes_count " +
-                    "FROM FILMS f " +
-                    "JOIN FILM_GENRE fg ON f.FILM_ID = fg.FILM_ID " +
-                    "JOIN GENRES g ON fg.GENRE_ID = g.GENRE_ID " +
-                    "LEFT JOIN LIKES l ON f.FILM_ID = l.FILM_ID " +
-                    "JOIN MPA m ON f.FILM_MPA = m.MPA_ID " +
-                    "WHERE ((g.GENRE_ID = ? OR ? IS NULL) " +
-                    "AND (EXTRACT(YEAR FROM f.FILM_RELEASE_DATE) = ? OR ? IS NULL)) " +
-                    "GROUP BY f.FILM_ID " +
-                    "ORDER BY likes_count DESC " +
-                    "LIMIT ?";
+    public Collection<Film> getPopularFilms(int count) {
+        String sql = "SELECT f.FILM_ID, " +
+                "f.FILM_NAME, " +
+                "f.FILM_DESCRIPTION, " +
+                "f.FILM_RELEASE_DATE, " +
+                "f.FILM_DURATION, " +
+                "f.FILM_MPA, " +
+                "m.MPA_TITLE, " +
+                "COUNT(l.FILM_ID) as likes_count " +
+                "FROM FILMS f " +
+                "LEFT JOIN LIKES l ON f.FILM_ID = l.FILM_ID " +
+                "JOIN MPA m ON f.FILM_MPA = m.MPA_ID " +
+                "GROUP BY f.FILM_ID " +
+                "HAVING likes_count >= 0 " +
+                "ORDER BY likes_count DESC " +
+                "LIMIT ?";
 
-            return  jdbcOperations.query(sql, this::makeFilm, genreId, genreId, year, year, count);
-        } else {
-            String sql = "SELECT f.FILM_ID, " +
-                    "f.FILM_NAME, " +
-                    "f.FILM_DESCRIPTION, " +
-                    "f.FILM_RELEASE_DATE, " +
-                    "f.FILM_DURATION, " +
-                    "f.FILM_MPA, " +
-                    "m.MPA_TITLE, " +
-                    "COUNT(l.FILM_ID) as likes_count " +
-                    "FROM FILMS f " +
-                    "LEFT JOIN LIKES l ON f.FILM_ID = l.FILM_ID " +
-                    "JOIN MPA m ON f.FILM_MPA = m.MPA_ID " +
-                    "GROUP BY f.FILM_ID " +
-                    "HAVING likes_count >= 0 " +
-                    "ORDER BY likes_count DESC " +
-                    "LIMIT ?";
-
-            return jdbcOperations.query(sql, this::makeFilm, count);
-        }
+        return jdbcOperations.query(sql, this::makeFilm, count);
     }
 
     @Override
@@ -288,6 +264,30 @@ public class FilmDbStorage implements FilmStorage {
                 ")";
 
         return jdbcOperations.query(sql, this::makeFilm, id,id,id);
+    }
+
+    @Override
+    public Collection<Film> getPopularFilmsByYearAndGenres(int count, Integer genreId, Integer year) {
+        String sql = "SELECT f.FILM_ID, " +
+                "f.FILM_NAME, " +
+                "f.FILM_DESCRIPTION, " +
+                "f.FILM_RELEASE_DATE, " +
+                "f.FILM_DURATION, " +
+                "f.FILM_MPA, " +
+                "m.MPA_TITLE, " +
+                "COUNT(l.FILM_ID) as likes_count " +
+                "FROM FILMS f " +
+                "JOIN FILM_GENRE fg ON f.FILM_ID = fg.FILM_ID " +
+                "JOIN GENRES g ON fg.GENRE_ID = g.GENRE_ID " +
+                "LEFT JOIN LIKES l ON f.FILM_ID = l.FILM_ID " +
+                "JOIN MPA m ON f.FILM_MPA = m.MPA_ID " +
+                "WHERE ((g.GENRE_ID = ? OR ? IS NULL) " +
+                "AND (EXTRACT(YEAR FROM f.FILM_RELEASE_DATE) = ? OR ? IS NULL)) " +
+                "GROUP BY f.FILM_ID " +
+                "ORDER BY likes_count DESC " +
+                "LIMIT ?";
+
+        return jdbcOperations.query(sql, this::makeFilm, genreId, genreId, year, year, count);
     }
 
     private Film makeFilm(ResultSet rs, int rn) throws SQLException {

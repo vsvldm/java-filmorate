@@ -128,13 +128,16 @@ public class FilmServiceImpl implements FilmService {
     }
 
     @Override
-    public List<Film> findPopular(int count,Integer genreId,Integer year) {
+    public List<Film> findPopular(int count, Integer genreId, Integer year) {
         log.info("Начало выполнения метода findPopular.");
-        List<Film> films = filmStorage.getPopularFilms(count,genreId,year).stream()
-                .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId())))
-                .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
-                .collect(Collectors.toList());
+        List<Film> films = new ArrayList<>((genreId != null || year != null)
+                ? filmStorage.getPopularFilmsByYearAndGenres(count, genreId, year)
+                : filmStorage.getPopularFilms(count));
 
+        films.forEach(f -> {
+            f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId()));
+            f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId())));
+        });
         log.info("Список из count = {} самых популярных фильмов найден.", count);
         return films;
     }
@@ -199,7 +202,7 @@ public class FilmServiceImpl implements FilmService {
         log.info("Начало выполнения метода searchFilms.");
 
         if (query == null && by == null) {
-            return filmStorage.getPopularFilms(10,null,null).stream()
+            return filmStorage.getPopularFilms(10).stream()
                     .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId())))
                     .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
                     .collect(Collectors.toList());

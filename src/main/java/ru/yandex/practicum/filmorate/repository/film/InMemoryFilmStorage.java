@@ -58,7 +58,7 @@ public class InMemoryFilmStorage implements FilmStorage {
     }
 
     @Override
-    public Collection<Film> getPopularFilms(int count,Integer genreId,Integer year) {
+    public Collection<Film> getPopularFilms(int count) {
         return getAllFilms().stream()
                 .sorted(this::compare)
                 .limit(count)
@@ -96,6 +96,11 @@ public class InMemoryFilmStorage implements FilmStorage {
 
     @Override
     public List<Film> findCommonFilms(int userId, int friendId) {
+        return null;
+    }
+
+    @Override
+    public Collection<Film> getPopularFilmsByYearAndGenres(int count, Integer genreId, Integer year) {
         return null;
     }
 

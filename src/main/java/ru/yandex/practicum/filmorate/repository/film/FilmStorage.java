@@ -18,7 +18,7 @@ public interface FilmStorage {
 
     public Collection<Film> getAllFilms();
 
-    public Collection<Film> getPopularFilms(int count,Integer genreId,Integer year);
+    public Collection<Film> getPopularFilms(int count);
 
     public List<Film> findFilmsByDirectorSortByYear(int directorId);
 
@@ -33,4 +33,6 @@ public interface FilmStorage {
     public List<Film> searchFilmForTitleAndDirector(String query);
 
     public List<Film> findCommonFilms(int userId, int friendId);
+
+    public Collection<Film> getPopularFilmsByYearAndGenres(int count, Integer genreId, Integer year);
 }
