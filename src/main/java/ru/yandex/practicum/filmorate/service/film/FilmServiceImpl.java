@@ -132,6 +132,7 @@ public class FilmServiceImpl implements FilmService {
         log.info("Начало выполнения метода findPopular.");
         List<Film> films = filmStorage.getPopularFilms(count,genreId,year).stream()
                 .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId())))
+                .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
                 .collect(Collectors.toList());
 
         log.info("Список из count = {} самых популярных фильмов найден.", count);
