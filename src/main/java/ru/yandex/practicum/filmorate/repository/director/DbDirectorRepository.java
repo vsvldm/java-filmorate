@@ -15,6 +15,7 @@ import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
+import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -40,13 +41,10 @@ public class DbDirectorRepository implements DirectorRepository {
             jdbcTemplate.update(sql, paramSource, keyHolder);
             director.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
             log.debug("DB: Director {} end create into DB", director.getName());
-            return director;
         } catch (RuntimeException e) {
-            String errorMessage = Objects.requireNonNull(e.getMessage());
-
-            log.error(errorMessage);
-            throw new BadRequestException(errorMessage);
+            log.error(e.getMessage());
         }
+        return director;
     }
 
     @Override
@@ -59,10 +57,7 @@ public class DbDirectorRepository implements DirectorRepository {
         try {
             jdbcTemplate.update(sql, params);
         } catch (RuntimeException e) {
-            String errorMessage = Objects.requireNonNull(e.getMessage());
-
-            log.error(errorMessage);
-            throw new BadRequestException(errorMessage);
+            log.error(e.getMessage());
         }
         return director;
     }
@@ -77,7 +72,8 @@ public class DbDirectorRepository implements DirectorRepository {
         try {
             return Optional.ofNullable(jdbcTemplate.queryForObject(sql, params, new DirectorRowMapper()));
         } catch (EmptyResultDataAccessException e) {
-            return Optional.empty();
+            throw new NotFoundException(
+                    String.format("Режиссер с ID = %d не найден ", id));
         }
     }
 
@@ -87,7 +83,7 @@ public class DbDirectorRepository implements DirectorRepository {
         try {
             return jdbcTemplate.query(sql, new DirectorRowMapper());
         } catch (EmptyResultDataAccessException e) {
-            return null;
+            return new ArrayList<>();
         }
     }
 

@@ -27,9 +27,9 @@ public class DirectorServiceImpl implements DirectorService {
             throw new BadRequestException("DirectorService: Имя не может быть пустым");
         }
         log.debug("DirectorService: Создаем режиссера {}", name);
-        Director d = directorRepository.create(director);
-        log.debug("DirectorService: Создан режиссер {}", d.getName());
-        return d;
+        Director stored = directorRepository.create(director);
+        log.debug("DirectorService: Создан режиссер {}", stored.getName());
+        return stored;
     }
 
     @Override
@@ -37,9 +37,9 @@ public class DirectorServiceImpl implements DirectorService {
         directorRepository.findById(director.getId()).orElseThrow(() -> new NotFoundException(
                 String.format("Режиссер с ID = %d не найден ", director.getId())));
         log.debug("DirectorService: Обновляем режиссера {}", director.getName());
-        Director d = directorRepository.update(director);
-        log.debug("DirectorService: Обновлен режиссер {}", d.getName());
-        return d;
+        Director stored = directorRepository.update(director);
+        log.debug("DirectorService: Обновлен режиссер {}", stored.getName());
+        return stored;
     }
 
     @Override

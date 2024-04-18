@@ -28,6 +28,8 @@ public class FilmServiceImpl implements FilmService {
     private final FilmGenreRepository filmGenreRepository;
     private final DirectorRepository directorRepository;
     private final FeedRepository feedRepository;
+    private final String sortByYear = "year";
+    private final String sortByLikes = "likes";
 
     @Override
     public Film create(Film film) {
@@ -68,10 +70,8 @@ public class FilmServiceImpl implements FilmService {
             filmFromDB.getGenres().addAll(filmGenreRepository.getByFilm(film.getId()));
 
             directorRepository.removeDirectorsFromFilms(filmFromDB.getId());
-            if (directors != null) {
-                if (!directors.isEmpty()) {
+            if (directors != null && !directors.isEmpty()) {
                     directorRepository.addDirectorsToFilm(directors, filmFromDB.getId());
-                }
             }
             filmFromDB.setDirectors(directors);
 
@@ -179,14 +179,14 @@ public class FilmServiceImpl implements FilmService {
 
         directorRepository.findById(directorId).orElseThrow(() -> new NotFoundException(
                 String.format("Режиссер с ID = %d не найден ", directorId)));
-        if ("year".equals(sortBy)) {
+        if (sortByYear.equals(sortBy)) {
             films = filmStorage.findFilmsByDirectorSortByYear(directorId).stream()
                     .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId())))
                     .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
                     .collect(Collectors.toList());
             return films;
         }
-        if ("likes".equals(sortBy)) {
+        if (sortByLikes.equals(sortBy)) {
             films = filmStorage.findFilmsByDirectorSortByLikes(directorId).stream()
                     .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId())))
                     .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
