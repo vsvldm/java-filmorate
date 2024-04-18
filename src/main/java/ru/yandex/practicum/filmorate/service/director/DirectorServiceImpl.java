@@ -26,9 +26,9 @@ public class DirectorServiceImpl implements DirectorService {
         if (name.isBlank()) {
             throw new BadRequestException("DirectorService: Имя не может быть пустым");
         }
-        log.debug("DirectorService: Создаем режиссера {}", name);
+        log.debug("DirectorService.create: Создаем режиссера {}", name);
         Director stored = directorRepository.create(director);
-        log.debug("DirectorService: Создан режиссер {}", stored.getName());
+        log.debug("DirectorService.create: Создан режиссер {}", stored.getName());
         return stored;
     }
 
@@ -36,25 +36,29 @@ public class DirectorServiceImpl implements DirectorService {
     public Director update(Director director) {
         directorRepository.findById(director.getId()).orElseThrow(() -> new NotFoundException(
                 String.format("Режиссер с ID = %d не найден ", director.getId())));
-        log.debug("DirectorService: Обновляем режиссера {}", director.getName());
+        log.debug("DirectorService.update: Обновляем режиссера {}", director.getName());
         Director stored = directorRepository.update(director);
-        log.debug("DirectorService: Обновлен режиссер {}", stored.getName());
+        log.debug("DirectorService.update: Обновлен режиссер {}", stored.getName());
         return stored;
     }
 
     @Override
     public Director getById(int id) {
+        log.info("DirectorService.getById: Поиск режиссера с id =  {}.", id);
         return directorRepository.findById(id).orElseThrow(() -> new NotFoundException(
                 String.format("Режиссер с ID = %d не найден", id)));
     }
 
     @Override
     public List<Director> getAll() {
+        log.info("DirectorService.getAll: Поиск  всех режиссеров ");
         return directorRepository.findAll();
     }
 
     @Override
     public void remove(int id) {
+        log.info("DirectorService.remove: Режиссер c id = {} начато удаление ", id);
         directorRepository.remove(id);
+        log.info("DirectorService.remove: Режиссер c id = {} удален ", id);
     }
 }
