@@ -29,6 +29,11 @@ public class FilmServiceImpl implements FilmService {
     private final FilmGenreRepository filmGenreRepository;
     private final MpaService mpaDao;
     private final DirectorRepository directorRepository;
+    private static final String BY_DIRECTOR = "director";
+    private static final String BY_TITLE = "title";
+    private static final String BY_DIRECTOR_TITLE = "director,title";
+    private static final String BY_TITLE_DIRECTOR = "title,director";
+
 
     @Override
     public Film create(Film film) {
@@ -181,37 +186,53 @@ public class FilmServiceImpl implements FilmService {
         log.info("Начало выполнения метода searchFilms.");
 
         if (query == null && by == null) {
-            return new ArrayList<>(filmStorage.getPopularFilms(10));
+            return filmStorage.getPopularFilms(10).stream()
+                    .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId())))
+                    .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
+                    .collect(Collectors.toList());
         }
 
         if (query == null || query.isBlank()) {
-            log.warn("Пустой запрос");
+            log.info("Пустой запрос");
             return Collections.emptyList();
         }
 
-        if (!("director".equals(by) || "title".equals(by) || "director,title".equals(by) ||
-                "title,director".equals(by))) {
+        if (!(BY_DIRECTOR.equals(by) || BY_TITLE.equals(by) || BY_DIRECTOR_TITLE.equals(by) ||
+                BY_TITLE_DIRECTOR.equals(by))) {
             throw new BadRequestException("Недопустимое значение параметра сортировки 'by': " + by);
         }
 
         List<Film> result = new ArrayList<>();
 
         switch (by) {
-            case "director":
-                result = filmStorage.searchFilmForDirector(query);
-                log.debug("Получены все фильмы по имени режиссёра {}", query);
+            case BY_DIRECTOR:
+                result = filmStorage.searchFilmForDirector(query).stream()
+                        .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId())))
+                        .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
+                        .collect(Collectors.toList());
+
+                log.info("Получены все фильмы по имени режиссёра {}", query);
                 break;
-            case "title":
-                result = filmStorage.searchFilmForTitle(query);
-                log.debug("Получены все фильмы по названию {}", query);
+            case BY_TITLE:
+                result = filmStorage.searchFilmForTitle(query).stream()
+                        .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId())))
+                        .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
+                        .collect(Collectors.toList());
+
+                log.info("Получены все фильмы по названию {}", query);
                 break;
-            case "director,title":
-            case "title,director":
-                result = filmStorage.searchFilmForTitleAndDirector(query);
-                log.debug("Получены все фильмы по названию и режиссёру");
+            case BY_DIRECTOR_TITLE:
+            case BY_TITLE_DIRECTOR:
+                result = filmStorage.searchFilmForTitleAndDirector(query).stream()
+                        .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId())))
+                        .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
+                        .collect(Collectors.toList());
+
+                log.info("Получены все фильмы по названию и режиссёру");
                 break;
         }
 
         return result;
+
     }
 }
