@@ -5,9 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.repository.director.DirectorRepository;
 import ru.yandex.practicum.filmorate.repository.feed.FeedRepository;
 import ru.yandex.practicum.filmorate.repository.film.FilmStorage;
@@ -27,9 +25,16 @@ public class FilmServiceImpl implements FilmService {
     private final UserStorage userStorage;
     private final FilmGenreRepository filmGenreRepository;
     private final DirectorRepository directorRepository;
+
+    private static final String BY_DIRECTOR = "director";
+    private static final String BY_TITLE = "title";
+    private static final String BY_DIRECTOR_TITLE = "director,title";
+    private static final String BY_TITLE_DIRECTOR = "title,director";
+
     private final FeedRepository feedRepository;
     private static final String BY_YEAR = "year";
     private static final String BY_LIKES = "likes";
+
 
     @Override
     public Film create(Film film) {
@@ -151,7 +156,7 @@ public class FilmServiceImpl implements FilmService {
 
         likeStorage.add(film.getId(), user.getId());
         log.info("Пользователь с id = {} поставил лайк фильму c id = {}.", userId, film.getId());
-        feedRepository.addFeed("LIKE", "ADD", userId, filmId);
+        feedRepository.addFeed(Type.LIKE, Operation.ADD, userId, filmId);
         return film;
 
     }
@@ -169,7 +174,7 @@ public class FilmServiceImpl implements FilmService {
         } else {
             log.info("Пользователь с id = {} не ставил лайк фильму c id = {}.", user.getId(), film.getId());
         }
-        feedRepository.addFeed("LIKE", "REMOVE", userId, filmId);
+        feedRepository.addFeed(Type.LIKE, Operation.REMOVE, userId, filmId);
         return film;
     }
 
@@ -208,46 +213,47 @@ public class FilmServiceImpl implements FilmService {
         }
 
         if (query == null || query.isBlank()) {
-            log.warn("Пустой запрос");
+            log.info("Пустой запрос");
             return Collections.emptyList();
         }
 
-        if (!("director".equals(by) || "title".equals(by) || "director,title".equals(by) ||
-                "title,director".equals(by))) {
+        if (!(BY_DIRECTOR.equals(by) || BY_TITLE.equals(by) || BY_DIRECTOR_TITLE.equals(by) ||
+                BY_TITLE_DIRECTOR.equals(by))) {
             throw new BadRequestException("Недопустимое значение параметра сортировки 'by': " + by);
         }
 
         List<Film> result = new ArrayList<>();
 
         switch (by) {
-            case "director":
+            case BY_DIRECTOR:
                 result = filmStorage.searchFilmForDirector(query).stream()
                         .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId())))
                         .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
                         .collect(Collectors.toList());
 
-                log.debug("Получены все фильмы по имени режиссёра {}", query);
+                log.info("Получены все фильмы по имени режиссёра {}", query);
                 break;
-            case "title":
+            case BY_TITLE:
                 result = filmStorage.searchFilmForTitle(query).stream()
                         .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId())))
                         .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
                         .collect(Collectors.toList());
 
-                log.debug("Получены все фильмы по названию {}", query);
+                log.info("Получены все фильмы по названию {}", query);
                 break;
-            case "director,title":
-            case "title,director":
+            case BY_DIRECTOR_TITLE:
+            case BY_TITLE_DIRECTOR:
                 result = filmStorage.searchFilmForTitleAndDirector(query).stream()
                         .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId())))
                         .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
                         .collect(Collectors.toList());
 
-                log.debug("Получены все фильмы по названию и режиссёру");
+                log.info("Получены все фильмы по названию и режиссёру");
                 break;
         }
 
         return result;
+
     }
 
     @Override
