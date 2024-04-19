@@ -2,8 +2,7 @@ package ru.yandex.practicum.filmorate.repository.director;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
-import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
@@ -16,13 +15,14 @@ import ru.yandex.practicum.filmorate.model.Director;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.*;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
 @Slf4j
-@Primary
 public class DbDirectorRepository implements DirectorRepository {
     private final JdbcOperations jdbcOperations;
 
@@ -71,15 +71,15 @@ public class DbDirectorRepository implements DirectorRepository {
     }
 
     @Override
-    public Optional<Director> findById(int id) {
+    public Director findById(int id) {
         String sql = "SELECT DIRECTOR_ID, DIRECTOR_NAME " +
                 "FROM PUBLIC.DIRECTORS " +
                 "WHERE DIRECTOR_ID = ?";
         log.info("DbDirectorRepository.findById: Поиск режиссера с id =  {}.",
                 id);
         try {
-            return Optional.ofNullable(jdbcOperations.queryForObject(sql, new DirectorRowMapper(), id));
-        } catch (EmptyResultDataAccessException e) {
+            return jdbcOperations.queryForObject(sql, new DirectorRowMapper(), id);
+        } catch (DataAccessException e) {
             log.info("Режиссер с ID = {} не найден ", id);
             throw new NotFoundException(
                     String.format("Режиссер с ID = %d не найден ", id));
@@ -90,14 +90,9 @@ public class DbDirectorRepository implements DirectorRepository {
     public List<Director> findAll() {
         String sql = "SELECT DIRECTOR_ID, DIRECTOR_NAME FROM PUBLIC.DIRECTORS";
         log.info("DbDirectorRepository.findAll: Начат поиск всех режиссеров .");
-        try {
-            List<Director> directors = jdbcOperations.query(sql, new DirectorRowMapper());
-            log.info("DbDirectorRepository.findAll: Найдено {} режиссеров .", directors.size());
-            return directors;
-        } catch (EmptyResultDataAccessException e) {
-            log.info("DbDirectorRepository.findAll: Режиссеров не найдено никого.");
-            return new ArrayList<>();
-        }
+        List<Director> directors = jdbcOperations.query(sql, new DirectorRowMapper());
+        log.info("DbDirectorRepository.findAll: Найдено {} режиссеров .", directors.size());
+        return directors;
     }
 
     @Override
@@ -146,14 +141,9 @@ public class DbDirectorRepository implements DirectorRepository {
                 "WHERE fd.FILM_ID = ?";
         log.info("DbDirectorRepository.findDirectorsByFilm: Начат поиск режиссеров в фильме id = {} ",
                 filmId);
-        try {
-            List<Director> directors = jdbcOperations.query(sql, new DirectorRowMapper(), filmId);
-            log.info("DbDirectorRepository.findDirectorsByFilm: Найдено {} режиссеров .", directors.size());
-            return directors;
-        } catch (EmptyResultDataAccessException e) {
-            log.info("DbDirectorRepository.findDirectorsByFilm: Режиссеров не найдено никого.");
-            return new ArrayList<>();
-        }
+        List<Director> directors = jdbcOperations.query(sql, new DirectorRowMapper(), filmId);
+        log.info("DbDirectorRepository.findDirectorsByFilm: Найдено {} режиссеров .", directors.size());
+        return directors;
     }
 
     private static class DirectorRowMapper implements RowMapper<Director> {

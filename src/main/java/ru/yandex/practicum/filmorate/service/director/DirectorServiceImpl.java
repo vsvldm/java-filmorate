@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
-import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.Director;
 import ru.yandex.practicum.filmorate.repository.director.DirectorRepository;
 
@@ -34,8 +33,7 @@ public class DirectorServiceImpl implements DirectorService {
 
     @Override
     public Director update(Director director) {
-        directorRepository.findById(director.getId()).orElseThrow(() -> new NotFoundException(
-                String.format("Режиссер с ID = %d не найден ", director.getId())));
+        directorRepository.findById(director.getId());
         log.debug("DirectorService.update: Обновляем режиссера {}", director.getName());
         Director stored = directorRepository.update(director);
         log.debug("DirectorService.update: Обновлен режиссер {}", stored.getName());
@@ -45,8 +43,7 @@ public class DirectorServiceImpl implements DirectorService {
     @Override
     public Director getById(int id) {
         log.info("DirectorService.getById: Поиск режиссера с id =  {}.", id);
-        return directorRepository.findById(id).orElseThrow(() -> new NotFoundException(
-                String.format("Режиссер с ID = %d не найден", id)));
+        return directorRepository.findById(id);
     }
 
     @Override

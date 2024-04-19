@@ -177,8 +177,7 @@ public class FilmServiceImpl implements FilmService {
     public List<Film> findByDirector(int directorId, String sortBy) {
         log.info("findByDirector: Проверка существования режиссера с directorId = {}.",
                 directorId);
-        directorRepository.findById(directorId).orElseThrow(() -> new NotFoundException(
-                String.format("Режиссер с ID = %d не найден ", directorId)));
+        directorRepository.findById(directorId);
         log.info("findByDirector: Ищем фильмы режиссера с directorId = {} sortBy = {}.",
                 directorId, sortBy);
         if (BY_YEAR.equals(sortBy)) {
