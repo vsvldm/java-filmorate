@@ -5,8 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.model.Type;
 import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.repository.feed.FeedDBRepository;
 import ru.yandex.practicum.filmorate.repository.film.FilmStorage;
 import ru.yandex.practicum.filmorate.repository.review.ReviewRepository;
 import ru.yandex.practicum.filmorate.repository.review_likes.ReviewLikesRepository;
@@ -23,6 +26,7 @@ public class ReviewServiceImpl implements ReviewService {
     private final UserStorage userStorage;
     private final ReviewRepository reviewRepository;
     private final ReviewLikesRepository reviewLikesRepository;
+    private final FeedDBRepository feedStorage;
 
     @Override
     public Review create(Review review) {
@@ -36,16 +40,24 @@ public class ReviewServiceImpl implements ReviewService {
 
         review.setReviewId(reviewRepository.add(review));
         log.info("Отзыв с id = {} успешно создан.", review.getReviewId());
-        return review;
 
+
+        log.info("Запись информации о событии в таблицу");
+        feedStorage.addFeed(Type.REVIEW, Operation.ADD, review.getUserId(), review.getReviewId());
+        log.info("Информация о событии успешно сохранена");
+        return review;
     }
 
     @Override
     public Review update(Review review) {
+        Review r = reviewRepository.getById(review.getReviewId());
         log.info("Начало выполнения метода update.");
         log.info("Проверка существования отзыва с id ={}.", review.getReviewId());
         if (reviewRepository.update(review)) {
             log.info("Отзыв с id = {} успешно обновлен", review.getReviewId());
+            log.info("Запись информации о событии в таблицу");
+            feedStorage.addFeed(Type.REVIEW, Operation.UPDATE, r.getUserId(), review.getReviewId());
+            log.info("Информация о событии успешно сохранена");
             return reviewRepository.getById(review.getReviewId());
         } else {
             throw new NotFoundException(String.format("Отзыва с id = %d не существует.", review.getReviewId()));
@@ -55,8 +67,14 @@ public class ReviewServiceImpl implements ReviewService {
     @Override
     public void removeById(int reviewId) {
         log.info("Начало выполнения метода removeById.");
+        int userId = reviewRepository.getById(reviewId).getUserId();
+
         reviewRepository.remove(reviewId);
         log.info("Отзыв с id = {} успешно удален.", reviewId);
+
+        log.info("Запись информации о событии в таблицу");
+        feedStorage.addFeed(Type.REVIEW, Operation.REMOVE, userId, reviewId);
+        log.info("Информация о событии успешно сохранена");
     }
 
     @Override
@@ -117,6 +135,7 @@ public class ReviewServiceImpl implements ReviewService {
 
         reviewLikesRepository.removeLike(review.getReviewId(), user.getId());
         log.info("Отзыв с id = {} успешно удален.", reviewId);
+
     }
 
     @Override

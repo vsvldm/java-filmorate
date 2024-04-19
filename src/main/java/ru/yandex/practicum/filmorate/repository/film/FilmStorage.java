@@ -31,4 +31,8 @@ public interface FilmStorage {
     public List<Film> searchFilmForTitle(String query);
 
     public List<Film> searchFilmForTitleAndDirector(String query);
+
+    public List<Film> findCommonFilms(int userId, int friendId);
+
+    public Collection<Film> getPopularFilmsByYearAndGenres(int count, Integer genreId, Integer year);
 }

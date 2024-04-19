@@ -5,13 +5,15 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
+import ru.yandex.practicum.filmorate.repository.feed.FeedDBRepository;
 import ru.yandex.practicum.filmorate.repository.film.FilmStorage;
+import ru.yandex.practicum.filmorate.repository.film_genre.FilmGenreRepository;
 import ru.yandex.practicum.filmorate.repository.friend.FriendStorage;
 import ru.yandex.practicum.filmorate.repository.user.UserStorage;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -19,7 +21,9 @@ import java.util.*;
 public class UserServiceImpl implements UserService {
     private final UserStorage userStorage;
     private final FriendStorage friendStorage;
+    private final FeedDBRepository feedStorage;
     private final FilmStorage filmStorage;
+    private final FilmGenreRepository filmGenreRepository;
 
     @Override
     public User create(User user) {
@@ -91,6 +95,11 @@ public class UserServiceImpl implements UserService {
 
         friendStorage.add(user.getId(), friend.getId());
         log.info("Пользователь login = {} добавил в друзья login = {}.", user.getLogin(), friend.getLogin());
+
+        log.info("Запись информации о событии в таблицу");
+        feedStorage.addFeed(Type.FRIEND, Operation.ADD, userId, friendId);
+        log.info("Информация о событии успешно сохранена");
+
         return user;
     }
 
@@ -103,9 +112,14 @@ public class UserServiceImpl implements UserService {
 
         if (friendStorage.remove(userId, friendId)) {
             log.info("Пользователь login = {} удалил из друзей login = {}.", user.getLogin(), friend.getLogin());
+
         } else {
             log.info("Пользователя login = {} нет в друзьях у пользователя login = {}.", user.getLogin(), friend.getLogin());
         }
+        log.info("Запись информации о событии в таблицу");
+        feedStorage.addFeed(Type.FRIEND, Operation.REMOVE, userId, friendId);
+        log.info("Информация о событии успешно сохранена");
+
         return user;
     }
 
@@ -150,7 +164,16 @@ public class UserServiceImpl implements UserService {
         log.info("Проверка на существование");
         userStorage.getById(userId);
         log.info("Рекомендации для пользователя с id {} успешно представлены",userId);
-       return filmStorage.getRecommendations(userId);
+       return filmStorage.getRecommendations(userId).stream()
+               .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId())))
+               .collect(Collectors.toList());
+    }
 
+    @Override
+    public List<Feed> getFeed(int userId) {
+        log.info("Начало выполнения метода getFeed.");
+        log.info("Проверка на существование");
+        userStorage.getById(userId);
+        return feedStorage.getFeedById(userId);
     }
 }
