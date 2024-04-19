@@ -5,9 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Director;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.repository.director.DirectorRepository;
 import ru.yandex.practicum.filmorate.repository.feed.FeedRepository;
 import ru.yandex.practicum.filmorate.repository.film.FilmStorage;
@@ -151,7 +149,7 @@ public class FilmServiceImpl implements FilmService {
 
         likeStorage.add(film.getId(), user.getId());
         log.info("Пользователь с id = {} поставил лайк фильму c id = {}.", userId, film.getId());
-        feedRepository.addFeed("LIKE", "ADD", userId, filmId);
+        feedRepository.addFeed(Type.LIKE, Operation.ADD, userId, filmId);
         return film;
 
     }
@@ -169,7 +167,7 @@ public class FilmServiceImpl implements FilmService {
         } else {
             log.info("Пользователь с id = {} не ставил лайк фильму c id = {}.", user.getId(), film.getId());
         }
-        feedRepository.addFeed("LIKE", "REMOVE", userId, filmId);
+        feedRepository.addFeed(Type.LIKE, Operation.REMOVE, userId, filmId);
         return film;
     }
 

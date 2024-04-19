@@ -5,9 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
-import ru.yandex.practicum.filmorate.model.Feed;
-import ru.yandex.practicum.filmorate.model.Film;
-import ru.yandex.practicum.filmorate.model.User;
+import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.repository.feed.FeedDBRepository;
 import ru.yandex.practicum.filmorate.repository.film.FilmStorage;
 import ru.yandex.practicum.filmorate.repository.film_genre.FilmGenreRepository;
@@ -99,7 +97,7 @@ public class UserServiceImpl implements UserService {
         log.info("Пользователь login = {} добавил в друзья login = {}.", user.getLogin(), friend.getLogin());
 
         log.info("Запись информации о событии в таблицу");
-        feedStorage.addFeed("FRIEND", "ADD", userId, friendId);
+        feedStorage.addFeed(Type.FRIEND, Operation.ADD, userId, friendId);
         log.info("Информация о событии успешно сохранена");
 
         return user;
@@ -119,7 +117,7 @@ public class UserServiceImpl implements UserService {
             log.info("Пользователя login = {} нет в друзьях у пользователя login = {}.", user.getLogin(), friend.getLogin());
         }
         log.info("Запись информации о событии в таблицу");
-        feedStorage.addFeed("FRIEND", "REMOVE", userId, friendId);
+        feedStorage.addFeed(Type.FRIEND, Operation.REMOVE, userId, friendId);
         log.info("Информация о событии успешно сохранена");
 
         return user;

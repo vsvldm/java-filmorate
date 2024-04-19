@@ -5,7 +5,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.yandex.practicum.filmorate.exception.BadRequestException;
 import ru.yandex.practicum.filmorate.exception.NotFoundException;
+import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.model.Review;
+import ru.yandex.practicum.filmorate.model.Type;
 import ru.yandex.practicum.filmorate.model.User;
 import ru.yandex.practicum.filmorate.repository.feed.FeedDBRepository;
 import ru.yandex.practicum.filmorate.repository.film.FilmStorage;
@@ -41,7 +43,7 @@ public class ReviewServiceImpl implements ReviewService {
 
 
         log.info("Запись информации о событии в таблицу");
-        feedStorage.addFeed("REVIEW", "ADD", review.getUserId(), review.getReviewId());
+        feedStorage.addFeed(Type.REVIEW, Operation.ADD, review.getUserId(), review.getReviewId());
         log.info("Информация о событии успешно сохранена");
         return review;
     }
@@ -54,7 +56,7 @@ public class ReviewServiceImpl implements ReviewService {
         if (reviewRepository.update(review)) {
             log.info("Отзыв с id = {} успешно обновлен", review.getReviewId());
             log.info("Запись информации о событии в таблицу");
-            feedStorage.addFeed("REVIEW", "UPDATE", r.getUserId(), review.getReviewId());
+            feedStorage.addFeed(Type.REVIEW, Operation.UPDATE, r.getUserId(), review.getReviewId());
             log.info("Информация о событии успешно сохранена");
             return reviewRepository.getById(review.getReviewId());
         } else {
@@ -71,7 +73,7 @@ public class ReviewServiceImpl implements ReviewService {
         log.info("Отзыв с id = {} успешно удален.", reviewId);
 
         log.info("Запись информации о событии в таблицу");
-        feedStorage.addFeed("REVIEW", "REMOVE", userId, reviewId);
+        feedStorage.addFeed(Type.REVIEW, Operation.REMOVE, userId, reviewId);
         log.info("Информация о событии успешно сохранена");
     }
 
