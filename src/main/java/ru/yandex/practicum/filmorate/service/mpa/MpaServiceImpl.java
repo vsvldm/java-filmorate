@@ -17,11 +17,19 @@ public class MpaServiceImpl implements MpaService {
 
     @Override
     public Mpa findById(int mpaId) {
-        return mpaRepository.getById(mpaId);
+        log.info("MpaService: Начало выполнения метода findById.");
+        Mpa mpa = mpaRepository.getById(mpaId);
+
+        log.info("MpaService: Рейтинг с id = {} успешно найден", mpaId);
+        return mpa;
     }
 
     @Override
     public List<Mpa> findAll() {
-        return new ArrayList<>(mpaRepository.getMpas());
+        log.info("MpaService: Начало выполнения метода findAll.");
+        List<Mpa> mpas = new ArrayList<>(mpaRepository.getMpas());
+
+        log.info("MpaService: Список рейтингов найден");
+        return mpas;
     }
 }

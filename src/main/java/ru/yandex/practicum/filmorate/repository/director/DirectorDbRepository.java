@@ -23,16 +23,16 @@ import java.util.stream.Collectors;
 @Repository
 @RequiredArgsConstructor
 @Slf4j
-public class DbDirectorRepository implements DirectorRepository {
+public class DirectorDbRepository implements DirectorRepository {
     private final JdbcOperations jdbcOperations;
 
     @Override
     public Director create(Director director) {
         KeyHolder keyHolder = new GeneratedKeyHolder();
-        String sql = "INSERT INTO PUBLIC.DIRECTORS (DIRECTOR_NAME) " +
+        String sql = "INSERT INTO DIRECTORS (DIRECTOR_NAME) " +
                 "VALUES(?)";
         try {
-            log.info("DbDirectorRepository.create: Режиссер {} начата запись в БД",
+            log.info("DirectorDbRepository.create: Режиссер {} начата запись в БД",
                     director);
             jdbcOperations.update(
                     connection -> {
@@ -41,7 +41,7 @@ public class DbDirectorRepository implements DirectorRepository {
                         return ps;
                     }, keyHolder);
             director.setId(Objects.requireNonNull(keyHolder.getKey()).intValue());
-            log.info("DbDirectorRepository.create: Режиссер {} запись в БД успешна", director);
+            log.info("DirectorDbRepository.create: Режиссер {} запись в БД успешна", director);
         } catch (Exception e) {
             String errorMessage = Objects.requireNonNull(e.getMessage());
 
@@ -53,9 +53,9 @@ public class DbDirectorRepository implements DirectorRepository {
 
     @Override
     public Director update(Director director) {
-        String sql = "UPDATE PUBLIC.DIRECTORS SET DIRECTOR_NAME = ? " +
+        String sql = "UPDATE DIRECTORS SET DIRECTOR_NAME = ? " +
                 "WHERE DIRECTOR_ID = ?";
-        log.info("DbDirectorRepository.update: Режиссер {} начато обновление в БД",
+        log.info("DirectorDbRepository.update: Режиссер {} начато обновление в БД",
                 director);
         try {
             jdbcOperations.update(sql, director.getName(), director.getId());
@@ -65,7 +65,7 @@ public class DbDirectorRepository implements DirectorRepository {
             log.error(errorMessage);
             throw new BadRequestException(errorMessage);
         }
-        log.info("DbDirectorRepository.update: Режиссер {} обновление в БД успешно",
+        log.info("DirectorDbRepository.update: Режиссер {} обновление в БД успешно",
                 director);
         return director;
     }
@@ -73,9 +73,9 @@ public class DbDirectorRepository implements DirectorRepository {
     @Override
     public Director findById(int id) {
         String sql = "SELECT DIRECTOR_ID, DIRECTOR_NAME " +
-                "FROM PUBLIC.DIRECTORS " +
+                "FROM DIRECTORS " +
                 "WHERE DIRECTOR_ID = ?";
-        log.info("DbDirectorRepository.findById: Поиск режиссера с id =  {}.",
+        log.info("DirectorDbRepository.findById: Поиск режиссера с id =  {}.",
                 id);
         try {
             return jdbcOperations.queryForObject(sql, new DirectorRowMapper(), id);
@@ -88,61 +88,61 @@ public class DbDirectorRepository implements DirectorRepository {
 
     @Override
     public List<Director> findAll() {
-        String sql = "SELECT DIRECTOR_ID, DIRECTOR_NAME FROM PUBLIC.DIRECTORS";
-        log.info("DbDirectorRepository.findAll: Начат поиск всех режиссеров .");
+        String sql = "SELECT DIRECTOR_ID, DIRECTOR_NAME FROM DIRECTORS";
+        log.info("DirectorDbRepository.findAll: Начат поиск всех режиссеров .");
         List<Director> directors = jdbcOperations.query(sql, new DirectorRowMapper());
-        log.info("DbDirectorRepository.findAll: Найдено {} режиссеров .", directors.size());
+        log.info("DirectorDbRepository.findAll: Найдено {} режиссеров .", directors.size());
         return directors;
     }
 
     @Override
     public void remove(int id) {
-        String sql = "DELETE FROM PUBLIC.DIRECTORS  " +
+        String sql = "DELETE FROM DIRECTORS  " +
                 "WHERE DIRECTOR_ID = ?";
-        log.info("DbDirectorRepository.remove: Режиссер c id = {} начато удаление из БД",
+        log.info("DirectorDbRepository.remove: Режиссер c id = {} начато удаление из БД",
                 id);
         jdbcOperations.update(sql, id);
-        log.info("DbDirectorRepository.remove: Режиссер c id = {} успешно удален из БД",
+        log.info("DirectorDbRepository.remove: Режиссер c id = {} успешно удален из БД",
                 id);
     }
 
     @Override
     public void removeDirectorsFromFilms(int filmId) {
-        String sql = "DELETE FROM PUBLIC.FILM_DIRECTOR " +
+        String sql = "DELETE FROM FILM_DIRECTOR " +
                 "WHERE  FILM_ID = ?";
-        log.info("DbDirectorRepository.removeDirectorsFromFilms: Начато удаление режиссеров из фильма id = {} " +
+        log.info("DirectorDbRepository.removeDirectorsFromFilms: Начато удаление режиссеров из фильма id = {} " +
                         "начато удаление из БД", filmId);
         jdbcOperations.update(sql, filmId);
-        log.info("DbDirectorRepository.removeDirectorsFromFilms: Режиссеры из фильма id = {} " +
+        log.info("DirectorDbRepository.removeDirectorsFromFilms: Режиссеры из фильма id = {} " +
                 "успешно удалены из БД", filmId);
     }
 
     @Override
     public void addDirectorsToFilm(Set<Director> directors, int filmId) {
-        String sql = "MERGE INTO PUBLIC.FILM_DIRECTOR (FILM_ID, DIRECTOR_ID) " +
+        String sql = "MERGE INTO FILM_DIRECTOR (FILM_ID, DIRECTOR_ID) " +
                 "VALUES (?, ?)";
-        log.info("DbDirectorRepository.addDirectorsToFilm: Начато добавление режиссеров {} в фильма id = {} ",
+        log.info("DirectorDbRepository.addDirectorsToFilm: Начато добавление режиссеров {} в фильма id = {} ",
                 directors, filmId);
         List<Object[]> batchArgs = directors
                 .stream()
                 .map(director -> (new Object[]{filmId, director.getId()}))
                 .collect(Collectors.toList());
         jdbcOperations.batchUpdate(sql, batchArgs);
-        log.info("DbDirectorRepository.addDirectorsToFilm: Добавление режиссеров {} в фильм id = {} успешно ",
+        log.info("DirectorDbRepository.addDirectorsToFilm: Добавление режиссеров {} в фильм id = {} успешно ",
                 directors, filmId);
     }
 
     @Override
     public List<Director> findDirectorsByFilm(int filmId) {
-        String sql = "SELECT fd.DIRECTOR_ID, d.DIRECTOR_NAME " +
-                "FROM PUBLIC.FILM_DIRECTOR fd " +
-                "JOIN PUBLIC.DIRECTORS d " +
-                "ON fd.DIRECTOR_ID = d.DIRECTOR_ID " +
-                "WHERE fd.FILM_ID = ?";
-        log.info("DbDirectorRepository.findDirectorsByFilm: Начат поиск режиссеров в фильме id = {} ",
+        String sql = "SELECT FD.DIRECTOR_ID, D.DIRECTOR_NAME " +
+                "FROM FILM_DIRECTOR FD " +
+                "JOIN DIRECTORS D " +
+                "ON FD.DIRECTOR_ID = D.DIRECTOR_ID " +
+                "WHERE FD.FILM_ID = ?";
+        log.info("DirectorDbRepository.findDirectorsByFilm: Начат поиск режиссеров в фильме id = {} ",
                 filmId);
         List<Director> directors = jdbcOperations.query(sql, new DirectorRowMapper(), filmId);
-        log.info("DbDirectorRepository.findDirectorsByFilm: Найдено {} режиссеров .", directors.size());
+        log.info("DirectorDbRepository.findDirectorsByFilm: Найдено {} режиссеров .", directors.size());
         return directors;
     }
 

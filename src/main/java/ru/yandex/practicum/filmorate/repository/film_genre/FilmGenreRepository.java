@@ -6,9 +6,9 @@ import java.util.Collection;
 import java.util.Set;
 
 public interface FilmGenreRepository {
-    public void add(int filmId, Set<Genre> genres);
+    void add(int filmId, Set<Genre> genres);
 
-    public boolean remove(int filmId);
+    boolean remove(int filmId);
 
     Collection<Genre> getByFilm(int filmId);
 }

@@ -19,14 +19,14 @@ public class GenreDbRepository implements GenreRepository {
 
     @Override
     public Collection<Genre> values() {
-        String sql = "select * from GENRES";
+        String sql = "SELECT * FROM GENRES";
 
         return jdbcOperations.query(sql, this::makeGenre);
     }
 
     @Override
     public Genre getById(int genreId) {
-        String sql = "select * from GENRES where GENRE_ID = ?";
+        String sql = "SELECT * FROM GENRES WHERE GENRE_ID = ?";
 
         try {
             return jdbcOperations.queryForObject(sql, this::makeGenre, genreId);

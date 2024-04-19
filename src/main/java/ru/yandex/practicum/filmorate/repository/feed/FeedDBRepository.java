@@ -9,26 +9,17 @@ import ru.yandex.practicum.filmorate.model.Feed;
 import ru.yandex.practicum.filmorate.model.Operation;
 import ru.yandex.practicum.filmorate.model.Type;
 
-import java.sql.*;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 @Repository
 @RequiredArgsConstructor
 public class FeedDBRepository implements FeedRepository {
     private final JdbcOperations jdbcOperations;
-
-    private final Map<String, Object> feedToMap(Feed feed) {
-        return Map.of(
-                "EVENT_ID", feed.getEventId(),
-                "USER_ID", feed.getUserId(),
-                "ENTITY_ID", feed.getEntityId(),
-                "EVENT_TYPE", feed.getEventType(),
-                "OPERATION", feed.getOperation(),
-                "FEED_TIMESTAMP",feed.getTimestamp()
-        );
-    }
 
     @Override
     public List<Feed> getFeedById(int id) {
@@ -39,13 +30,13 @@ public class FeedDBRepository implements FeedRepository {
 
     @Override
     public void addFeed(Type type, Operation operation, int userId, int entityId) {
-        String sql = "insert into FEED(" +
+        String sql = "INSERT INTO FEED(" +
                 " USER_ID," +
                 " ENTITY_ID," +
                 " EVENT_TYPE," +
                 " OPERATION," +
                 " FEED_TIMESTAMP)" +
-                "values (?, ?, ?, ?, ?)";
+                "VALUES (?, ?, ?, ?, ?)";
         KeyHolder keyHolder = new GeneratedKeyHolder();
 
         jdbcOperations.update(

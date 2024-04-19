@@ -17,11 +17,19 @@ public class GenreServiceImpl implements GenreService {
 
     @Override
     public Genre findById(int genreId) {
-        return genreRepository.getById(genreId);
+        log.info("GenreService: Начало выполнения метода findById.");
+        Genre genre = genreRepository.getById(genreId);
+
+        log.info("GenreService: Жанр с id = {} успешно найден", genreId);
+        return genre;
     }
 
     @Override
     public List<Genre> findAll() {
-        return new ArrayList<>(genreRepository.values());
+        log.info("GenreService: Начало выполнения метода findAll.");
+        List<Genre> genres = new ArrayList<>(genreRepository.values());
+
+        log.info("GenreService: Список жанров найден.");
+        return genres;
     }
 }

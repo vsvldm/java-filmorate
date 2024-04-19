@@ -8,10 +8,10 @@ import ru.yandex.practicum.filmorate.exception.NotFoundException;
 import ru.yandex.practicum.filmorate.model.*;
 import ru.yandex.practicum.filmorate.repository.director.DirectorRepository;
 import ru.yandex.practicum.filmorate.repository.feed.FeedRepository;
-import ru.yandex.practicum.filmorate.repository.film.FilmStorage;
+import ru.yandex.practicum.filmorate.repository.film.FilmRepository;
 import ru.yandex.practicum.filmorate.repository.film_genre.FilmGenreRepository;
-import ru.yandex.practicum.filmorate.repository.like.LikeStorage;
-import ru.yandex.practicum.filmorate.repository.user.UserStorage;
+import ru.yandex.practicum.filmorate.repository.like.LikeRepository;
+import ru.yandex.practicum.filmorate.repository.user.UserRepository;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -20,67 +20,59 @@ import java.util.stream.Collectors;
 @Slf4j
 @RequiredArgsConstructor
 public class FilmServiceImpl implements FilmService {
-    private final FilmStorage filmStorage;
-    private final LikeStorage likeStorage;
-    private final UserStorage userStorage;
+    private final FilmRepository filmRepository;
+    private final LikeRepository likeRepository;
+    private final UserRepository userRepository;
     private final FilmGenreRepository filmGenreRepository;
     private final DirectorRepository directorRepository;
-
+    private final FeedRepository feedRepository;
     private static final String BY_DIRECTOR = "director";
     private static final String BY_TITLE = "title";
     private static final String BY_DIRECTOR_TITLE = "director,title";
     private static final String BY_TITLE_DIRECTOR = "title,director";
-
-    private final FeedRepository feedRepository;
     private static final String BY_YEAR = "year";
     private static final String BY_LIKES = "likes";
 
 
     @Override
     public Film create(Film film) {
-        log.info("Начало выполнения метода create.");
+        log.info("FilmService: Начало выполнения метода create.");
         Set<Director> directors = film.getDirectors();
 
-        int filmId = filmStorage.add(film);
+        int filmId = filmRepository.add(film);
 
         film.setId(filmId);
         filmGenreRepository.add(filmId, film.getGenres());
 
-        film.setGenres(film.getGenres() != null
-                ? new LinkedHashSet<>(filmGenreRepository.getByFilm(filmId))
-                : new LinkedHashSet<>());
-
-        if (directors != null) {
-            if (!directors.isEmpty()) {
-                directorRepository.addDirectorsToFilm(directors, film.getId());
-            }
+        if (!directors.isEmpty()) {
+            directorRepository.addDirectorsToFilm(directors, film.getId());
         }
 
-        log.info("Фильм id = {} успешно создан", filmId);
+        log.info("FilmService: Фильм id = {} успешно создан.", filmId);
         return film;
     }
 
     @Override
     public Film update(Film film) {
-        log.info("Начало выполнения метода update.");
+        log.info("FilmService: Начало выполнения метода update.");
         Set<Director> directors = film.getDirectors();
 
-        log.info("Проверка существования фильма с id ={}.", film.getId());
-        if (filmStorage.update(film)) {
+        log.info("FilmService: Проверка существования фильма с id ={}.", film.getId());
+        if (filmRepository.update(film)) {
             filmGenreRepository.remove(film.getId());
             filmGenreRepository.add(film.getId(), film.getGenres());
 
-            Film filmFromDB = filmStorage.getById(film.getId());
+            Film filmFromDB = filmRepository.getById(film.getId());
 
             filmFromDB.getGenres().addAll(filmGenreRepository.getByFilm(film.getId()));
-
             directorRepository.removeDirectorsFromFilms(filmFromDB.getId());
-            if (directors != null && !directors.isEmpty()) {
-                    directorRepository.addDirectorsToFilm(directors, filmFromDB.getId());
-            }
-            filmFromDB.setDirectors(directors);
 
-            log.info("Фильм с id = {} успешно обновлен", film.getId());
+            if (!directors.isEmpty()) {
+                directorRepository.addDirectorsToFilm(directors, filmFromDB.getId());
+                filmFromDB.getDirectors().addAll(directors);
+            }
+
+            log.info("FilmService: Фильм с id = {} успешно обновлен.", film.getId());
             return filmFromDB;
         } else {
             throw new NotFoundException(String.format("Фильма с id = %d не существует.", film.getId()));
@@ -89,73 +81,72 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film findById(int filmId) {
-        log.info("Начало выполнения метода findById.");
+        log.info("FilmService: Начало выполнения метода findById.");
         Set<Director> directors = new HashSet<>(directorRepository.findDirectorsByFilm(filmId));
-
-        Film film = filmStorage.getById(filmId);
+        Film film = filmRepository.getById(filmId);
 
         film.getGenres().addAll(filmGenreRepository.getByFilm(filmId));
 
         if (!directors.isEmpty()) {
-            film.setDirectors(directors);
+            film.getDirectors().addAll(directors);
         }
-        log.info("Фильм с id = {} найден.", filmId);
+        log.info("FilmService: Фильм с id = {} найден.", filmId);
         return film;
     }
 
     @Override
     public List<Film> findAll() {
-        log.info("Начало выполнения метода findAll.");
-        List<Film> films = filmStorage.getAllFilms()
+        log.info("FilmService: Начало выполнения метода findAll.");
+        List<Film> films = filmRepository.getAllFilms()
                 .stream()
                 .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId())))
-                .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
+                .peek(f -> f.getDirectors().addAll(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
                 .collect(Collectors.toList());
 
-        log.info("Список всех фильмом найден.");
+        log.info("FilmService: Список всех фильмом найден.");
         return films;
     }
 
     @Override
-    public void deleteById(int filmID) {
-        log.info("Начало выполнения метода deleteById.");
-        filmStorage.deleteById(filmID);
+    public void removeById(int filmID) {
+        log.info("FilmService: Начало выполнения метода removeById.");
+        filmRepository.deleteById(filmID);
 
-        log.info("Фильм с id = {} удалён.", filmID);
+        log.info("FilmService: Фильм с id = {} удалён.", filmID);
     }
 
     @Override
-    public void deleteAll() {
-        log.info("Начало выполнения метода deleteAll.");
-        filmStorage.deleteAll();
+    public void removeAll() {
+        log.info("FilmService: Начало выполнения метода removeAll.");
+        filmRepository.deleteAll();
 
-        log.info("Все фильмы удалены.");
+        log.info("FilmService: Все фильмы удалены.");
     }
 
     @Override
     public List<Film> findPopular(int count, Integer genreId, Integer year) {
-        log.info("Начало выполнения метода findPopular.");
+        log.info("FilmService: Начало выполнения метода findPopular.");
         List<Film> films = new ArrayList<>((genreId != null || year != null)
-                ? filmStorage.getPopularFilmsByYearAndGenres(count, genreId, year)
-                : filmStorage.getPopularFilms(count));
+                ? filmRepository.getPopularFilmsByYearAndGenres(count, genreId, year)
+                : filmRepository.getPopularFilms(count));
 
         films.forEach(f -> {
             f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId()));
-            f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId())));
+            f.getDirectors().addAll(directorRepository.findDirectorsByFilm(f.getId()));
         });
-        log.info("Список из count = {} самых популярных фильмов найден.", count);
+        log.info("FilmService: Список из count = {} самых популярных фильмов найден.", count);
         return films;
     }
 
     @Override
     public Film addLike(int filmId, int userId) {
-        log.info("Начало выполнения метода addLike.");
-        log.info("Проверка существования фильма с id = {} и  пользователя с id = {}.", filmId, userId);
-        Film film = filmStorage.getById(filmId);
-        User user = userStorage.getById(userId);
+        log.info("FilmService: Начало выполнения метода addLike.");
+        log.info("FilmService: Проверка существования фильма с id = {} и  пользователя с id = {}.", filmId, userId);
+        Film film = filmRepository.getById(filmId);
+        User user = userRepository.getById(userId);
 
-        likeStorage.add(film.getId(), user.getId());
-        log.info("Пользователь с id = {} поставил лайк фильму c id = {}.", userId, film.getId());
+        likeRepository.add(film.getId(), user.getId());
+        log.info("FilmService: Пользователь с id = {} поставил лайк фильму c id = {}.", userId, film.getId());
         feedRepository.addFeed(Type.LIKE, Operation.ADD, userId, filmId);
         return film;
 
@@ -163,16 +154,16 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public Film removeLike(int filmId, int userId) {
-        log.info("Начало выполнения метода removeLike.");
-        log.info("Проверка существования фильма с id = {} и пользователя с id = {}.", filmId, userId);
-        Film film = filmStorage.getById(filmId);
-        User user = userStorage.getById(userId);
+        log.info("FilmService: Начало выполнения метода removeLike.");
+        log.info("FilmService: Проверка существования фильма с id = {} и пользователя с id = {}.", filmId, userId);
+        Film film = filmRepository.getById(filmId);
+        User user = userRepository.getById(userId);
 
-        if (likeStorage.remove(film.getId(), user.getId())) {
-            log.info("Лайк пользователя с id = {} удален.", user.getId());
+        if (likeRepository.remove(film.getId(), user.getId())) {
+            log.info("FilmService: Лайк пользователя с id = {} удален.", user.getId());
 
         } else {
-            log.info("Пользователь с id = {} не ставил лайк фильму c id = {}.", user.getId(), film.getId());
+            log.info("FilmService: Пользователь с id = {} не ставил лайк фильму c id = {}.", user.getId(), film.getId());
         }
         feedRepository.addFeed(Type.LIKE, Operation.REMOVE, userId, filmId);
         return film;
@@ -180,40 +171,38 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public List<Film> findByDirector(int directorId, String sortBy) {
-        log.info("findByDirector: Проверка существования режиссера с directorId = {}.",
+        log.info("FilmService: findByDirector: Проверка существования режиссера с directorId = {}.",
                 directorId);
         directorRepository.findById(directorId);
-        log.info("findByDirector: Ищем фильмы режиссера с directorId = {} sortBy = {}.",
-                directorId, sortBy);
+        log.info("findByDirector: Ищем фильмы режиссера с directorId = {} sortBy = {}.", directorId, sortBy);
         if (BY_YEAR.equals(sortBy)) {
-            return filmStorage.findFilmsByDirectorSortByYear(directorId).stream()
+            return filmRepository.findFilmsByDirectorSortByYear(directorId).stream()
                     .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId())))
-                    .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
+                    .peek(f -> f.getDirectors().addAll(directorRepository.findDirectorsByFilm(f.getId())))
                     .collect(Collectors.toList());
         }
         if (BY_LIKES.equals(sortBy)) {
-            return filmStorage.findFilmsByDirectorSortByLikes(directorId).stream()
+            return filmRepository.findFilmsByDirectorSortByLikes(directorId).stream()
                     .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId())))
-                    .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
+                    .peek(f -> f.getDirectors().addAll(directorRepository.findDirectorsByFilm(f.getId())))
                     .collect(Collectors.toList());
         }
-        throw new BadRequestException("Неверный параметр сортировки");
+        throw new BadRequestException("Неверный параметр сортировки.");
     }
 
     @Override
     public List<Film> searchFilms(String query, String by) {
-
-        log.info("Начало выполнения метода searchFilms.");
+        log.info("FilmService: Начало выполнения метода searchFilms.");
 
         if (query == null && by == null) {
-            return filmStorage.getPopularFilms(10).stream()
+            return filmRepository.getPopularFilms(10).stream()
                     .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId())))
-                    .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
+                    .peek(f -> f.getDirectors().addAll(directorRepository.findDirectorsByFilm(f.getId())))
                     .collect(Collectors.toList());
         }
 
         if (query == null || query.isBlank()) {
-            log.info("Пустой запрос");
+            log.info("FilmService: Пустой запрос.");
             return Collections.emptyList();
         }
 
@@ -226,29 +215,29 @@ public class FilmServiceImpl implements FilmService {
 
         switch (by) {
             case BY_DIRECTOR:
-                result = filmStorage.searchFilmForDirector(query).stream()
+                result = filmRepository.searchFilmForDirector(query).stream()
                         .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId())))
-                        .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
+                        .peek(f -> f.getDirectors().addAll(directorRepository.findDirectorsByFilm(f.getId())))
                         .collect(Collectors.toList());
 
-                log.info("Получены все фильмы по имени режиссёра {}", query);
+                log.info("FilmService: Получены все фильмы по имени режиссёра {}.", query);
                 break;
             case BY_TITLE:
-                result = filmStorage.searchFilmForTitle(query).stream()
+                result = filmRepository.searchFilmForTitle(query).stream()
                         .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId())))
-                        .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
+                        .peek(f -> f.getDirectors().addAll(directorRepository.findDirectorsByFilm(f.getId())))
                         .collect(Collectors.toList());
 
-                log.info("Получены все фильмы по названию {}", query);
+                log.info("FilmService: Получены все фильмы по названию {}.", query);
                 break;
             case BY_DIRECTOR_TITLE:
             case BY_TITLE_DIRECTOR:
-                result = filmStorage.searchFilmForTitleAndDirector(query).stream()
+                result = filmRepository.searchFilmForTitleAndDirector(query).stream()
                         .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId())))
-                        .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
+                        .peek(f -> f.getDirectors().addAll(directorRepository.findDirectorsByFilm(f.getId())))
                         .collect(Collectors.toList());
 
-                log.info("Получены все фильмы по названию и режиссёру");
+                log.info("FilmService: Получены все фильмы по названию и режиссёру.");
                 break;
         }
 
@@ -258,13 +247,14 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public List<Film> findCommonFilms(int userId, int friendId) {
-        log.info("findCommonFilms: Проверка существования пользователей  с userId = {} и friendId = {}.",
-                userId, friendId);
-        userStorage.getById(userId);
-        userStorage.getById(friendId);
-        log.info("findCommonFilms: Ищем общие фильмы пользователей  с userId = {} и friendId = {}.",
-                userId, friendId);
+        log.info("FilmService: Начало выполнения метода searchFilms.");
+        log.info("FilmService:  Проверка существования пользователей  с userId = {} и friendId = {}.", userId, friendId);
+        userRepository.getById(userId);
+        userRepository.getById(friendId);
+        log.info("FilmService:  Ищем общие фильмы пользователей  с userId = {} и friendId = {}.", userId, friendId);
+        List<Film> films = filmRepository.findCommonFilms(userId, friendId);
 
-        return filmStorage.findCommonFilms(userId, friendId);
+        log.info("FilmService: Получены общие фильмы между пользователями с userId = {} и friendId = {}.", userId, friendId);
+        return films;
     }
 }

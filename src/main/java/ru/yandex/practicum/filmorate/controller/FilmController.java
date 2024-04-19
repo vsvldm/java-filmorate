@@ -45,13 +45,13 @@ public class FilmController {
     @DeleteMapping("/{id}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteById(@PathVariable("id") Integer filmID) {
-        filmService.deleteById(filmID);
+        filmService.removeById(filmID);
     }
 
     @DeleteMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAll() {
-        filmService.deleteAll();
+        filmService.removeAll();
     }
 
     @PutMapping("/{filmId}/like/{userId}")
