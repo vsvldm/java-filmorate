@@ -28,8 +28,8 @@ public class FilmServiceImpl implements FilmService {
     private final FilmGenreRepository filmGenreRepository;
     private final DirectorRepository directorRepository;
     private final FeedRepository feedRepository;
-    private static final String SORT_BY_YEAR = "year";
-    private static final String SORT_BY_LIKES = "likes";
+    private static final String BY_YEAR = "year";
+    private static final String BY_LIKES = "likes";
 
     @Override
     public Film create(Film film) {
@@ -181,13 +181,13 @@ public class FilmServiceImpl implements FilmService {
                 String.format("Режиссер с ID = %d не найден ", directorId)));
         log.info("findByDirector: Ищем фильмы режиссера с directorId = {} sortBy = {}.",
                 directorId, sortBy);
-        if (SORT_BY_YEAR.equals(sortBy)) {
+        if (BY_YEAR.equals(sortBy)) {
             return filmStorage.findFilmsByDirectorSortByYear(directorId).stream()
                     .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId())))
                     .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
                     .collect(Collectors.toList());
         }
-        if (SORT_BY_LIKES.equals(sortBy)) {
+        if (BY_LIKES.equals(sortBy)) {
             return filmStorage.findFilmsByDirectorSortByLikes(directorId).stream()
                     .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId())))
                     .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
