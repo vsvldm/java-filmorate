@@ -13,7 +13,7 @@ public interface FilmService {
 
     public List<Film> findAll();
 
-    public List<Film> findPopular(int count);
+    public List<Film> findPopular(int count,Integer genreId,Integer year);
 
     public void deleteById(int filmID);
 
@@ -26,4 +26,6 @@ public interface FilmService {
     public List<Film> findByDirector(int directorId, String sortBy);
 
     List<Film> searchFilms(String query, String by);
+
+    List<Film> findCommonFilms(int userId, int friendId);
 }
