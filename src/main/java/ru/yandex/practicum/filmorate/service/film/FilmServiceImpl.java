@@ -236,7 +236,6 @@ public class FilmServiceImpl implements FilmService {
 
                 log.info("Получены все фильмы по имени режиссёра {}", query);
                 break;
-            
             case BY_TITLE:
                 result = filmStorage.searchFilmForTitle(query).stream()
                         .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId())))
@@ -245,7 +244,6 @@ public class FilmServiceImpl implements FilmService {
 
                 log.info("Получены все фильмы по названию {}", query);
                 break;
-            
             case BY_DIRECTOR_TITLE:
             case BY_TITLE_DIRECTOR:
                 result = filmStorage.searchFilmForTitleAndDirector(query).stream()
