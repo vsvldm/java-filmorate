@@ -23,7 +23,7 @@ class FilmTest {
         Set<Director> directors = new HashSet<>();
         genres.add(new Genre(1, null));
         Film film = new Film(1, " ", "Description",
-                LocalDate.now(), 0, new Mpa(1, null), genres, directors);
+                LocalDate.now(), 0, new Mpa(1, null));
         assertFalse(validator.validate(film).isEmpty());
     }
 
@@ -39,9 +39,7 @@ class FilmTest {
                 "asdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasdasda",
                 LocalDate.now(),
                 0,
-                new Mpa(1, null),
-                genres,
-                directors);
+                new Mpa(1, null));
 
         assertFalse(validator.validate(film).isEmpty());
     }
@@ -56,9 +54,7 @@ class FilmTest {
                 "Description",
                 LocalDate.of(1700, 1, 1),
                 0,
-                new Mpa(1, null),
-                genres,
-                directors);
+                new Mpa(1, null));
 
         assertFalse(validator.validate(film).isEmpty()); // Проверяем, что есть ошибки валидации
     }
@@ -70,7 +66,7 @@ class FilmTest {
 
         genres.add(new Genre(1, null));
         Film film = new Film(1, "Name", "Description",
-                LocalDate.now(), -10, new Mpa(1, null), genres, directors);
+                LocalDate.now(), -10, new Mpa(1, null));
         assertFalse(validator.validate(film).isEmpty()); // Проверяем, что есть ошибки валидации
     }
 }

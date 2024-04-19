@@ -1,11 +1,11 @@
 package ru.yandex.practicum.filmorate.repository.review_likes;
 
 public interface ReviewLikesRepository {
-    public void addLike(int reviewId, int userId);
+    void addLike(int reviewId, int userId);
 
-    public void addDislike(int reviewId, int userId);
+    void addDislike(int reviewId, int userId);
 
-    public void removeLike(int reviewId, int userId);
+    void removeLike(int reviewId, int userId);
 
-    public void removeDislike(int reviewId, int userId);
+    void removeDislike(int reviewId, int userId);
 }

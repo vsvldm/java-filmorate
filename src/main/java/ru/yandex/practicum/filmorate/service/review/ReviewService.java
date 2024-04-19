@@ -5,21 +5,21 @@ import ru.yandex.practicum.filmorate.model.Review;
 import java.util.List;
 
 public interface ReviewService {
-    public Review create(Review review);
+    Review create(Review review);
 
-    public Review update(Review review);
+    Review update(Review review);
 
-    public void removeById(int reviewId);
+    void removeById(int reviewId);
 
-    public Review findById(int reviewId);
+    Review findById(int reviewId);
 
-    public List<Review> findAllByFilm(int filmId, int count);
+    List<Review> findAllByFilm(int filmId, int count);
 
-    public void addLike(int reviewId, int userId);
+    void addLike(int reviewId, int userId);
 
-    public void addDislike(int reviewId, int userId);
+    void addDislike(int reviewId, int userId);
 
-    public void removeLike(int reviewId, int userId);
+    void removeLike(int reviewId, int userId);
 
-    public void removeDislike(int reviewId, int userId);
+    void removeDislike(int reviewId, int userId);
 }

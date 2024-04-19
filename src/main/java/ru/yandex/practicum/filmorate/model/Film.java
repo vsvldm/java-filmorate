@@ -1,6 +1,6 @@
 package ru.yandex.practicum.filmorate.model;
 
-import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import org.jetbrains.annotations.NotNull;
 import ru.yandex.practicum.filmorate.annotation.ValidDate;
@@ -10,10 +10,12 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.PositiveOrZero;
 import javax.validation.constraints.Size;
 import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 @Data
-@AllArgsConstructor
+@Builder
 public class Film {
     private int id;
     @NotNull
@@ -26,9 +28,9 @@ public class Film {
     @PositiveOrZero
     private final long duration;
     @Valid
-    private Mpa mpa;
+    private final Mpa mpa;
     @Valid
-    private Set<Genre> genres;
+    private final Set<Genre> genres = new LinkedHashSet<>();
     @Valid
-    private Set<Director> directors;
+    private final Set<Director> directors = new HashSet<>();
 }
