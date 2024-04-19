@@ -32,6 +32,8 @@ public class FilmServiceImpl implements FilmService {
     private static final String BY_TITLE_DIRECTOR = "title,director";
 
     private final FeedRepository feedRepository;
+    private static final String BY_YEAR = "year";
+    private static final String BY_LIKES = "likes";
 
 
     @Override
@@ -73,10 +75,8 @@ public class FilmServiceImpl implements FilmService {
             filmFromDB.getGenres().addAll(filmGenreRepository.getByFilm(film.getId()));
 
             directorRepository.removeDirectorsFromFilms(filmFromDB.getId());
-            if (directors != null) {
-                if (!directors.isEmpty()) {
+            if (directors != null && !directors.isEmpty()) {
                     directorRepository.addDirectorsToFilm(directors, filmFromDB.getId());
-                }
             }
             filmFromDB.setDirectors(directors);
 
@@ -180,23 +180,22 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public List<Film> findByDirector(int directorId, String sortBy) {
-        List<Film> films;
-
-        directorRepository.findById(directorId).orElseThrow(() -> new NotFoundException(
-                String.format("Режиссер с ID = %d не найден ", directorId)));
-        if ("year".equals(sortBy)) {
-            films = filmStorage.findFilmsByDirectorSortByYear(directorId).stream()
+        log.info("findByDirector: Проверка существования режиссера с directorId = {}.",
+                directorId);
+        directorRepository.findById(directorId);
+        log.info("findByDirector: Ищем фильмы режиссера с directorId = {} sortBy = {}.",
+                directorId, sortBy);
+        if (BY_YEAR.equals(sortBy)) {
+            return filmStorage.findFilmsByDirectorSortByYear(directorId).stream()
                     .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId())))
                     .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
                     .collect(Collectors.toList());
-            return films;
         }
-        if ("likes".equals(sortBy)) {
-            films = filmStorage.findFilmsByDirectorSortByLikes(directorId).stream()
+        if (BY_LIKES.equals(sortBy)) {
+            return filmStorage.findFilmsByDirectorSortByLikes(directorId).stream()
                     .peek(f -> f.getGenres().addAll(filmGenreRepository.getByFilm(f.getId())))
                     .peek(f -> f.setDirectors(new HashSet<>(directorRepository.findDirectorsByFilm(f.getId()))))
                     .collect(Collectors.toList());
-            return films;
         }
         throw new BadRequestException("Неверный параметр сортировки");
     }
@@ -259,8 +258,12 @@ public class FilmServiceImpl implements FilmService {
 
     @Override
     public List<Film> findCommonFilms(int userId, int friendId) {
+        log.info("findCommonFilms: Проверка существования пользователей  с userId = {} и friendId = {}.",
+                userId, friendId);
         userStorage.getById(userId);
         userStorage.getById(friendId);
+        log.info("findCommonFilms: Ищем общие фильмы пользователей  с userId = {} и friendId = {}.",
+                userId, friendId);
 
         return filmStorage.findCommonFilms(userId, friendId);
     }
