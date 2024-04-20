@@ -18,7 +18,7 @@ public class MpaDbRepository implements MpaRepository {
 
     @Override
     public Mpa getById(int mpaId) {
-        String sql = "select * from MPA where MPA_ID = ?";
+        String sql = "SELECT * FROM MPA WHERE MPA_ID = ?";
 
         try {
             return jdbcOperations.queryForObject(sql, this::makeMpa, mpaId);
@@ -29,7 +29,7 @@ public class MpaDbRepository implements MpaRepository {
 
     @Override
     public Collection<Mpa> getMpas() {
-        String sql = "select * from MPA";
+        String sql = "SELECT * FROM MPA";
 
         return jdbcOperations.query(sql, this::makeMpa);
     }

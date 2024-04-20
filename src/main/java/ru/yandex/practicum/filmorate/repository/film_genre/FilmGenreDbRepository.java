@@ -5,9 +5,9 @@ import org.springframework.jdbc.core.JdbcOperations;
 import org.springframework.stereotype.Repository;
 import ru.yandex.practicum.filmorate.model.Genre;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Set;
 
 @Repository
@@ -17,28 +17,36 @@ public class FilmGenreDbRepository implements FilmGenreRepository {
 
     @Override
     public void add(int filmId, Set<Genre> genres) {
-        String sql = "insert into FILM_GENRE(FILM_ID, GENRE_ID) " +
-                "values(?, ?)";
+        String sql = "INSERT INTO FILM_GENRE(FILM_ID, GENRE_ID) " +
+                "VALUES (?, ?)";
+        List<Object[]> batchArgs = new ArrayList<>();
 
         if (genres != null) {
             for (Genre genre : genres) {
-                jdbcOperations.update(sql, filmId, genre.getId());
+                batchArgs.add(new Object[]{filmId, genre.getId()});
             }
         }
+        jdbcOperations.batchUpdate(sql, batchArgs);
     }
 
     @Override
-    public Collection<Genre> genreByFilm(int filmId) {
-        String sql = "select FG.GENRE_ID, GENRE_TITLE " +
-                "from FILM_GENRE FG " +
-                "join GENRES G on G.GENRE_ID = FG.GENRE_ID " +
-                "where FILM_ID = ?";
+    public boolean remove(int filmId) {
+        String sql = "DELETE FROM FILM_GENRE WHERE FILM_ID = ?";
 
-        return jdbcOperations.query(sql,this::makeGenre, filmId);
+        return jdbcOperations.update(sql, filmId) > 0;
     }
 
-    private Genre makeGenre(ResultSet rs, int rowNum) throws SQLException {
-        return new Genre(rs.getInt("GENRE_ID"),
-                rs.getString("GENRE_TITLE"));
+    @Override
+    public Collection<Genre> getByFilm(int filmId) {
+        String sql = "SELECT FG.GENRE_ID, GENRE_TITLE " +
+                "FROM FILM_GENRE FG " +
+                "JOIN GENRES G ON G.GENRE_ID = FG.GENRE_ID " +
+                "WHERE FILM_ID = ?" +
+                "ORDER BY GENRE_ID";
+
+        return jdbcOperations.query(sql, (rs, rowNum) -> {
+            return new Genre(rs.getInt("GENRE_ID"),
+                    rs.getString("GENRE_TITLE"));
+        }, filmId);
     }
 }
